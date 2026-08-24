@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leitstand · Schichtplanung Bischofsheim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1120; --bg2:#111A2E; --panel:#16203A; --panel2:#1B2745;
+    --line:#26324F; --line2:#324066;
+    --ink:#EAF1FF; --mut:#8A9BC4; --dim:#5E6E96;
+    --frueh:#38D0E0; --frueh-d:#1C7A87; --spaet:#F6A93B; --spaet-d:#A96B12;
+    --ok:#3FD08A; --warn:#FF6B6B;
+    --glow-f:0 0 0 1px rgba(56,208,224,.25),0 8px 30px -8px rgba(56,208,224,.35);
+    --glow-s:0 0 0 1px rgba(246,169,59,.25),0 8px 30px -8px rgba(246,169,59,.35);
+    --disp:'Sora',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; --mono:'Space Grotesk',monospace;
+    --r:16px; --r2:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--body);color:var(--ink);line-height:1.5;
+    background:
+      radial-gradient(1200px 600px at 12% -8%,rgba(56,208,224,.10),transparent 60%),
+      radial-gradient(1000px 560px at 92% -6%,rgba(246,169,59,.09),transparent 60%),
+      var(--bg);
+    min-height:100vh;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  }
+  .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);
+    background:linear-gradient(180deg,rgba(11,17,32,.92),rgba(11,17,32,.72));border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+  .logo{width:38px;height:38px;border-radius:11px;flex:none;position:relative;
+    background:linear-gradient(135deg,var(--frueh),var(--spaet));display:grid;place-items:center;box-shadow:0 6px 20px -6px rgba(56,208,224,.5)}
+  .logo::before{content:"";position:absolute;inset:3px;border-radius:8px;background:var(--bg2)}
+  .logo span{position:relative;font-family:var(--disp);font-weight:800;font-size:15px;
+    background:linear-gradient(135deg,var(--frueh),var(--spaet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand b{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.2px;display:block}
+  .brand small{color:var(--mut);font-size:11.5px;letter-spacing:.3px}
+  .live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);
+    background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:20px;font-family:var(--mono)}
+  .live .d{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,208,138,.5)}70%{box-shadow:0 0 0 7px rgba(63,208,138,0)}100%{box-shadow:0 0 0 0 rgba(63,208,138,0)}}
+  @media (prefers-reduced-motion:reduce){.live .d{animation:none}}
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 20px 40px}
+  .eyebrow{font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(24px,4.5vw,34px);letter-spacing:-.01em;line-height:1.1}
+  .lead-txt{color:var(--mut);font-size:14px;margin-top:6px;max-width:64ch}
+  .panel-v{display:none}.panel-v.on{display:block;animation:rise .32s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:var(--r);padding:20px;margin-top:18px;position:relative;overflow:hidden}
+  .card>h3{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .card .h3sub{color:var(--dim);font-weight:400;font-size:12px;margin-left:auto;font-family:var(--body)}
+  .cockpit{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  @media(max-width:720px){.cockpit{grid-template-columns:1fr}}
+  .gauge{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:var(--r);padding:22px;display:flex;gap:20px;align-items:center;position:relative;overflow:hidden}
+  .gauge.frueh{box-shadow:var(--glow-f)} .gauge.spaet{box-shadow:var(--glow-s)}
+  .ring{width:118px;height:118px;flex:none;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .cap{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+  .ring .cap b{font-family:var(--mono);font-weight:700;font-size:26px;line-height:1;display:block}
+  .ring .cap i{font-style:normal;font-size:10.5px;color:var(--mut);letter-spacing:.08em}
+  .gauge .meta{flex:1;min-width:0}
+  .gauge .tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:5px 11px;border-radius:20px}
+  .gauge.frueh .tag{color:var(--frueh);background:rgba(56,208,224,.10);border:1px solid rgba(56,208,224,.28)}
+  .gauge.spaet .tag{color:var(--spaet);background:rgba(246,169,59,.10);border:1px solid rgba(246,169,59,.28)}
+  .gauge .time{font-family:var(--mono);color:var(--mut);font-size:13px;margin-top:10px}
+  .gauge .figures{display:flex;gap:16px;margin-top:12px}
+  .gauge .fig{display:flex;flex-direction:column}
+  .gauge .fig b{font-family:var(--mono);font-size:19px;font-weight:700}
+  .gauge .fig span{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .status-line{margin-top:14px;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .chip{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:var(--disp);letter-spacing:.03em}
+  .chip.ok{color:var(--ok);background:rgba(63,208,138,.12);border:1px solid rgba(63,208,138,.3)}
+  .chip.warn{color:var(--warn);background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3)}
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+  @media(max-width:720px){.strip{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--r2);padding:16px}
+  .kpi b{font-family:var(--mono);font-size:28px;font-weight:700;display:block;line-height:1}
+  .kpi span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;display:block}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-family:var(--disp);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  input,select{font-family:var(--body);font-size:13.5px;padding:9px 11px;border:1px solid var(--line2);border-radius:10px;color:var(--ink);background:var(--bg2);width:100%;transition:.15s}
+  input::placeholder{color:var(--dim)}
+  input:focus,select:focus{outline:none;border-color:var(--frueh);box-shadow:0 0 0 3px rgba(56,208,224,.18)}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A9BC4' d='M6 8 0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+  .btn{font-family:var(--disp);font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .btn.primary{background:linear-gradient(135deg,var(--frueh),var(--frueh-d));color:#04222A;box-shadow:0 6px 18px -8px rgba(56,208,224,.7)}
+  .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn.ghost{background:var(--panel2);color:var(--ink);border-color:var(--line2)}
+  .btn.ghost:hover{border-color:var(--frueh);color:var(--frueh)}
+  .btn.small{padding:6px 12px;font-size:12px}
+  .btn.danger{background:var(--panel2);color:var(--warn);border-color:var(--line2)}
+  .btn.danger:hover{background:rgba(255,107,107,.1);border-color:var(--warn)}
+  .iconbtn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:15px;padding:5px 7px;border-radius:7px;line-height:1;transition:.15s}
+  .iconbtn:hover{background:rgba(255,107,107,.12);color:var(--warn)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .spacer{flex:1}
+  .tagline{font-size:11px;color:var(--mut);background:var(--panel2);padding:3px 9px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono)}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--disp);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;letter-spacing:.06em}
+  .pill.frueh{color:var(--frueh);background:rgba(56,208,224,.1);border:1px solid rgba(56,208,224,.28)}
+  .pill.spaet{color:var(--spaet);background:rgba(246,169,59,.1);border:1px solid rgba(246,169,59,.28)}
+  .badge{font-family:var(--disp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px}
+  .badge.ok{background:rgba(63,208,138,.12);color:var(--ok)} .badge.warn{background:rgba(255,107,107,.12);color:var(--warn)}
+  .empty{text-align:center;color:var(--dim);padding:26px;font-size:13.5px}
+  .addrow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .addrow input,.addrow select{width:auto;flex:1;min-width:130px}
+  .savenote{font-size:12px;color:var(--mut);display:inline-flex;align-items:center;gap:7px;font-family:var(--mono)}
+  .savenote .d{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  .hint{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.split{grid-template-columns:1fr}}
+  .lead-card{text-align:center;background:linear-gradient(135deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--r);padding:18px;margin-bottom:6px}
+  .lead-card .role{font-family:var(--disp);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .lead-card .nm{font-family:var(--disp);font-weight:700;font-size:20px;margin-top:3px;background:linear-gradient(135deg,var(--frueh),var(--spaet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .orgcol{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+  .orgcol .head{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;border-radius:9px;margin-bottom:12px;text-align:center}
+  .orgcol.frueh .head{color:var(--frueh);background:rgba(56,208,224,.1);border:1px solid rgba(56,208,224,.28)}
+  .orgcol.spaet .head{color:var(--spaet);background:rgba(246,169,59,.1);border:1px solid rgba(246,169,59,.28)}
+  .obox{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:10px}
+  .obox .role-in{font-family:var(--disp);font-weight:600;font-size:12px;color:var(--ink);border:none;background:none;padding:0;width:100%}
+  .obox .vt{font-size:11px;color:var(--dim);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line2);display:flex;align-items:center;gap:6px}
+  .obox .vt input{border:none;background:none;padding:0;font-size:11px;color:var(--mut);flex:1}
+  .absrow{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  @media(max-width:720px){.absrow{grid-template-columns:1fr 1fr;gap:6px}}
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg,rgba(11,17,32,.98),rgba(11,17,32,.86));backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+  .dock .in{max-width:640px;margin:0 auto;display:flex;gap:4px;justify-content:space-between}
+  .dock button{flex:1;background:none;border:none;color:var(--dim);cursor:pointer;padding:8px 4px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--disp);font-size:10.5px;font-weight:600;letter-spacing:.02em;transition:.16s}
+  .dock button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .dock button.on{color:var(--frueh)}
+  .dock button.on svg{filter:drop-shadow(0 0 6px rgba(56,208,224,.6))}
+  .dock button:active{transform:scale(.94)}
+  .foot{text-align:center;font-size:11px;color:var(--dim);margin-top:26px;font-family:var(--mono)}
+  code{font-family:var(--mono);background:var(--bg2);padding:1px 6px;border-radius:5px;border:1px solid var(--line);font-size:12px}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <div class="logo"><span>MB</span></div>
+  <div class="brand"><b>LEITSTAND</b><small>Schichtplanung Bischofsheim</small></div>
+  <div class="live"><span class="d"></span><span id="livetxt">Bereit</span></div>
+</div></div>
+
+<div class="wrap">
+  <div id="p-cockpit" class="panel-v"></div>
+  <div id="p-team" class="panel-v"></div>
+  <div id="p-org" class="panel-v"></div>
+  <div id="p-abs" class="panel-v"></div>
+  <div id="p-sync" class="panel-v"></div>
+  <div class="foot">Feinplanung Zweischichtmodell · erstellt von Marc Bahn (MB) · Auto-Sync aktiv</div>
+</div>
+
+<nav class="dock"><div class="in" id="dock"></div></nav>
+
+<script>
+const SHIFTS={frueh:{label:"Frühschicht",time:"06:00 – 14:30",cls:"frueh"},spaet:{label:"Spätschicht",time:"14:00 – 22:30",cls:"spaet"}};
+const ROLES=["Standortleitung","Lagerleitung","Teamleitung","Teamleitung Wareneingang","Teamleitung Frachten","Teamleitung Versand","Stellvertretung Versand","Inhouse-TL (Zwischenschicht)","Floormanager","Staplerfahrer","Kommissionierung","Wareneingang","Versand","Azubi","Springer"];
+const BEREICHE=["Standortleitung","Lagerleitung","Teamleitung","Floormanager","Festangestellte","Azubi","Teilzeit","Minijob","Litauer - Heiga"];
+const SEED={
+  target:{frueh:45,spaet:35},
+  lead:{role:"Lagerleitung",name:"Marc Bahn"},
+  org:{
+    frueh:[
+      {role:"Inhouse-TL (Zwischenschicht)",name:"Ayoub Zerrou",vt:"Khalid Malah"},
+      {role:"Teamleitung Wareneingang",name:"Julia Valter",vt:"TBA"},
+      {role:"Teamleitung Frachten",name:"Denis Franjo",vt:"Ayoub Zerrou"},
+      {role:"Teamleitung Versand",name:"Evgeniya Rout",vt:"Asta Kunicke"}
+    ],
+    spaet:[
+      {role:"Inhouse-TL (Zwischenschicht)",name:"Ayoub Zerrou",vt:"Khalid Malah"},
+      {role:"Teamleitung Versand",name:"TBA",vt:"TBA"}
+    ]
+  },
+  team:[
+    {name:"Maximilian Theilig",shift:"frueh",bereich:"Standortleitung",role:"Standortleitung"},
+    {name:"Marc Bahn",shift:"frueh",bereich:"Lagerleitung",role:"Lagerleitung"},
+    {name:"Evgeniya Rout",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Versand"},
+    {name:"Julia Valter",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Wareneingang"},
+    {name:"Asta Kunicke",shift:"frueh",bereich:"Teamleitung",role:"Stellvertretung Versand"},
+    {name:"Ayoub Zerrou",shift:"frueh",bereich:"Teamleitung",role:"Inhouse-TL (Zwischenschicht)"},
+    {name:"Denis Franjo",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Frachten"},
+    {name:"Milica Schuller",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung"},
+    {name:"Dustin Barschtipan",shift:"frueh",bereich:"Floormanager",role:"Floormanager"},
+    {name:"Fabio Gacioppo",shift:"frueh",bereich:"Floormanager",role:"Floormanager"},
+    {name:"Jose Da Silva Antonio",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Abdullah Degirmenci",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Emal Khan",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Tatiana Munteanu",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Pham Ngoc Thanh Tuyen",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Rene Philippi",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Irina Dortmann",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Khalid Malah",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Heike Müller",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Amanuel Tewelde",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Jaqueline Jung",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Timo Kimmer",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Osumani Huduq",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
+    {name:"Brian Kuhlemann",shift:"frueh",bereich:"Azubi",role:"Azubi"},
+    {name:"Yvonne Semm",shift:"frueh",bereich:"Teilzeit",role:"Kommissionierung"},
+    {name:"Zhenfang Scholz-Zhang",shift:"frueh",bereich:"Teilzeit",role:"Kommissionierung"},
+    {name:"Zarmina Khan",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Inka Heck",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Birgit Medlin",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Quirino Di Vincenzo",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Marcel Dortmann",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Benjamin Pirschle",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Alexander Ponamarev",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Dennis Roßtäuscher",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Aleksej Rout",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Denis Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Svetlana Schneidmüller",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Valeria Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Oleg Walter",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Martina Geißler",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Rita Harff",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Francesco Mangiapane",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Gabriele Haselsteiner",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Christine Spegt-Sieben",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Fatima Khan",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Alena Ponomareva",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Brigitte Brooks",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Elena Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Victor Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Alexander Dortmann",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Oksana Schatz",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Alpar Bajko",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Iris Schuster",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Christine Fronia",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Jennifer Hebling",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Nadia Farfar",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Sandra Gundlach",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Susanne Lendle",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Patricia Gaudin-Hix",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Nassim Assakali",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Mariya Khalifi",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Mandy Munschauer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Jamal Eddi Zouhair",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Anis Boulbahaiem",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Petra Hummel",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Hicham Benjrid",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Devrim Kaygusuz",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Iyad Bouzayen",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Milen Diring",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
+    {name:"Edgaras Antulis",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Jurgita Bagdziwnaite",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Renata Baltusyte",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Arunas Bilinskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Jurgita Bilinskiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Laim Bubeniene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Nedas Cekanavicius",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Birute Dabravolskiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Tverijonas Domantas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Andrius Karlikauskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Rimkus Karolis",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Renata Katkeviciene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Ale Liaukowiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Daiva Miller",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Daiva Petkeviciute",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Lukas Ramanovskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Jolanta Stankeviciene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Ignas Vilkoncius",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Agne Zemoitel",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
+    {name:"Olivija Vitalija Zemoitel",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"}
+  ],
+  absences:[]
+};
+let DB={target:{...SEED.target},lead:{...SEED.lead},org:JSON.parse(JSON.stringify(SEED.org)),team:JSON.parse(JSON.stringify(SEED.team)),absences:[]};
+
+const CFG_KEY='leitstand_cfg';
+let CFG={key:'',bin:''};
+function loadCfg(){try{const c=JSON.parse(localStorage.getItem(CFG_KEY));if(c)CFG=c;}catch(e){}}
+function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}}
+function cloudReady(){return CFG.key&&CFG.bin;}
+let saveTimer=null,syncState='idle',syncMsg='Bereit';
+function syncColor(){return{ok:'#3FD08A',sync:'#F6A93B',warn:'#FF6B6B',local:'#8A9BC4',idle:'#8A9BC4'}[syncState]||'#8A9BC4';}
+function pillHTML(){return `<span class="d" style="background:${syncColor()}"></span> ${esc(syncMsg)}`;}
+function setSync(s,m){syncState=s;syncMsg=m;const t=document.getElementById('livetxt'),d=document.querySelector('.live .d');if(t)t.textContent=m;if(d)d.style.background=syncColor();document.querySelectorAll('.savenote').forEach(n=>n.innerHTML=pillHTML());}
+function cacheLocal(){try{localStorage.setItem('leitstand_cache',JSON.stringify(DB));}catch(e){}}
+async function load(){
+  loadCfg();
+  try{const l=localStorage.getItem('leitstand_cache');if(l)DB=JSON.parse(l);}catch(e){}
+  if(cloudReady()){
+    try{setSync('sync','Lädt…');
+      const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}/latest`,{headers:{'X-Master-Key':CFG.key}});
+      if(r.ok){const j=await r.json();if(j&&j.record&&j.record.team){DB=j.record;cacheLocal();}}
+      setSync('ok','Synchron');
+    }catch(e){setSync('warn','Offline');}
+  }else{setSync('local','Lokal');}
+}
+async function persist(){
+  cacheLocal();setSync('sync','Speichert…');clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    if(!cloudReady()){setSync('local','Lokal gespeichert');return;}
+    try{const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':CFG.key},body:JSON.stringify(DB)});
+      setSync(r.ok?'ok':'warn',r.ok?'Synchron':'Fehler '+r.status);
+    }catch(e){setSync('warn','Offline');}
+  },500);
+}
+async function pullNow(){await load();renderAll();}
+async function pushNow(){if(!cloudReady())return;try{setSync('sync','Lädt hoch…');const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':CFG.key},body:JSON.stringify(DB)});setSync(r.ok?'ok':'warn',r.ok?'Synchron':'Fehler '+r.status);}catch(e){setSync('warn','Offline');}if(active==='sync')renderSync();}
+
+const $=(s,r=document)=>r.querySelector(s);
+function opt(list,sel){return list.map(v=>`<option${v===sel?' selected':''}>${v}</option>`).join('')}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const today=()=>new Date().toISOString().slice(0,10);
+function absentCount(sk){const names=new Set(DB.team.filter(m=>m.shift===sk).map(m=>m.name));const t=today();
+  return DB.absences.filter(a=>{if(!names.has(a.name))return false;const s=a.from||'',e=a.to||a.from||'';return(!s||s<=t)&&(!e||e>=t);}).length;}
+function present(sk){return DB.team.filter(m=>m.shift===sk).length-absentCount(sk);}
+
+function ring(pct,sk){
+  const R=52,C=2*Math.PI*R,fill=Math.max(0,Math.min(pct,100)),off=C*(1-fill/100);
+  const col=sk==='frueh'?'var(--frueh)':'var(--spaet)',over=pct>=100;
+  return `<div class="ring"><svg width="118" height="118" viewBox="0 0 118 118">
+    <circle cx="59" cy="59" r="${R}" stroke="var(--line2)" stroke-width="10" fill="none"/>
+    <circle cx="59" cy="59" r="${R}" stroke="${over?'var(--ok)':col}" stroke-width="10" fill="none" stroke-linecap="round"
+      stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" style="transition:stroke-dashoffset .7s cubic-bezier(.2,.7,.2,1)"/>
+  </svg><div class="cap"><b style="color:${over?'var(--ok)':col}">${Math.round(pct)}%</b><i>DECKUNG</i></div></div>`;
+}
+
+function renderCockpit(){
+  const el=$('#p-cockpit');
+  let totP=0,totS=0;['frueh','spaet'].forEach(sk=>{totP+=present(sk);totS+=DB.target[sk];});
+  let out=`<div class="eyebrow">Live-Übersicht</div><h1 class="title">Schicht-Cockpit</h1>
+    <p class="lead-txt">Beide Schichten auf einen Blick — Deckungsgrad, verfügbare Kräfte und Ausfälle in Echtzeit.</p><div class="cockpit">`;
+  for(const sk of ['frueh','spaet']){
+    const s=SHIFTS[sk],assigned=DB.team.filter(m=>m.shift===sk).length,ab=absentCount(sk),pr=assigned-ab,soll=DB.target[sk];
+    const pct=soll?pr/soll*100:0,ok=pr>=soll;
+    out+=`<div class="gauge ${s.cls}">${ring(pct,sk)}<div class="meta">
+      <span class="tag">${s.label}</span><div class="time">${s.time}</div>
+      <div class="figures">
+        <div class="fig"><b>${pr}</b><span>verfügbar</span></div>
+        <div class="fig"><b>${soll}</b><span>soll</span></div>
+        <div class="fig"><b style="color:${ok?'var(--ok)':'var(--warn)'}">${pr-soll>=0?'+':''}${pr-soll}</b><span>diff</span></div>
+      </div>
+      <div class="status-line"><span class="chip ${ok?'ok':'warn'}">${ok?'Schicht steht':(soll-pr)+' fehlen'}</span>
+        ${ab>0?`<span class="tagline">${ab} Ausfall heute</span>`:''}</div>
+    </div></div>`;
+  }
+  out+=`</div>`;
+  const diff=totP-totS;
+  out+=`<div class="strip">
+    <div class="kpi"><b style="color:var(--frueh)">${totP}</b><span>Verfügbar gesamt</span></div>
+    <div class="kpi"><b>${totS}</b><span>Soll gesamt</span></div>
+    <div class="kpi"><b style="color:${diff<0?'var(--warn)':'var(--ok)'}">${diff>=0?'+':''}${diff}</b><span>Differenz</span></div>
+    <div class="kpi"><b style="color:var(--spaet)">16,5</b><span>Betriebszeit h/Tag</span></div></div>`;
+  out+=`<div class="card"><h3>Soll-Besetzung <span class="h3sub">Richtwerte aus dem Konzept</span></h3><div class="split">`;
+  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk];
+    out+=`<div class="row"><span class="pill ${s.cls}">${s.label}</span>
+      <input type="number" min="0" style="width:100px" value="${DB.target[sk]}" onchange="upTarget('${sk}',this.value)"><span class="tagline">MA Soll</span></div>`;}
+  out+=`</div></div>`;
+  out+=`<div class="card"><h3>Rollen-Check <span class="h3sub">je Schicht besetzt?</span></h3><table><thead><tr><th>Rolle</th><th>Früh</th><th>Spät</th></tr></thead><tbody>`;
+  ["Staplerfahrer","Inhouse-TL (Zwischenschicht)","Teamleitung Wareneingang","Teamleitung Frachten","Teamleitung Versand","Stellvertretung Versand"].forEach(r=>{
+    const f=DB.team.filter(m=>m.shift==='frueh'&&m.role===r).length,sp=DB.team.filter(m=>m.shift==='spaet'&&m.role===r).length;
+    out+=`<tr><td>${r}</td><td>${f?`<span class="badge ok">${f}×</span>`:`<span class="badge warn">—</span>`}</td><td>${sp?`<span class="badge ok">${sp}×</span>`:`<span class="badge warn">—</span>`}</td></tr>`;});
+  out+=`</tbody></table><div class="hint">Wareneingang & Frachten sind laut Konzept nur in der Frühschicht vorgesehen.</div></div>`;
+  el.innerHTML=out;
+}
+function upTarget(sk,v){DB.target[sk]=Math.max(0,parseInt(v)||0);persist();renderCockpit();}
+
+let teamFilterBereich='', teamFilterShift='', teamSearch='';
+function renderTeam(){
+  const el=$('#p-team');
+  const total=DB.team.length;
+  // counts per bereich
+  const byB={}; DB.team.forEach(m=>{byB[m.bereich||'—']=(byB[m.bereich||'—']||0)+1;});
+  let out=`<div class="eyebrow">Zuordnung</div><h1 class="title">Mitarbeiter</h1>
+    <p class="lead-txt">${total} Personen aus deiner Liste — je Bereich, Schicht und Rolle. Filtere oben, um gezielt zu bearbeiten.</p>
+    <div class="row" style="margin-top:16px"><span class="savenote">${pillHTML()}</span><div class="spacer"></div>
+      <button class="btn ghost small" onclick="resetAll()">Auf Konzept zurücksetzen</button></div>`;
+
+  // filter bar
+  out+=`<div class="card"><h3>Filter <span class="h3sub">${total} Personen gesamt</span></h3>
+    <div class="addrow">
+      <input id="tsearch" placeholder="Name suchen…" value="${esc(teamSearch)}" oninput="teamSearch=this.value;renderTeamList()" style="min-width:160px">
+      <select id="tfb" onchange="teamFilterBereich=this.value;renderTeamList()">
+        <option value="">Alle Bereiche</option>${BEREICHE.map(b=>`<option${b===teamFilterBereich?' selected':''}>${b}</option>`).join('')}</select>
+      <select id="tfs" onchange="teamFilterShift=this.value;renderTeamList()">
+        <option value="">Beide Schichten</option><option value="frueh"${teamFilterShift==='frueh'?' selected':''}>Frühschicht</option><option value="spaet"${teamFilterShift==='spaet'?' selected':''}>Spätschicht</option></select>
+    </div>
+    <div class="row" style="margin-top:12px;gap:6px">${BEREICHE.filter(b=>byB[b]).map(b=>`<span class="tagline" style="cursor:pointer" onclick="teamFilterBereich='${b.replace(/'/g,"")}';renderTeamList()">${b}: ${byB[b]}</span>`).join('')}</div>
+  </div>`;
+
+  out+=`<div id="teamlist"></div>`;
+  el.innerHTML=out;
+  renderTeamList();
+}
+function renderTeamList(){
+  const host=$('#teamlist'); if(!host)return;
+  const q=teamSearch.trim().toLowerCase();
+  const idx=DB.team.map((m,i)=>({m,i}))
+    .filter(({m})=>(!teamFilterBereich||m.bereich===teamFilterBereich)&&(!teamFilterShift||m.shift===teamFilterShift)&&(!q||m.name.toLowerCase().includes(q)));
+  let out='';
+  out+=`<div class="card"><h3>Mitarbeiter <span class="h3sub">${idx.length} angezeigt${teamFilterBereich?' · '+teamFilterBereich:''}</span></h3>`;
+  if(!idx.length){out+=`<div class="empty">Keine Treffer für diesen Filter.</div>`;}
+  else{
+    out+=`<table><thead><tr><th style="width:30%">Name</th><th style="width:20%">Bereich</th><th style="width:16%">Schicht</th><th style="width:26%">Rolle</th><th></th></tr></thead><tbody>`;
+    idx.forEach(({m,i})=>{
+      out+=`<tr>
+        <td><input value="${esc(m.name)}" onchange="upTeam(${i},'name',this.value)"></td>
+        <td><select onchange="upTeam(${i},'bereich',this.value)">${opt(BEREICHE,m.bereich||'Festangestellte')}</select></td>
+        <td><select onchange="upTeam(${i},'shift',this.value);renderTeamList()"><option value="frueh"${m.shift==='frueh'?' selected':''}>Früh</option><option value="spaet"${m.shift==='spaet'?' selected':''}>Spät</option></select></td>
+        <td><select onchange="upTeam(${i},'role',this.value)">${opt(ROLES,m.role)}</select></td>
+        <td style="text-align:right"><button class="iconbtn" onclick="delTeam(${i})" title="Entfernen">✕</button></td></tr>`;});
+    out+=`</tbody></table>`;
+  }
+  // add row
+  out+=`<div class="addrow">
+    <input id="nn" placeholder="Name eingeben…" style="min-width:150px">
+    <select id="nb">${opt(BEREICHE, teamFilterBereich||'Festangestellte')}</select>
+    <select id="ns"><option value="frueh">Früh</option><option value="spaet">Spät</option></select>
+    <select id="nr">${opt(ROLES,'Kommissionierung')}</select>
+    <button class="btn primary small" onclick="addTeam()">+ Hinzufügen</button></div></div>`;
+  host.innerHTML=out;
+}
+function addTeam(){const n=$('#nn').value.trim();if(!n)return;
+  DB.team.push({name:n,bereich:$('#nb').value,shift:$('#ns').value,role:$('#nr').value});persist();renderTeam();}
+function upTeam(i,k,v){DB.team[i][k]=v;persist();}
+function delTeam(i){DB.team.splice(i,1);persist();renderTeamList();}
+
+function renderOrg(){
+  const el=$('#p-org');
+  let out=`<div class="eyebrow">Struktur</div><h1 class="title">Organigramm</h1>
+    <p class="lead-txt">Führungsstruktur je Schicht — Namen und Vertretungen live pflegen.</p>
+    <div class="card"><div class="lead-card"><div class="role">${esc(DB.lead.role)}</div><div class="nm">${esc(DB.lead.name||'—')}</div></div>
+      <div class="row" style="justify-content:center;margin-top:12px">
+        <input style="max-width:170px" value="${esc(DB.lead.role)}" onchange="upLead('role',this.value)" placeholder="Funktion">
+        <input style="max-width:200px" value="${esc(DB.lead.name)}" onchange="upLead('name',this.value)" placeholder="Name"></div></div><div class="split">`;
+  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk];
+    out+=`<div class="orgcol ${s.cls}"><div class="head">${s.label}</div>`;
+    DB.org[sk].forEach((b,i)=>{out+=`<div class="obox">
+      <input class="role-in" value="${esc(b.role)}" onchange="upOrg('${sk}',${i},'role',this.value)">
+      <div class="row" style="gap:6px;margin-top:5px"><input style="flex:1" value="${esc(b.name)}" onchange="upOrg('${sk}',${i},'name',this.value)" placeholder="Name">
+        <button class="iconbtn" onclick="delOrg('${sk}',${i})" title="Entfernen">✕</button></div>
+      <div class="vt">Vertretung <input value="${esc(b.vt)}" onchange="upOrg('${sk}',${i},'vt',this.value)" placeholder="—"></div></div>`;});
+    out+=`<button class="btn ghost small" style="width:100%" onclick="addOrg('${sk}')">+ Position</button></div>`;}
+  out+=`</div><div class="hint">Der Inhouse-TL fährt die Zwischenschicht und ist deshalb in beiden Schichten präsent.</div>`;
+  el.innerHTML=out;
+}
+function upLead(k,v){DB.lead[k]=v;persist();renderOrg();}
+function upOrg(sk,i,k,v){DB.org[sk][i][k]=v;persist();if(k!=='vt')renderOrg();}
+function addOrg(sk){DB.org[sk].push({role:"Neue Position",name:"",vt:""});persist();renderOrg();}
+function delOrg(sk,i){DB.org[sk].splice(i,1);persist();renderOrg();}
+
+function renderAbs(){
+  const el=$('#p-abs');
+  const allNames=[...new Set(DB.team.map(m=>m.name))].sort();
+  const springer=DB.team.filter(m=>m.role==='Springer');
+  let out=`<div class="eyebrow">Verfügbarkeit</div><h1 class="title">Ausfälle & Springer</h1>
+    <p class="lead-txt">Urlaub, Krankheit und Ausfälle erfassen — wirkt sofort aufs Cockpit (für heute).</p>`;
+  out+=`<div class="card"><h3>Springer-Pool <span class="h3sub">${springer.length} Kräfte</span></h3>`;
+  out+= springer.length?`<div class="row">`+springer.map(s=>`<span class="tagline">${esc(s.name)} · ${SHIFTS[s.shift].label}</span>`).join('')+`</div>`
+    :`<div class="empty">Noch keine Springer. Lege im Reiter „Team" Personen mit Rolle „Springer" an.</div>`;
+  out+=`</div>`;
+  out+=`<div class="card"><h3>Erfasste Ausfälle <span class="savenote" style="margin-left:auto">${pillHTML()}</span></h3>`;
+  if(!DB.absences.length){out+=`<div class="empty">Keine Ausfälle erfasst.</div>`;}
+  else{out+=`<div class="absrow" style="color:var(--dim);font-family:var(--disp);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase">
+      <div>Name</div><div>Grund</div><div>Von</div><div>Bis</div><div></div></div>`;
+    DB.absences.forEach((a,i)=>{out+=`<div class="absrow">
+      <div><input value="${esc(a.name)}" onchange="upAbs(${i},'name',this.value)" list="names"></div>
+      <div><select onchange="upAbs(${i},'reason',this.value)">${opt(['Urlaub','Krankheit','Schulung','Sonstiges'],a.reason)}</select></div>
+      <div><input type="date" value="${a.from||''}" onchange="upAbs(${i},'from',this.value)"></div>
+      <div><input type="date" value="${a.to||''}" onchange="upAbs(${i},'to',this.value)"></div>
+      <div style="text-align:right"><button class="iconbtn" onclick="delAbs(${i})">✕</button></div></div>`;});}
+  out+=`<datalist id="names">${allNames.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+    <div class="addrow"><button class="btn primary small" onclick="addAbs()">+ Ausfall erfassen</button></div></div>`;
+  out+=`<div class="card"><h3>Auswirkung heute</h3><div class="split">`;
+  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk],ab=absentCount(sk),pr=present(sk),soll=DB.target[sk];
+    out+=`<div class="row"><span class="pill ${s.cls}">${s.label}</span><span class="tagline">${ab} Ausfall</span>
+      <span class="badge ${pr>=soll?'ok':'warn'}">${pr>=soll?'gedeckt':(soll-pr)+' fehlen'}</span></div>`;}
+  out+=`</div><div class="hint">Ausfälle mit heutigem Datum im Zeitraum zählen. Ohne „Bis" gilt der Tag als eintägig.</div></div>`;
+  el.innerHTML=out;
+}
+function addAbs(){DB.absences.push({name:'',reason:'Urlaub',from:today(),to:today()});persist();renderAbs();}
+function upAbs(i,k,v){DB.absences[i][k]=v;persist();if(k!=='reason')renderAbs();}
+function delAbs(i){DB.absences.splice(i,1);persist();renderAbs();}
+
+function renderSync(){
+  const el=$('#p-sync');const c=cloudReady();
+  let out=`<div class="eyebrow">Geräte</div><h1 class="title">Sync & Backup</h1>
+    <p class="lead-txt">Verbinde die App mit deiner Cloud-Ablage, damit Handy und Laptop denselben Stand zeigen.</p>`;
+  out+=`<div class="card"><h3>Status <span class="savenote" style="margin-left:auto">${pillHTML()}</span></h3>`;
+  if(c){out+=`<div class="row"><span class="badge ok">Verbunden</span><span class="tagline">Bin ${esc(CFG.bin.slice(0,8))}…</span>
+    <div class="spacer"></div><button class="btn ghost small" onclick="pullNow()">Neu laden</button><button class="btn primary small" onclick="pushNow()">Hochladen</button></div>
+    <div class="hint">Änderungen werden automatisch hochgeladen. „Neu laden" holt den Stand vom anderen Gerät.</div>`;}
+  else{out+=`<div class="row"><span class="badge warn">Nicht verbunden</span><span class="tagline">Läuft nur lokal auf diesem Gerät</span></div>
+    <div class="hint">Trage unten Key und Bin-ID ein, um die Synchronisierung zu aktivieren.</div>`;}
+  out+=`</div>`;
+  out+=`<div class="card"><h3>Cloud-Verbindung</h3><div style="display:grid;gap:12px;max-width:560px">
+    <label style="font-size:12px;color:var(--mut)">X-Master-Key (jsonbin.io)<input id="cfg-key" value="${esc(CFG.key)}" placeholder="\$2a\$10\$…" style="margin-top:5px"></label>
+    <label style="font-size:12px;color:var(--mut)">Bin-ID<input id="cfg-bin" value="${esc(CFG.bin)}" placeholder="z. B. 6650a1f2ad19ca34…" style="margin-top:5px"></label>
+    <div class="row"><button class="btn primary small" onclick="connectCloud()">Verbinden & synchronisieren</button>${c?`<button class="btn danger small" onclick="disconnectCloud()">Trennen</button>`:''}</div></div>
+    <div class="hint">Key & Bin-ID werden nur lokal auf dem Gerät gespeichert. Auf dem zweiten Gerät dieselben Werte eintragen — dann sehen beide denselben Stand.</div></div>`;
+  out+=`<div class="card"><h3>Einrichtung · 4 Schritte, kostenlos</h3><ol style="margin-left:18px;font-size:13.5px;line-height:2;color:var(--mut)">
+    <li>Auf <b style="color:var(--ink)">jsonbin.io</b> kostenlos registrieren.</li>
+    <li>Unter <b style="color:var(--ink)">API Keys</b> den <b style="color:var(--ink)">X-Master-Key</b> kopieren.</li>
+    <li>Neuen <b style="color:var(--ink)">Bin</b> anlegen (Inhalt <code>{}</code>), die <b style="color:var(--ink)">Bin-ID</b> kopieren.</li>
+    <li>Oben eintragen, „Verbinden" tippen — am Handy dieselben Werte.</li></ol></div>`;
+  out+=`<div class="card"><h3>Backup</h3><div class="row">
+    <button class="btn ghost small" onclick="exportData()">Als Datei exportieren</button>
+    <label class="btn ghost small" style="cursor:pointer">Aus Datei importieren<input type="file" accept="application/json" style="display:none" onchange="importData(event)"></label></div>
+    <div class="hint">Unabhängig von der Cloud jederzeit ein Backup sichern oder übertragen.</div></div>`;
+  el.innerHTML=out;
+}
+async function connectCloud(){
+  const key=$('#cfg-key').value.trim(),bin=$('#cfg-bin').value.trim();
+  if(!key||!bin){alert('Bitte Key und Bin-ID eintragen.');return;}
+  CFG={key,bin};saveCfg();setSync('sync','Verbinde…');
+  try{const r=await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
+    if(r.ok){const j=await r.json();
+      if(j&&j.record&&j.record.team){if(confirm('In der Cloud liegt bereits ein Stand. Diesen laden? (Abbrechen = aktuellen Stand hochladen)')){DB=j.record;cacheLocal();}else{await pushNow();}}
+      else{await pushNow();}
+      setSync('ok','Synchron');}
+    else{setSync('warn','Fehlgeschlagen');alert('Verbindung fehlgeschlagen. Key und Bin-ID prüfen.');}
+  }catch(e){setSync('warn','Offline');alert('Cloud nicht erreichbar. Internet prüfen.');}
+  renderAll();
+}
+function disconnectCloud(){if(!confirm('Cloud-Verbindung auf diesem Gerät trennen? Der lokale Stand bleibt.'))return;CFG={key:'',bin:''};saveCfg();setSync('local','Lokal');renderAll();}
+function exportData(){const b=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='schichtplan_'+today()+'.json';a.click();}
+function importData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.team)throw 0;DB=d;persist();renderAll();alert('Import erfolgreich.');}catch(e){alert('Datei konnte nicht gelesen werden.');}};r.readAsText(f);}
+
+function resetAll(){if(!confirm('Alle Eingaben auf den Konzept-Stand zurücksetzen? Änderungen gehen verloren.'))return;
+  DB={target:{...SEED.target},lead:{...SEED.lead},org:JSON.parse(JSON.stringify(SEED.org)),team:JSON.parse(JSON.stringify(SEED.team)),absences:[]};persist();renderAll();}
+
+const ICON={
+  cockpit:'<path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-2"/><circle cx="12" cy="12" r="1.6"/>',
+  team:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 11a3 3 0 0 0 0-6"/><path d="M21 20c0-2.5-2-4.2-4-4.7"/>',
+  org:'<rect x="9" y="3" width="6" height="4" rx="1"/><rect x="3" y="16" width="6" height="4" rx="1"/><rect x="15" y="16" width="6" height="4" rx="1"/><path d="M12 7v5M6 16v-2h12v2"/>',
+  abs:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4M9 14l2 2 4-4"/>',
+  sync:'<path d="M4 12a8 8 0 0 1 14-5l2 2"/><path d="M20 12a8 8 0 0 1-14 5l-2-2"/><path d="M18 4v5h-5M6 20v-5h5"/>'
+};
+const TABS=[['cockpit','Cockpit'],['team','Team'],['org','Orga'],['abs','Ausfälle'],['sync','Sync']];
+const RENDER={cockpit:renderCockpit,team:renderTeam,org:renderOrg,abs:renderAbs,sync:renderSync};
+let active='cockpit';
+function renderDock(){$('#dock').innerHTML=TABS.map(([k,l])=>`<button class="${k===active?'on':''}" onclick="go('${k}')" aria-label="${l}"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${l}</button>`).join('');}
+function go(k){active=k;renderDock();document.querySelectorAll('.panel-v').forEach(p=>p.classList.remove('on'));$('#p-'+k).classList.add('on');RENDER[k]();window.scrollTo({top:0,behavior:'smooth'});}
+function renderAll(){renderDock();RENDER[active]();document.querySelectorAll('.panel-v').forEach(p=>p.classList.remove('on'));$('#p-'+active).classList.add('on');}
+
+(async function(){await load();renderAll();})();
+</script>
+</body>
+</html>
