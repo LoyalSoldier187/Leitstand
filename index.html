@@ -599,8 +599,8 @@ const LS_KEY = 'leitstand-schicht-v2', LS_SYNC = 'leitstand-sync-v2';
 const DAY = 864e5;
 const Z_LONG = {A:'Rotation – Gruppe A', B:'Rotation – Gruppe B', FF:'Fest Frühschicht', FS:'Fest Spätschicht', X:'Schichtunabhängig'};
 const Z_SHORT = {A:'Rotation A', B:'Rotation B', FF:'Fest Früh', FS:'Fest Spät', X:'Schichtunabh.'};
-const ARTEN = ['Festangestellt','Teilzeit','Aushilfe','Leiharbeit','Azubi'];
-const ART_SHORT = {Festangestellt:'', Teilzeit:'TZ', Aushilfe:'AH', Leiharbeit:'LA', Azubi:'AZ'};
+const ARTEN = ['Festangestellt','Teilzeit','Minijob','Aushilfe','Leiharbeit','Azubi'];
+const ART_SHORT = {Festangestellt:'', Teilzeit:'TZ', Minijob:'MJ', Aushilfe:'AH', Leiharbeit:'LA', Azubi:'AZ'};
 const COL_NAME = {F:'Frühschicht', S:'Spätschicht', X:'Schichtunabhängig'};
 const ABS = {U:'Urlaub', K:'Krank', S:'Schulung', F:'Frei'};
 const DEFAULT_ROLES = ['Teamleitung Wareneingang','Teamleitung Frachten','Teamleitung Versand','Inhouse-TL (Zwischenschicht)','Staplerfahrer','Wareneingang','Kommissionierung','Packen / Versand','Retouren','Lagermitarbeiter'];
@@ -1194,7 +1194,7 @@ function printWeek(){
     </div>
     <div class="pgrid">${col('F')}${col('S')}${col('X')}</div>
     ${w.length ? `<div class="pwarn"><b>Offene Punkte (${w.length}):</b> ${w.slice(0, 8).map(esc).join(' · ')}${w.length > 8 ? ` · … ${w.length - 8} weitere` : ''}</div>` : ''}
-    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · x/y = anwesend / Mindestbesetzung · LA = Leiharbeit, TZ = Teilzeit, AH = Aushilfe, AZ = Azubi</div>
+    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · x/y = anwesend / Mindestbesetzung · LA = Leiharbeit, TZ = Teilzeit, MJ = Minijob, AH = Aushilfe, AZ = Azubi</div>
     ${printFooter()}</section>`;
 }
 function printRotation(n){
