@@ -1,549 +1,1607 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Leitstand · Schichtplanung Bischofsheim</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leitstand – Schichtplanung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0B1120; --bg2:#111A2E; --panel:#16203A; --panel2:#1B2745;
-    --line:#26324F; --line2:#324066;
-    --ink:#EAF1FF; --mut:#8A9BC4; --dim:#5E6E96;
-    --frueh:#38D0E0; --frueh-d:#1C7A87; --spaet:#F6A93B; --spaet-d:#A96B12;
-    --ok:#3FD08A; --warn:#FF6B6B;
-    --glow-f:0 0 0 1px rgba(56,208,224,.25),0 8px 30px -8px rgba(56,208,224,.35);
-    --glow-s:0 0 0 1px rgba(246,169,59,.25),0 8px 30px -8px rgba(246,169,59,.35);
-    --disp:'Sora',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; --mono:'Space Grotesk',monospace;
-    --r:16px; --r2:12px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{-webkit-text-size-adjust:100%}
-  body{
-    font-family:var(--body);color:var(--ink);line-height:1.5;
-    background:
-      radial-gradient(1200px 600px at 12% -8%,rgba(56,208,224,.10),transparent 60%),
-      radial-gradient(1000px 560px at 92% -6%,rgba(246,169,59,.09),transparent 60%),
-      var(--bg);
-    min-height:100vh;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-    padding-bottom:calc(84px + env(safe-area-inset-bottom));
-  }
-  .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);
-    background:linear-gradient(180deg,rgba(11,17,32,.92),rgba(11,17,32,.72));border-bottom:1px solid var(--line)}
-  .topbar .in{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
-  .logo{width:38px;height:38px;border-radius:11px;flex:none;position:relative;
-    background:linear-gradient(135deg,var(--frueh),var(--spaet));display:grid;place-items:center;box-shadow:0 6px 20px -6px rgba(56,208,224,.5)}
-  .logo::before{content:"";position:absolute;inset:3px;border-radius:8px;background:var(--bg2)}
-  .logo span{position:relative;font-family:var(--disp);font-weight:800;font-size:15px;
-    background:linear-gradient(135deg,var(--frueh),var(--spaet));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .brand b{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.2px;display:block}
-  .brand small{color:var(--mut);font-size:11.5px;letter-spacing:.3px}
-  .live{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);
-    background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:20px;font-family:var(--mono)}
-  .live .d{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,208,138,.5)}70%{box-shadow:0 0 0 7px rgba(63,208,138,0)}100%{box-shadow:0 0 0 0 rgba(63,208,138,0)}}
-  @media (prefers-reduced-motion:reduce){.live .d{animation:none}}
-  .wrap{max-width:1120px;margin:0 auto;padding:26px 20px 40px}
-  .eyebrow{font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
-  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(24px,4.5vw,34px);letter-spacing:-.01em;line-height:1.1}
-  .lead-txt{color:var(--mut);font-size:14px;margin-top:6px;max-width:64ch}
-  .panel-v{display:none}.panel-v.on{display:block;animation:rise .32s cubic-bezier(.2,.7,.2,1)}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
-    border-radius:var(--r);padding:20px;margin-top:18px;position:relative;overflow:hidden}
-  .card>h3{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:10px;margin-bottom:14px}
-  .card .h3sub{color:var(--dim);font-weight:400;font-size:12px;margin-left:auto;font-family:var(--body)}
-  .cockpit{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-  @media(max-width:720px){.cockpit{grid-template-columns:1fr}}
-  .gauge{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
-    border-radius:var(--r);padding:22px;display:flex;gap:20px;align-items:center;position:relative;overflow:hidden}
-  .gauge.frueh{box-shadow:var(--glow-f)} .gauge.spaet{box-shadow:var(--glow-s)}
-  .ring{width:118px;height:118px;flex:none;position:relative}
-  .ring svg{transform:rotate(-90deg)}
-  .ring .cap{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-  .ring .cap b{font-family:var(--mono);font-weight:700;font-size:26px;line-height:1;display:block}
-  .ring .cap i{font-style:normal;font-size:10.5px;color:var(--mut);letter-spacing:.08em}
-  .gauge .meta{flex:1;min-width:0}
-  .gauge .tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:5px 11px;border-radius:20px}
-  .gauge.frueh .tag{color:var(--frueh);background:rgba(56,208,224,.10);border:1px solid rgba(56,208,224,.28)}
-  .gauge.spaet .tag{color:var(--spaet);background:rgba(246,169,59,.10);border:1px solid rgba(246,169,59,.28)}
-  .gauge .time{font-family:var(--mono);color:var(--mut);font-size:13px;margin-top:10px}
-  .gauge .figures{display:flex;gap:16px;margin-top:12px}
-  .gauge .fig{display:flex;flex-direction:column}
-  .gauge .fig b{font-family:var(--mono);font-size:19px;font-weight:700}
-  .gauge .fig span{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
-  .status-line{margin-top:14px;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .chip{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:var(--disp);letter-spacing:.03em}
-  .chip.ok{color:var(--ok);background:rgba(63,208,138,.12);border:1px solid rgba(63,208,138,.3)}
-  .chip.warn{color:var(--warn);background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3)}
-  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
-  @media(max-width:720px){.strip{grid-template-columns:repeat(2,1fr)}}
-  .kpi{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--r2);padding:16px}
-  .kpi b{font-family:var(--mono);font-size:28px;font-weight:700;display:block;line-height:1}
-  .kpi span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;display:block}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th{text-align:left;font-family:var(--disp);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);padding:8px 10px;border-bottom:1px solid var(--line)}
-  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-  tbody tr:last-child td{border-bottom:none}
-  input,select{font-family:var(--body);font-size:13.5px;padding:9px 11px;border:1px solid var(--line2);border-radius:10px;color:var(--ink);background:var(--bg2);width:100%;transition:.15s}
-  input::placeholder{color:var(--dim)}
-  input:focus,select:focus{outline:none;border-color:var(--frueh);box-shadow:0 0 0 3px rgba(56,208,224,.18)}
-  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A9BC4' d='M6 8 0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
-  .btn{font-family:var(--disp);font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em}
-  .btn.primary{background:linear-gradient(135deg,var(--frueh),var(--frueh-d));color:#04222A;box-shadow:0 6px 18px -8px rgba(56,208,224,.7)}
-  .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
-  .btn.ghost{background:var(--panel2);color:var(--ink);border-color:var(--line2)}
-  .btn.ghost:hover{border-color:var(--frueh);color:var(--frueh)}
-  .btn.small{padding:6px 12px;font-size:12px}
-  .btn.danger{background:var(--panel2);color:var(--warn);border-color:var(--line2)}
-  .btn.danger:hover{background:rgba(255,107,107,.1);border-color:var(--warn)}
-  .iconbtn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:15px;padding:5px 7px;border-radius:7px;line-height:1;transition:.15s}
-  .iconbtn:hover{background:rgba(255,107,107,.12);color:var(--warn)}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .spacer{flex:1}
-  .tagline{font-size:11px;color:var(--mut);background:var(--panel2);padding:3px 9px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono)}
-  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--disp);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;letter-spacing:.06em}
-  .pill.frueh{color:var(--frueh);background:rgba(56,208,224,.1);border:1px solid rgba(56,208,224,.28)}
-  .pill.spaet{color:var(--spaet);background:rgba(246,169,59,.1);border:1px solid rgba(246,169,59,.28)}
-  .badge{font-family:var(--disp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px}
-  .badge.ok{background:rgba(63,208,138,.12);color:var(--ok)} .badge.warn{background:rgba(255,107,107,.12);color:var(--warn)}
-  .empty{text-align:center;color:var(--dim);padding:26px;font-size:13.5px}
-  .addrow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-  .addrow input,.addrow select{width:auto;flex:1;min-width:130px}
-  .savenote{font-size:12px;color:var(--mut);display:inline-flex;align-items:center;gap:7px;font-family:var(--mono)}
-  .savenote .d{width:8px;height:8px;border-radius:50%;background:var(--ok)}
-  .hint{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6}
-  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:720px){.split{grid-template-columns:1fr}}
-  .lead-card{text-align:center;background:linear-gradient(135deg,var(--panel2),var(--bg2));border:1px solid var(--line2);border-radius:var(--r);padding:18px;margin-bottom:6px}
-  .lead-card .role{font-family:var(--disp);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
-  .lead-card .nm{font-family:var(--disp);font-weight:700;font-size:20px;margin-top:3px;background:linear-gradient(135deg,var(--frueh),var(--spaet));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .orgcol{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:14px}
-  .orgcol .head{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;border-radius:9px;margin-bottom:12px;text-align:center}
-  .orgcol.frueh .head{color:var(--frueh);background:rgba(56,208,224,.1);border:1px solid rgba(56,208,224,.28)}
-  .orgcol.spaet .head{color:var(--spaet);background:rgba(246,169,59,.1);border:1px solid rgba(246,169,59,.28)}
-  .obox{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:10px}
-  .obox .role-in{font-family:var(--disp);font-weight:600;font-size:12px;color:var(--ink);border:none;background:none;padding:0;width:100%}
-  .obox .vt{font-size:11px;color:var(--dim);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line2);display:flex;align-items:center;gap:6px}
-  .obox .vt input{border:none;background:none;padding:0;font-size:11px;color:var(--mut);flex:1}
-  .absrow{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-  @media(max-width:720px){.absrow{grid-template-columns:1fr 1fr;gap:6px}}
-  .dock{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
-    background:linear-gradient(0deg,rgba(11,17,32,.98),rgba(11,17,32,.86));backdrop-filter:blur(14px);border-top:1px solid var(--line)}
-  .dock .in{max-width:640px;margin:0 auto;display:flex;gap:4px;justify-content:space-between}
-  .dock button{flex:1;background:none;border:none;color:var(--dim);cursor:pointer;padding:8px 4px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--disp);font-size:10.5px;font-weight:600;letter-spacing:.02em;transition:.16s}
-  .dock button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
-  .dock button.on{color:var(--frueh)}
-  .dock button.on svg{filter:drop-shadow(0 0 6px rgba(56,208,224,.6))}
-  .dock button:active{transform:scale(.94)}
-  .foot{text-align:center;font-size:11px;color:var(--dim);margin-top:26px;font-family:var(--mono)}
-  code{font-family:var(--mono);background:var(--bg2);padding:1px 6px;border-radius:5px;border:1px solid var(--line);font-size:12px}
+:root{
+  --bg:#0a1020;--panel:#121b31;--panel2:#17223d;--line:#222e4c;--line2:#31406a;
+  --text:#e8edf7;--muted:#8a96b4;--dim:#5b6888;
+  --f:#22d3ee;--f-bg:rgba(34,211,238,.09);--f-line:rgba(34,211,238,.35);
+  --s:#fb923c;--s-bg:rgba(251,146,60,.09);--s-line:rgba(251,146,60,.35);
+  --x:#a78bfa;--x-bg:rgba(167,139,250,.09);--x-line:rgba(167,139,250,.35);
+  --ok:#34d399;--warn:#fbbf24;--bad:#f87171;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(1100px 480px at 15% -12%,#13224d 0,transparent 60%),var(--bg);min-height:100vh;padding-bottom:60px}
+h1,h2,h3,.kw{font-family:"Space Grotesk",Inter,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1320px;margin:0 auto;padding:0 16px}
+.hide{display:none!important}
+
+/* Header */
+header.top{border-bottom:1px solid var(--line);background:rgba(10,16,32,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:30}
+header.top .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.logo{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font:700 13px "Space Grotesk";background:linear-gradient(135deg,#0d3a48,#3b2a12);border:1px solid #2a7180;color:#8eeaf6;flex:none}
+.brand b{display:block;font:700 16px "Space Grotesk";letter-spacing:.05em}
+.brand span{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--line2);border-radius:999px;font-size:12px;color:var(--muted);background:var(--panel)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.dot.ok{background:var(--ok)}.dot.busy{background:var(--warn)}.dot.err{background:var(--bad)}
+
+/* Buttons & inputs */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line2);background:var(--panel2);padding:8px 13px;border-radius:10px;cursor:pointer;font-weight:500;white-space:nowrap;transition:border-color .15s,background .15s}
+.btn:hover{border-color:#4b5c8f;background:#1c2949}
+.btn.primary{background:linear-gradient(135deg,#22d3ee,#0ea5c6);border-color:transparent;color:#03141c;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.07)}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.btn.icon{width:36px;height:36px;padding:0;font-size:18px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.inp{background:#0c1428;border:1px solid var(--line2);border-radius:10px;padding:9px 11px;width:100%;outline:none}
+.inp:focus{border-color:var(--f)}
+textarea.inp{min-height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
+
+/* Head section */
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:26px 0 6px}
+.headrow{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{font-size:32px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:640px}
+.weeknav{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px}
+.weeknav .mid{min-width:150px;text-align:center;padding:0 4px}
+.kw{font-size:18px;font-weight:700}
+.range{font-size:12px;color:var(--muted)}
+.rotinfo{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line2);color:var(--muted);background:var(--panel)}
+.tag.f{color:var(--f);border-color:var(--f-line);background:var(--f-bg)}
+.tag.s{color:var(--s);border-color:var(--s-line);background:var(--s-bg)}
+.tag.x{color:var(--x);border-color:var(--x-line);background:var(--x-bg)}
+.tag.w{color:var(--warn);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px}
+.kpi{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;gap:16px;align-items:center}
+.kpi.f{border-color:rgba(34,211,238,.28);box-shadow:0 0 30px -14px var(--f)}
+.kpi.s{border-color:rgba(251,146,60,.28);box-shadow:0 0 30px -14px var(--s)}
+.kpi.x{border-color:rgba(167,139,250,.24)}
+.ring{position:relative;width:92px;height:92px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .c b{font:700 20px "Space Grotesk";display:block;line-height:1}
+.ring .c small{font-size:9.5px;letter-spacing:.12em;color:var(--muted)}
+.kpi .meta{flex:1;min-width:0}
+.kpi .row{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.kpi .row div b{font:700 19px "Space Grotesk";display:block}
+.kpi .row div span{font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.status{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+.status.ok{color:var(--ok);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)}
+.status.warn{color:var(--warn);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3)}
+.status.bad{color:var(--bad);background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3)}
+
+/* Hinweise */
+.alerts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.alert{font-size:12.5px;padding:6px 11px;border-radius:9px;border:1px solid}
+.alert.bad{color:#fecaca;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.08)}
+.alert.head{color:var(--bad);font-weight:700}
+.alert.ok{color:var(--ok);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07);font-weight:600}
+.alert.more{color:var(--muted);border-color:var(--line2);background:transparent}
+
+/* Toolbar */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0 14px}
+.toolbar .inp{width:auto}
+.search{flex:1;min-width:200px;max-width:320px}
+.hint{font-size:12px;color:var(--dim);margin-left:auto}
+
+/* Board */
+.board{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;min-height:260px;transition:border-color .15s,background .15s,box-shadow .15s}
+.col .chead{padding:14px 16px 12px;border-bottom:1px solid var(--line);position:sticky;top:62px;background:var(--panel);border-radius:18px 18px 0 0;z-index:5}
+.col .ctitle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.col h3{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+.col h3 i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.col[data-col=F] h3 i{background:var(--f);box-shadow:0 0 10px var(--f)}
+.col[data-col=S] h3 i{background:var(--s);box-shadow:0 0 10px var(--s)}
+.col[data-col=X] h3 i{background:var(--x);box-shadow:0 0 10px var(--x)}
+.col .count{font:700 15px "Space Grotesk"}
+.col .csub{font-size:12px;color:var(--muted);margin-top:4px}
+.bar{height:4px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:4px;transition:width .3s}
+.cbody{padding:10px 10px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.col.over{background:#16213d}
+.col[data-col=F].over{border-color:var(--f);box-shadow:inset 0 0 0 1px var(--f)}
+.col[data-col=S].over{border-color:var(--s);box-shadow:inset 0 0 0 1px var(--s)}
+.col[data-col=X].over{border-color:var(--x);box-shadow:inset 0 0 0 1px var(--x)}
+.rhead{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600;margin:8px 4px 2px;display:flex;justify-content:space-between}
+.rhead:first-child{margin-top:2px}
+.rhead .under{color:var(--bad)}
+.rhead .met{color:var(--ok)}
+.empty{color:var(--dim);font-size:13px;text-align:center;padding:26px 10px;border:1px dashed var(--line2);border-radius:12px;margin:4px}
+
+.card{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 6px 7px 6px;cursor:grab;user-select:none;-webkit-user-select:none;transition:border-color .12s,opacity .12s}
+.card:hover{border-color:var(--line2)}
+.card.dragging{opacity:.3}
+.card.absent{opacity:.6;border-style:dashed;background:transparent}
+.card.absent .nm{text-decoration:line-through;text-decoration-color:var(--dim)}
+.card.swapped{border-color:rgba(251,191,36,.5);background:linear-gradient(90deg,rgba(251,191,36,.08),var(--panel2) 45%)}
+.handle{color:var(--dim);font-size:14px;letter-spacing:-3px;padding:4px 4px 4px 2px;touch-action:none;cursor:grab;line-height:1}
+.cname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;cursor:pointer}
+.cname:hover .nm{color:#fff;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:3px}
+.art,.badge{font-size:10px;font-weight:700;border-radius:5px;padding:0 5px;margin-left:5px;vertical-align:1px}
+.art{color:var(--muted);border:1px solid var(--line2)}
+.badge.absU{color:#7dd3fc;background:rgba(125,211,252,.13)}
+.badge.absK{color:var(--bad);background:rgba(248,113,113,.13)}
+.badge.absS{color:var(--x);background:rgba(167,139,250,.14)}
+.badge.absF{color:var(--muted);background:rgba(255,255,255,.07)}
+.badge.swap{color:var(--warn);background:rgba(251,191,36,.13)}
+.zsel{background:#0c1428;border:1px solid var(--line2);border-radius:7px;font-size:11.5px;padding:3px 4px;max-width:112px;cursor:pointer;outline:none}
+.zsel.zA{color:#7dd3fc}.zsel.zB{color:#fcd34d}.zsel.zFF{color:var(--f)}.zsel.zFS{color:var(--s)}.zsel.zX{color:var(--x)}
+.cmenu{background:none;border:1px solid transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;padding:3px 7px;border-radius:7px}
+.cmenu:hover,.cmenu.on{color:var(--text);border-color:var(--line2);background:var(--panel)}
+.dragghost{position:fixed;left:0;top:0;z-index:100;pointer-events:none;box-shadow:0 18px 40px -10px rgba(0,0,0,.7);border-color:var(--f)!important;opacity:.95}
+body.dragmode,body.dragmode *{cursor:grabbing!important}
+
+/* Kartenmenü */
+#menu{position:fixed;z-index:150;width:258px;background:#162142;border:1px solid var(--line2);border-radius:13px;padding:6px;box-shadow:0 20px 50px -12px rgba(0,0,0,.8)}
+#menu .mh{padding:6px 8px 8px;font-weight:600;border-bottom:1px solid var(--line);margin-bottom:2px}
+#menu .mh small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:1px}
+#menu .ml{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:9px 8px 5px;font-weight:600}
+#menu .mrow{display:flex;flex-wrap:wrap;gap:5px;padding:0 6px}
+#menu .opt{border:1px solid var(--line2);background:var(--panel);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer}
+#menu .opt:hover{border-color:#4b5c8f}
+#menu .opt.on{border-color:var(--f);color:var(--f);background:var(--f-bg)}
+#menu .opt.sw{color:var(--warn)}
+#menu hr{border:none;border-top:1px solid var(--line);margin:8px 0 4px}
+#menu .mi{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:13px}
+#menu .mi:hover{background:var(--panel2)}
+#menu .mi.danger{color:var(--bad)}
+
+/* Panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:16px}
+.panel h2{font-size:16px;margin:0}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.phead span{color:var(--muted);font-size:12.5px}
+.twocol{display:grid;grid-template-columns:3fr 2fr;gap:16px}
+.twocol .panel{margin-top:16px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:600}
+td{padding:7px 10px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+th.c,td.c{text-align:center;width:96px}
+.chip{display:inline-block;min-width:40px;text-align:center;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px}
+.chip.ok{color:var(--ok);background:rgba(52,211,153,.12)}
+.chip.no{color:var(--bad);background:rgba(248,113,113,.12)}
+.chip.na{color:var(--dim);background:rgba(255,255,255,.04)}
+.mininp{width:58px;background:#0c1428;border:1px solid var(--line2);border-radius:7px;padding:4px 6px;text-align:center;outline:none}
+.mininp:focus{border-color:var(--f)}
+.log{display:flex;flex-direction:column;max-height:420px;overflow:auto}
+.log div{display:flex;gap:12px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.log div:last-child{border-bottom:none}
+.log time{color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:84px;font-size:12px;padding-top:1px}
+.log .none{color:var(--dim)}
+
+/* Dialog */
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line2);border-radius:18px;padding:0;width:min(540px,calc(100vw - 24px));box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+dialog::backdrop{background:rgba(3,7,18,.7);backdrop-filter:blur(3px)}
+.dhead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.dhead h3{margin:0;font-size:17px}
+.dbody{padding:16px 18px;display:grid;gap:12px;max-height:70vh;overflow:auto}
+.dfoot{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.sect{font:600 13px "Space Grotesk";color:var(--text);margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.sect:first-child{border-top:none;padding-top:0;margin-top:0}
+.check{display:flex;gap:8px;align-items:center;font-size:13px}
+.choice{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line2);border-radius:12px;padding:12px 14px;cursor:pointer}
+.choice:has(input:checked){border-color:var(--f);background:var(--f-bg)}
+.choice b{display:block}
+.choice span{font-size:12.5px;color:var(--muted)}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#1d2a4a;border:1px solid var(--line2);border-radius:12px;padding:10px 12px 10px 16px;display:flex;gap:14px;align-items:center;z-index:200;transition:.2s;box-shadow:0 14px 40px -10px rgba(0,0,0,.7);max-width:calc(100vw - 24px)}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{background:none;border:none;color:var(--f);font-weight:600;cursor:pointer;padding:4px 6px}
+
+@media (max-width:980px){
+  .kpis,.board,.twocol{grid-template-columns:1fr}
+  .col .chead{position:static}
+  .hint{display:none}
+}
+@media (max-width:560px){
+  h1{font-size:26px}
+  .grid2{grid-template-columns:1fr}
+  .brand span{display:none}
+  .weeknav{width:100%;justify-content:space-between}
+  .kpi{padding:14px}
+  .ring{width:78px;height:78px}
+}
+
+/* Tabs & Views */
+.tabs{display:flex;gap:2px;margin:22px 0 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;color:var(--muted);font-weight:600;cursor:pointer;white-space:nowrap;margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--text);border-bottom-color:var(--f)}
+.tab .n{font-size:11px;padding:0 7px;border-radius:999px;background:rgba(248,113,113,.15);color:var(--bad)}
+.view .toolbar{margin-top:18px}
+.vhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0 12px}
+.vhead h2{font-size:20px;margin:0}
+.vhead .note{margin-top:2px}
+button.alert{cursor:pointer;font:inherit;font-size:12.5px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tile span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile b{display:block;font:700 25px "Space Grotesk";line-height:1.15;margin-top:4px}
+.tile small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.tile .up{color:var(--bad)}.tile .down{color:var(--ok)}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:fixed;z-index:160;pointer-events:none;background:#0c1428;border:1px solid var(--line2);border-radius:9px;padding:8px 11px;font-size:12px;line-height:1.55;box-shadow:0 10px 30px -10px #000;white-space:nowrap}
+.tip b{font-family:"Space Grotesk"}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tinp{width:100%;min-width:76px;background:#0c1428;border:1px solid var(--line2);border-radius:7px;padding:5px 8px;outline:none;text-align:right}
+.tinp.l{text-align:left;min-width:150px}
+.tinp:focus{border-color:var(--f)}
+.tinp::placeholder{color:var(--dim)}
+.x-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:2px 7px;border-radius:6px}
+.x-del:hover{color:var(--bad);background:rgba(248,113,113,.1)}
+.toggle{display:flex;gap:10px;align-items:center;font-size:13.5px;cursor:pointer;font-weight:500}
+.toggle input{width:18px;height:18px;accent-color:#22d3ee}
+.params{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+.qwrap{overflow:auto;max-height:640px;border:1px solid var(--line);border-radius:12px}
+.qm{border-collapse:separate;border-spacing:0}
+.qm th{position:sticky;top:0;background:var(--panel2);z-index:2;white-space:nowrap}
+.qm td:first-child,.qm th:first-child{position:sticky;left:0;background:var(--panel);z-index:1;min-width:200px}
+.qm th:first-child{z-index:3;background:var(--panel2)}
+.qm td{white-space:nowrap}
+.qc{min-width:104px;width:100%;border:1px solid var(--line);background:transparent;border-radius:7px;padding:4px 6px;font-size:11.5px;cursor:pointer;color:var(--dim)}
+.qc:hover{border-color:#4b5c8f;color:var(--text)}
+.qc.has{color:var(--ok);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
+.qc.soon{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+.qc.exp{color:var(--bad);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.09)}
+.qsub{font-size:11px;color:var(--dim)}
+.list{display:flex;flex-direction:column;max-height:360px;overflow:auto}
+.list div{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.list div:last-child{border-bottom:none}
+.list .none{color:var(--dim)}
+
+/* ---------- Druck ---------- */
+#printArea{display:none}
+@media print{
+  @page{size:A4 landscape;margin:11mm 12mm}
+  html,body{background:#fff!important;color:#111;padding:0}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block;font:9.5pt/1.35 Inter,Arial,sans-serif;color:#111}
+  .ppage{page-break-after:always;break-after:page}
+  .ppage:last-child{page-break-after:auto;break-after:auto}
+  .ph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:3mm;margin-bottom:4mm}
+  .ph .pco{font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#555;font-weight:600}
+  .ph h1{font:700 19pt "Space Grotesk",Arial,sans-serif;margin:1mm 0 0;color:#111}
+  .ph .psub{font-size:9.5pt;color:#333;margin-top:1mm}
+  .ph .pbadge{width:12mm;height:12mm;border:1.5px solid #111;border-radius:2.5mm;display:grid;place-items:center;font:700 10pt "Space Grotesk",Arial}
+  .pkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-bottom:4mm}
+  .pkpis div{border:1px solid #bbb;border-radius:2mm;padding:2mm 3mm}
+  .pkpis b{display:block;font:700 13pt "Space Grotesk",Arial}
+  .pkpis span{font-size:7.5pt;text-transform:uppercase;letter-spacing:.1em;color:#555}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:start}
+  .pcol{border:1px solid #bbb;border-radius:2mm;padding:2.5mm 3mm;break-inside:auto}
+  .pcol h2{font:700 11pt "Space Grotesk",Arial;margin:0 0 1mm;padding-left:2.5mm;border-left:3px solid #111;display:flex;justify-content:space-between}
+  .pcol h2 span{font:500 8.5pt Inter,Arial;color:#444}
+  .pcol h2.pF{border-color:#0e7490}.pcol h2.pS{border-color:#c2410c}.pcol h2.pX{border-color:#6d28d9}
+  .pcol .pcount{font-size:8.5pt;color:#444;margin-bottom:1.5mm}
+  .prole{font-size:7.5pt;text-transform:uppercase;letter-spacing:.1em;color:#666;font-weight:700;margin:2mm 0 .5mm;border-bottom:.5pt solid #ccc;display:flex;justify-content:space-between}
+  .prole .u{color:#b91c1c}
+  .pcol ul{list-style:none;margin:0;padding:0}
+  .pcol li{display:flex;justify-content:space-between;gap:2mm;padding:.35mm 0;font-size:9pt}
+  .pcol li.pabs span:first-child{text-decoration:line-through;color:#888}
+  .pcol li em{font-style:normal;font-size:7.5pt;color:#555}
+  .pwarn{margin-top:3mm;border:1px solid #b91c1c;border-radius:2mm;padding:2mm 3mm;font-size:8.5pt;color:#7f1d1d}
+  .plegend{margin-top:2.5mm;font-size:7.5pt;color:#555}
+  .pf{break-before:avoid;margin-top:3mm;padding-top:2mm;border-top:.5pt solid #999;display:flex;justify-content:space-between;font-size:8pt;color:#555}
+  .ptable{width:100%;border-collapse:collapse;margin-bottom:5mm}
+  .ptable th{font-size:7.5pt;letter-spacing:.08em;text-transform:uppercase;color:#444;border-bottom:1.2pt solid #111;padding:1.5mm 2mm;text-align:left}
+  .ptable td{border-bottom:.5pt solid #ccc;padding:1.6mm 2mm;font-size:9pt;color:#111}
+  .ptable td.bad{color:#b91c1c;font-weight:700}
+  .ptable td.ok{color:#047857;font-weight:600}
+  .pgroups{display:grid;grid-template-columns:repeat(5,1fr);gap:3mm;align-items:start}
+  .pgroups .pcol li{font-size:8pt}
+  .pgroups .pcol li span{white-space:nowrap}
+  .pgroups .pcol li em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;text-align:right}
+  .pgroups h2{font-size:10pt}
+  .pk6{grid-template-columns:repeat(6,1fr)}
+  .pk6 b{font-size:12pt}
+  .pstat{display:grid;grid-template-columns:3fr 2fr;gap:5mm;align-items:start;margin-bottom:4mm}
+  .pbox{border:1px solid #bbb;border-radius:2mm;padding:2.5mm 3mm}
+  .pbox h3{font:700 10pt "Space Grotesk",Arial;margin:0 0 1.5mm}
+  .pbox svg{display:block;width:100%;height:auto;max-height:58mm}
+  .plg{display:flex;gap:4mm;font-size:8pt;color:#333;margin-bottom:1mm}
+  .plg i{display:inline-block;width:2.6mm;height:2.6mm;border-radius:.6mm;margin-right:1.2mm;vertical-align:-.3mm}
+  .ptable.sm td,.ptable.sm th{padding:1mm 1.6mm;font-size:8pt}
+  .ptable td.r,.ptable th.r{text-align:right}
+}
 </style>
 </head>
 <body>
-<div class="topbar"><div class="in">
-  <div class="logo"><span>MB</span></div>
-  <div class="brand"><b>LEITSTAND</b><small>Schichtplanung Bischofsheim</small></div>
-  <div class="live"><span class="d"></span><span id="livetxt">Bereit</span></div>
-</div></div>
 
-<div class="wrap">
-  <div id="p-cockpit" class="panel-v"></div>
-  <div id="p-team" class="panel-v"></div>
-  <div id="p-org" class="panel-v"></div>
-  <div id="p-abs" class="panel-v"></div>
-  <div id="p-sync" class="panel-v"></div>
-  <div class="foot">Feinplanung Zweischichtmodell · erstellt von Marc Bahn (MB) · Auto-Sync aktiv</div>
-</div>
+<header class="top">
+  <div class="wrap">
+    <div class="logo">MB</div>
+    <div class="brand"><b>LEITSTAND</b><span id="brandSub">Schichtplanung</span></div>
+    <div class="spacer"></div>
+    <span class="pill" id="syncPill"><i class="dot" id="syncDot"></i><span id="syncTxt">Lokal</span></span>
+    <button class="btn icon ghost" id="btnSettings" title="Einstellungen" aria-label="Einstellungen">⚙</button>
+  </div>
+</header>
 
-<nav class="dock"><div class="in" id="dock"></div></nav>
+<main class="wrap">
+  <div class="eyebrow">Schichteinteilung</div>
+  <div class="headrow">
+    <div>
+      <h1>Schicht-Board</h1>
+      <p class="sub">Mitarbeiter per Drag &amp; Drop oder Dropdown einteilen. Die Rotationsgruppen wechseln jeden Montag automatisch, Abwesenheiten und Einmal-Tausche gelten nur für die angezeigte Woche.</p>
+    </div>
+    <div class="weeknav">
+      <button class="btn icon ghost" id="prevW" aria-label="Vorherige Woche">‹</button>
+      <div class="mid"><div class="kw" id="kwLabel">KW</div><div class="range" id="kwRange"></div></div>
+      <button class="btn icon ghost" id="nextW" aria-label="Nächste Woche">›</button>
+      <button class="btn sm" id="todayW">Heute</button>
+    </div>
+  </div>
+  <div class="rotinfo" id="rotInfo"></div>
+
+  <section class="kpis" id="kpis"></section>
+  <div class="alerts" id="alerts"></div>
+
+  <nav class="tabs" id="tabs" role="tablist">
+    <button class="tab on" data-view="Board" role="tab">Schicht-Board</button>
+    <button class="tab" data-view="Stats" role="tab">Kennzahlen</button>
+    <button class="tab" data-view="Cap" role="tab">Personalbedarf</button>
+    <button class="tab" data-view="Qual" role="tab">Qualifikationen <span class="n hide" id="qBadge"></span></button>
+  </nav>
+
+  <div id="viewBoard" class="view">
+  <div class="toolbar">
+    <input class="inp search" id="q" type="search" placeholder="Mitarbeiter suchen …  ( / )">
+    <select class="inp" id="roleFilter" aria-label="Nach Rolle filtern"></select>
+    <button class="btn primary" id="btnAdd">+ Mitarbeiter</button>
+    <button class="btn" id="btnBulk">Liste einfügen</button>
+    <button class="btn" id="btnPrint">🖨 Aushang drucken</button>
+    <span class="hint">Shift + Ziehen = nur diese Woche · Strg+Z = Rückgängig</span>
+  </div>
+
+  <section class="board" id="board">
+    <div class="col" data-col="F"></div>
+    <div class="col" data-col="S"></div>
+    <div class="col" data-col="X"></div>
+  </section>
+
+  <div class="twocol">
+    <section class="panel">
+      <div class="phead"><h2>Rollen-Check &amp; Mindestbesetzung</h2><span>Anwesende je Schicht · Min. gilt pro Schicht</span></div>
+      <div style="overflow-x:auto"><table id="roleTable"></table></div>
+    </section>
+    <section class="panel">
+      <div class="phead"><h2>Änderungsprotokoll</h2><button class="btn sm ghost" id="logMore">Alle anzeigen</button></div>
+      <div class="log" id="logList"></div>
+    </section>
+  </div>
+  </div>
+
+  <!-- Kennzahlen -->
+  <div id="viewStats" class="view hide">
+    <div class="vhead">
+      <div><h2>Management-Kennzahlen</h2><div class="note">Quoten bezogen auf den aktuellen Mitarbeiterstamm · Abwesenheiten zählen ab Erfassung im Board</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="inp" id="stWeeks" style="width:auto" aria-label="Zeitraum"><option value="8">8 Wochen</option><option value="12" selected>12 Wochen</option><option value="26">26 Wochen</option></select>
+        <button class="btn" id="btnStatsPrint">🖨 Bericht drucken</button>
+      </div>
+    </div>
+    <div class="tiles" id="stTiles"></div>
+    <div class="twocol">
+      <section class="panel"><div class="phead"><h2>Abwesenheitsquote je Woche</h2><span>Anteil am Team nach Grund</span></div><div class="legend" id="stLegend"></div><div class="chart" id="stChart"></div></section>
+      <section class="panel"><div class="phead"><h2>Beschäftigungsart je Schicht</h2><span id="stCompSub"></span></div><div style="overflow-x:auto"><table id="stComp"></table></div></section>
+    </div>
+    <section class="panel"><div class="phead"><h2>Wochenübersicht</h2><span>Soll, Anwesende und Quoten</span></div><div style="overflow-x:auto"><table id="stTable"></table></div></section>
+  </div>
+
+  <!-- Personalbedarf -->
+  <div id="viewCap" class="view hide">
+    <div class="vhead">
+      <div><h2>Personalbedarf aus Auftragsvolumen</h2><div class="note">MA je Kunde = Volumen pro Tag × Schichtanteil ÷ (Leistung je MA-Stunde × produktive Stunden) · plus Grundbesetzung für indirekte Rollen</div></div>
+      <label class="toggle"><input type="checkbox" id="capOn"> Soll automatisch daraus berechnen</label>
+    </div>
+    <section class="panel" style="margin-top:0">
+      <div class="params">
+        <div class="field"><label>Einheit</label><input class="inp" data-cap="unit" data-k="cap:unit" aria-label="Einheit" placeholder="z. B. Aufträge"></div>
+        <div class="field"><label>Produktive Std. je Schicht</label><input class="inp" type="number" step="0.25" min="0.5" data-cap="hours" data-k="cap:hours" aria-label="Produktive Stunden je Schicht"></div>
+        <div class="field"><label>Grundbesetzung Früh</label><input class="inp" type="number" min="0" step="1" data-cap="baseF" data-k="cap:baseF" aria-label="Grundbesetzung Früh"></div>
+        <div class="field"><label>Grundbesetzung Spät</label><input class="inp" type="number" min="0" step="1" data-cap="baseS" data-k="cap:baseS" aria-label="Grundbesetzung Spät"></div>
+      </div>
+      <div style="overflow-x:auto"><table id="capTable"></table></div>
+      <div style="margin-top:10px"><button class="btn sm" id="capAdd">+ Kunde</button></div>
+    </section>
+    <div class="tiles" id="capTiles" style="margin-top:16px"></div>
+    <section class="panel"><div class="phead"><h2>Vorschau nächste Wochen</h2><span>Wochenvolumen pflegst du oben, nachdem du die KW gewechselt hast</span></div><div style="overflow-x:auto"><table id="capWeeks"></table></div></section>
+  </div>
+
+  <!-- Qualifikationen -->
+  <div id="viewQual" class="view hide">
+    <div class="twocol">
+      <section class="panel"><div class="phead"><h2>Pflicht-Qualifikationen je Schicht</h2><span>Anwesende mit gültigem Nachweis · KW <span id="qKw"></span></span></div>
+        <div style="overflow-x:auto"><table id="qReq"></table></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input class="tinp l" id="qNewName" placeholder="Neue Qualifikation, z. B. Gefahrgut" style="max-width:280px;text-align:left"><button class="btn sm" id="qAdd">+ Hinzufügen</button></div>
+      </section>
+      <section class="panel"><div class="phead"><h2>Fristen</h2><span>abgelaufen &amp; nächste 60 Tage</span></div><div class="list" id="qExp"></div></section>
+    </div>
+    <section class="panel">
+      <div class="phead"><h2>Qualifikationsmatrix</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="qSearch" type="search" placeholder="Name oder Rolle …" style="width:220px;padding:6px 10px"><button class="btn sm" id="qImport">Liste einfügen</button></div></div>
+      <div class="note" style="margin-bottom:10px">Klick auf ein Feld: Nachweis setzen, Ablaufdatum eintragen oder entfernen.</div>
+      <div class="qwrap"><table class="qm" id="qMatrix"></table></div>
+    </section>
+  </div>
+</main>
+<div class="tip hide" id="tip"></div>
+
+<div id="menu" class="hide" role="menu"></div>
+<div id="printArea"></div>
+
+<!-- Mitarbeiter-Dialog -->
+<dialog id="dlgEmp">
+  <form method="dialog">
+    <div class="dhead"><h3 id="empTitle">Mitarbeiter</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <div class="field"><label for="fName">Name</label><input class="inp" id="fName" required autocomplete="off"></div>
+      <div class="grid2">
+        <div class="field"><label for="fRole">Rolle</label><input class="inp" id="fRole" list="roleList" autocomplete="off"></div>
+        <div class="field"><label for="fArt">Beschäftigung</label><select class="inp" id="fArt"></select></div>
+      </div>
+      <div class="field"><label for="fZ">Schicht-Zuordnung</label><select class="inp" id="fZ"></select></div>
+      <div class="note" id="fZHint"></div>
+      <div class="field"><label for="fNote">Notiz</label><input class="inp" id="fNote" autocomplete="off" placeholder="z. B. Staplerschein bis 03/2027"></div>
+    </div>
+    <div class="dfoot">
+      <button class="btn danger" type="button" id="btnEmpDel" style="margin-right:auto">Löschen</button>
+      <button class="btn ghost" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="ok" id="btnEmpSave">Speichern</button>
+    </div>
+  </form>
+</dialog>
+<datalist id="roleList"></datalist>
+
+<!-- Qualifikation -->
+<dialog id="dlgQual">
+  <form method="dialog">
+    <div class="dhead"><h3 id="dqTitle">Qualifikation</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <label class="toggle"><input type="checkbox" id="dqHas"> Nachweis vorhanden</label>
+      <div class="field"><label for="dqUntil">Gültig bis (leer = unbefristet)</label><input class="inp" type="date" id="dqUntil"></div>
+    </div>
+    <div class="dfoot"><button class="btn ghost" value="cancel">Abbrechen</button><button class="btn primary" value="ok">Speichern</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgQImport">
+  <form method="dialog">
+    <div class="dhead"><h3>Qualifikationen einfügen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <div class="note">Eine Zeile pro Nachweis: <b>Name; Qualifikation; gültig bis</b> (Datum optional, z. B. 31.03.2027 oder 03/2027). Funktioniert mit Kopieren aus Excel oder aus der Quali-Matrix. Neue Qualifikationen werden angelegt, unbekannte Namen übersprungen.</div>
+      <textarea class="inp" id="qiText" placeholder="Max Mustermann; Staplerschein; 31.03.2027&#10;Erika Muster; Ersthelfer; 11/2026&#10;Ali Yilmaz; Brandschutzhelfer"></textarea>
+    </div>
+    <div class="dfoot"><button class="btn ghost" value="cancel">Abbrechen</button><button class="btn primary" value="ok">Übernehmen</button></div>
+  </form>
+</dialog>
+
+<!-- Liste einfügen -->
+<dialog id="dlgBulk">
+  <form method="dialog">
+    <div class="dhead"><h3>Mehrere Mitarbeiter einfügen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <div class="note">Eine Person pro Zeile. Optional mit Semikolon oder Tab getrennt: <b>Name; Rolle; Beschäftigung</b>. Du kannst direkt aus Excel kopieren.</div>
+      <textarea class="inp" id="bulkText" placeholder="Max Mustermann; Staplerfahrer&#10;Erika Muster; Kommissionierung; Leiharbeit&#10;Ali Yilmaz"></textarea>
+      <div class="field"><label for="bulkZ">Zuordnung für alle</label><select class="inp" id="bulkZ"></select></div>
+    </div>
+    <div class="dfoot">
+      <button class="btn ghost" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="ok">Hinzufügen</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Drucken -->
+<dialog id="dlgPrint">
+  <form method="dialog">
+    <div class="dhead"><h3>Aushang drucken</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <label class="choice"><input type="radio" name="ptype" value="week" checked><div><b>Wochenplan</b><span id="pWeekTxt">Alle Mitarbeiter der angezeigten Woche nach Schicht und Rolle, mit Abwesenheiten.</span></div></label>
+      <label class="choice"><input type="radio" name="ptype" value="rot"><div><b>Rotationsvorschau</b><span>Welche Gruppe wann Früh/Spät hat, Besetzung je Woche und alle Gruppenmitglieder.</span></div></label>
+      <label class="choice"><input type="radio" name="ptype" value="both"><div><b>Beides</b><span>Wochenplan und Rotationsvorschau als zwei Seiten.</span></div></label>
+      <label class="choice"><input type="radio" name="ptype" value="stats"><div><b>Management-Bericht</b><span>Kennzahlen, Abwesenheitstrend, Beschäftigungsarten und Fristen auf einer Seite.</span></div></label>
+      <div class="field"><label for="pWeeks">Wochen in der Vorschau</label><select class="inp" id="pWeeks"><option>4</option><option>6</option><option>8</option></select></div>
+      <div class="note">Tipp: Im Druckdialog „Als PDF speichern“ wählen, um den Plan per Mail zu verschicken.</div>
+    </div>
+    <div class="dfoot">
+      <button class="btn ghost" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="ok">Drucken</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Einstellungen -->
+<dialog id="dlgSet">
+  <form method="dialog">
+    <div class="dhead"><h3>Einstellungen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dbody">
+      <div class="sect">Allgemein</div>
+      <div class="grid2">
+        <div class="field"><label for="sCompany">Firma</label><input class="inp" id="sCompany"></div>
+        <div class="field"><label for="sSite">Standort</label><input class="inp" id="sSite"></div>
+        <div class="field"><label for="sSollF">Soll Frühschicht</label><input class="inp" id="sSollF" type="number" min="0"></div>
+        <div class="field"><label for="sSollS">Soll Spätschicht</label><input class="inp" id="sSollS" type="number" min="0"></div>
+        <div class="field"><label for="sTimeF">Zeiten Früh</label><input class="inp" id="sTimeF"></div>
+        <div class="field"><label for="sTimeS">Zeiten Spät</label><input class="inp" id="sTimeS"></div>
+      </div>
+
+      <div class="sect">Rotation</div>
+      <div class="note" id="rotNote"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm" type="button" id="btnAnchorA">Gruppe A ist in der angezeigten KW Früh</button>
+        <button class="btn sm" type="button" id="btnAnchorSwap">Rotation umdrehen</button>
+      </div>
+
+      <div class="sect">Rollen (Reihenfolge im Board &amp; Rollen-Check)</div>
+      <textarea class="inp" id="sRoles" style="min-height:130px"></textarea>
+      <div class="note">Die Mindestbesetzung je Rolle stellst du direkt in der Tabelle „Rollen-Check“ ein.</div>
+
+      <div class="sect">Cloud-Sync (jsonbin.io, optional)</div>
+      <div class="note">Am besten eine <b>neue, eigene Bin</b> anlegen, damit die alte App nicht überschrieben wird. Der Key bleibt nur auf diesem Gerät.</div>
+      <div class="grid2">
+        <div class="field"><label for="sBin">Bin-ID</label><input class="inp" id="sBin" autocomplete="off"></div>
+        <div class="field"><label for="sKey">X-Master-Key</label><input class="inp" id="sKey" type="password" autocomplete="off"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="sAuto"> Automatisch synchronisieren</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm" type="button" id="btnPull">Aus Cloud laden</button>
+        <button class="btn sm" type="button" id="btnPush">In Cloud speichern</button>
+      </div>
+
+      <div class="sect">Daten</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm" type="button" id="btnExport">Export (JSON)</button>
+        <button class="btn sm" type="button" id="btnImport">Import (JSON)</button>
+        <button class="btn sm" type="button" id="btnLogCsv">Protokoll als CSV</button>
+        <button class="btn sm" type="button" id="btnDemo">Beispieldaten</button>
+        <button class="btn sm danger" type="button" id="btnWipe">Alle Mitarbeiter löschen</button>
+      </div>
+      <input type="file" id="fileImport" accept=".json,application/json" class="hide">
+    </div>
+    <div class="dfoot">
+      <button class="btn ghost" value="cancel">Abbrechen</button>
+      <button class="btn primary" value="ok">Übernehmen</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"><span id="toastTxt"></span><button id="toastUndo">Rückgängig</button></div>
 
 <script>
-const SHIFTS={frueh:{label:"Frühschicht",time:"06:00 – 14:30",cls:"frueh"},spaet:{label:"Spätschicht",time:"14:00 – 22:30",cls:"spaet"}};
-const ROLES=["Standortleitung","Lagerleitung","Teamleitung","Teamleitung Wareneingang","Teamleitung Frachten","Teamleitung Versand","Stellvertretung Versand","Inhouse-TL (Zwischenschicht)","Floormanager","Staplerfahrer","Kommissionierung","Wareneingang","Versand","Azubi","Springer"];
-const BEREICHE=["Standortleitung","Lagerleitung","Teamleitung","Floormanager","Festangestellte","Azubi","Teilzeit","Minijob","Litauer - Heiga"];
-const SEED={
-  target:{frueh:45,spaet:35},
-  lead:{role:"Lagerleitung",name:"Marc Bahn"},
-  org:{
-    frueh:[
-      {role:"Inhouse-TL (Zwischenschicht)",name:"Ayoub Zerrou",vt:"Khalid Malah"},
-      {role:"Teamleitung Wareneingang",name:"Julia Valter",vt:"TBA"},
-      {role:"Teamleitung Frachten",name:"Denis Franjo",vt:"Ayoub Zerrou"},
-      {role:"Teamleitung Versand",name:"Evgeniya Rout",vt:"Asta Kunicke"}
-    ],
-    spaet:[
-      {role:"Inhouse-TL (Zwischenschicht)",name:"Ayoub Zerrou",vt:"Khalid Malah"},
-      {role:"Teamleitung Versand",name:"TBA",vt:"TBA"}
-    ]
-  },
-  team:[
-    {name:"Maximilian Theilig",shift:"frueh",bereich:"Standortleitung",role:"Standortleitung"},
-    {name:"Marc Bahn",shift:"frueh",bereich:"Lagerleitung",role:"Lagerleitung"},
-    {name:"Evgeniya Rout",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Versand"},
-    {name:"Julia Valter",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Wareneingang"},
-    {name:"Asta Kunicke",shift:"frueh",bereich:"Teamleitung",role:"Stellvertretung Versand"},
-    {name:"Ayoub Zerrou",shift:"frueh",bereich:"Teamleitung",role:"Inhouse-TL (Zwischenschicht)"},
-    {name:"Denis Franjo",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung Frachten"},
-    {name:"Milica Schuller",shift:"frueh",bereich:"Teamleitung",role:"Teamleitung"},
-    {name:"Dustin Barschtipan",shift:"frueh",bereich:"Floormanager",role:"Floormanager"},
-    {name:"Fabio Gacioppo",shift:"frueh",bereich:"Floormanager",role:"Floormanager"},
-    {name:"Jose Da Silva Antonio",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Abdullah Degirmenci",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Emal Khan",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Tatiana Munteanu",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Pham Ngoc Thanh Tuyen",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Rene Philippi",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Irina Dortmann",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Khalid Malah",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Heike Müller",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Amanuel Tewelde",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Jaqueline Jung",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Timo Kimmer",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Osumani Huduq",shift:"frueh",bereich:"Festangestellte",role:"Kommissionierung"},
-    {name:"Brian Kuhlemann",shift:"frueh",bereich:"Azubi",role:"Azubi"},
-    {name:"Yvonne Semm",shift:"frueh",bereich:"Teilzeit",role:"Kommissionierung"},
-    {name:"Zhenfang Scholz-Zhang",shift:"frueh",bereich:"Teilzeit",role:"Kommissionierung"},
-    {name:"Zarmina Khan",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Inka Heck",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Birgit Medlin",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Quirino Di Vincenzo",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Marcel Dortmann",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Benjamin Pirschle",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Alexander Ponamarev",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Dennis Roßtäuscher",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Aleksej Rout",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Denis Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Svetlana Schneidmüller",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Valeria Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Oleg Walter",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Martina Geißler",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Rita Harff",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Francesco Mangiapane",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Gabriele Haselsteiner",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Christine Spegt-Sieben",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Fatima Khan",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Alena Ponomareva",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Brigitte Brooks",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Elena Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Victor Schäfer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Alexander Dortmann",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Oksana Schatz",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Alpar Bajko",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Iris Schuster",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Christine Fronia",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Jennifer Hebling",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Nadia Farfar",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Sandra Gundlach",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Susanne Lendle",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Patricia Gaudin-Hix",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Nassim Assakali",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Mariya Khalifi",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Mandy Munschauer",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Jamal Eddi Zouhair",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Anis Boulbahaiem",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Petra Hummel",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Hicham Benjrid",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Devrim Kaygusuz",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Iyad Bouzayen",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Milen Diring",shift:"frueh",bereich:"Minijob",role:"Kommissionierung"},
-    {name:"Edgaras Antulis",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Jurgita Bagdziwnaite",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Renata Baltusyte",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Arunas Bilinskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Jurgita Bilinskiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Laim Bubeniene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Nedas Cekanavicius",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Birute Dabravolskiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Tverijonas Domantas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Andrius Karlikauskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Rimkus Karolis",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Renata Katkeviciene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Ale Liaukowiene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Daiva Miller",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Daiva Petkeviciute",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Lukas Ramanovskas",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Jolanta Stankeviciene",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Ignas Vilkoncius",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Agne Zemoitel",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"},
-    {name:"Olivija Vitalija Zemoitel",shift:"frueh",bereich:"Litauer - Heiga",role:"Kommissionierung"}
-  ],
-  absences:[]
-};
-let DB={target:{...SEED.target},lead:{...SEED.lead},org:JSON.parse(JSON.stringify(SEED.org)),team:JSON.parse(JSON.stringify(SEED.team)),absences:[]};
+(() => {
+'use strict';
+const LS_KEY = 'leitstand-schicht-v2', LS_SYNC = 'leitstand-sync-v2';
+const DAY = 864e5;
+const Z_LONG = {A:'Rotation – Gruppe A', B:'Rotation – Gruppe B', FF:'Fest Frühschicht', FS:'Fest Spätschicht', X:'Schichtunabhängig'};
+const Z_SHORT = {A:'Rotation A', B:'Rotation B', FF:'Fest Früh', FS:'Fest Spät', X:'Schichtunabh.'};
+const ARTEN = ['Festangestellt','Teilzeit','Aushilfe','Leiharbeit','Azubi'];
+const ART_SHORT = {Festangestellt:'', Teilzeit:'TZ', Aushilfe:'AH', Leiharbeit:'LA', Azubi:'AZ'};
+const COL_NAME = {F:'Frühschicht', S:'Spätschicht', X:'Schichtunabhängig'};
+const ABS = {U:'Urlaub', K:'Krank', S:'Schulung', F:'Frei'};
+const DEFAULT_ROLES = ['Teamleitung Wareneingang','Teamleitung Frachten','Teamleitung Versand','Inhouse-TL (Zwischenschicht)','Staplerfahrer','Wareneingang','Kommissionierung','Packen / Versand','Retouren','Lagermitarbeiter'];
 
-const CFG_KEY='leitstand_cfg';
-let CFG={key:'',bin:''};
-function loadCfg(){try{const c=JSON.parse(localStorage.getItem(CFG_KEY));if(c)CFG=c;}catch(e){}}
-function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG));}catch(e){}}
-function cloudReady(){return CFG.key&&CFG.bin;}
-let saveTimer=null,syncState='idle',syncMsg='Bereit';
-function syncColor(){return{ok:'#3FD08A',sync:'#F6A93B',warn:'#FF6B6B',local:'#8A9BC4',idle:'#8A9BC4'}[syncState]||'#8A9BC4';}
-function pillHTML(){return `<span class="d" style="background:${syncColor()}"></span> ${esc(syncMsg)}`;}
-function setSync(s,m){syncState=s;syncMsg=m;const t=document.getElementById('livetxt'),d=document.querySelector('.live .d');if(t)t.textContent=m;if(d)d.style.background=syncColor();document.querySelectorAll('.savenote').forEach(n=>n.innerHTML=pillHTML());}
-function cacheLocal(){try{localStorage.setItem('leitstand_cache',JSON.stringify(DB));}catch(e){}}
-async function load(){
-  loadCfg();
-  try{const l=localStorage.getItem('leitstand_cache');if(l)DB=JSON.parse(l);}catch(e){}
-  if(cloudReady()){
-    try{setSync('sync','Lädt…');
-      const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}/latest`,{headers:{'X-Master-Key':CFG.key}});
-      if(r.ok){const j=await r.json();if(j&&j.record&&j.record.team){DB=j.record;cacheLocal();}}
-      setSync('ok','Synchron');
-    }catch(e){setSync('warn','Offline');}
-  }else{setSync('local','Lokal');}
-}
-async function persist(){
-  cacheLocal();setSync('sync','Speichert…');clearTimeout(saveTimer);
-  saveTimer=setTimeout(async()=>{
-    if(!cloudReady()){setSync('local','Lokal gespeichert');return;}
-    try{const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':CFG.key},body:JSON.stringify(DB)});
-      setSync(r.ok?'ok':'warn',r.ok?'Synchron':'Fehler '+r.status);
-    }catch(e){setSync('warn','Offline');}
-  },500);
-}
-async function pullNow(){await load();renderAll();}
-async function pushNow(){if(!cloudReady())return;try{setSync('sync','Lädt hoch…');const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':CFG.key},body:JSON.stringify(DB)});setSync(r.ok?'ok':'warn',r.ok?'Synchron':'Fehler '+r.status);}catch(e){setSync('warn','Offline');}if(active==='sync')renderSync();}
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const obj = x => (x && typeof x === 'object' && !Array.isArray(x)) ? x : {};
 
-const $=(s,r=document)=>r.querySelector(s);
-function opt(list,sel){return list.map(v=>`<option${v===sel?' selected':''}>${v}</option>`).join('')}
-function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-const today=()=>new Date().toISOString().slice(0,10);
-function absentCount(sk){const names=new Set(DB.team.filter(m=>m.shift===sk).map(m=>m.name));const t=today();
-  return DB.absences.filter(a=>{if(!names.has(a.name))return false;const s=a.from||'',e=a.to||a.from||'';return(!s||s<=t)&&(!e||e>=t);}).length;}
-function present(sk){return DB.team.filter(m=>m.shift===sk).length-absentCount(sk);}
-
-function ring(pct,sk){
-  const R=52,C=2*Math.PI*R,fill=Math.max(0,Math.min(pct,100)),off=C*(1-fill/100);
-  const col=sk==='frueh'?'var(--frueh)':'var(--spaet)',over=pct>=100;
-  return `<div class="ring"><svg width="118" height="118" viewBox="0 0 118 118">
-    <circle cx="59" cy="59" r="${R}" stroke="var(--line2)" stroke-width="10" fill="none"/>
-    <circle cx="59" cy="59" r="${R}" stroke="${over?'var(--ok)':col}" stroke-width="10" fill="none" stroke-linecap="round"
-      stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" style="transition:stroke-dashoffset .7s cubic-bezier(.2,.7,.2,1)"/>
-  </svg><div class="cap"><b style="color:${over?'var(--ok)':col}">${Math.round(pct)}%</b><i>DECKUNG</i></div></div>`;
-}
-
-function renderCockpit(){
-  const el=$('#p-cockpit');
-  let totP=0,totS=0;['frueh','spaet'].forEach(sk=>{totP+=present(sk);totS+=DB.target[sk];});
-  let out=`<div class="eyebrow">Live-Übersicht</div><h1 class="title">Schicht-Cockpit</h1>
-    <p class="lead-txt">Beide Schichten auf einen Blick — Deckungsgrad, verfügbare Kräfte und Ausfälle in Echtzeit.</p><div class="cockpit">`;
-  for(const sk of ['frueh','spaet']){
-    const s=SHIFTS[sk],assigned=DB.team.filter(m=>m.shift===sk).length,ab=absentCount(sk),pr=assigned-ab,soll=DB.target[sk];
-    const pct=soll?pr/soll*100:0,ok=pr>=soll;
-    out+=`<div class="gauge ${s.cls}">${ring(pct,sk)}<div class="meta">
-      <span class="tag">${s.label}</span><div class="time">${s.time}</div>
-      <div class="figures">
-        <div class="fig"><b>${pr}</b><span>verfügbar</span></div>
-        <div class="fig"><b>${soll}</b><span>soll</span></div>
-        <div class="fig"><b style="color:${ok?'var(--ok)':'var(--warn)'}">${pr-soll>=0?'+':''}${pr-soll}</b><span>diff</span></div>
-      </div>
-      <div class="status-line"><span class="chip ${ok?'ok':'warn'}">${ok?'Schicht steht':(soll-pr)+' fehlen'}</span>
-        ${ab>0?`<span class="tagline">${ab} Ausfall heute</span>`:''}</div>
-    </div></div>`;
+/* ---------- Datum & Rotation ---------- */
+const mondayOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
+const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parseIso = s => { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+function isoWeek(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dn = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - dn); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t - y0) / DAY + 1) / 7); }
+const weeksBetween = (a, b) => Math.round((b - a) / (7 * DAY));
+const aIsFrueh = monday => { const n = weeksBetween(parseIso(S.settings.anchor), monday); return ((n % 2) + 2) % 2 === 0; };
+function shiftOf(e, monday){
+  switch (e.z) {
+    case 'FF': return 'F';
+    case 'FS': return 'S';
+    case 'X':  return 'X';
+    case 'A':  return aIsFrueh(monday) ? 'F' : 'S';
+    case 'B':  return aIsFrueh(monday) ? 'S' : 'F';
   }
-  out+=`</div>`;
-  const diff=totP-totS;
-  out+=`<div class="strip">
-    <div class="kpi"><b style="color:var(--frueh)">${totP}</b><span>Verfügbar gesamt</span></div>
-    <div class="kpi"><b>${totS}</b><span>Soll gesamt</span></div>
-    <div class="kpi"><b style="color:${diff<0?'var(--warn)':'var(--ok)'}">${diff>=0?'+':''}${diff}</b><span>Differenz</span></div>
-    <div class="kpi"><b style="color:var(--spaet)">16,5</b><span>Betriebszeit h/Tag</span></div></div>`;
-  out+=`<div class="card"><h3>Soll-Besetzung <span class="h3sub">Richtwerte aus dem Konzept</span></h3><div class="split">`;
-  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk];
-    out+=`<div class="row"><span class="pill ${s.cls}">${s.label}</span>
-      <input type="number" min="0" style="width:100px" value="${DB.target[sk]}" onchange="upTarget('${sk}',this.value)"><span class="tagline">MA Soll</span></div>`;}
-  out+=`</div></div>`;
-  out+=`<div class="card"><h3>Rollen-Check <span class="h3sub">je Schicht besetzt?</span></h3><table><thead><tr><th>Rolle</th><th>Früh</th><th>Spät</th></tr></thead><tbody>`;
-  ["Staplerfahrer","Inhouse-TL (Zwischenschicht)","Teamleitung Wareneingang","Teamleitung Frachten","Teamleitung Versand","Stellvertretung Versand"].forEach(r=>{
-    const f=DB.team.filter(m=>m.shift==='frueh'&&m.role===r).length,sp=DB.team.filter(m=>m.shift==='spaet'&&m.role===r).length;
-    out+=`<tr><td>${r}</td><td>${f?`<span class="badge ok">${f}×</span>`:`<span class="badge warn">—</span>`}</td><td>${sp?`<span class="badge ok">${sp}×</span>`:`<span class="badge warn">—</span>`}</td></tr>`;});
-  out+=`</tbody></table><div class="hint">Wareneingang & Frachten sind laut Konzept nur in der Frühschicht vorgesehen.</div></div>`;
-  el.innerHTML=out;
+  return 'X';
 }
-function upTarget(sk,v){DB.target[sk]=Math.max(0,parseInt(v)||0);persist();renderCockpit();}
+const groupIn = (col, monday) => (aIsFrueh(monday) === (col === 'F')) ? 'A' : 'B';
+const fmt = d => d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
+const fmtY = d => d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'});
+const stamp = t => new Date(t).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
 
-let teamFilterBereich='', teamFilterShift='', teamSearch='';
-function renderTeam(){
-  const el=$('#p-team');
-  const total=DB.team.length;
-  // counts per bereich
-  const byB={}; DB.team.forEach(m=>{byB[m.bereich||'—']=(byB[m.bereich||'—']||0)+1;});
-  let out=`<div class="eyebrow">Zuordnung</div><h1 class="title">Mitarbeiter</h1>
-    <p class="lead-txt">${total} Personen aus deiner Liste — je Bereich, Schicht und Rolle. Filtere oben, um gezielt zu bearbeiten.</p>
-    <div class="row" style="margin-top:16px"><span class="savenote">${pillHTML()}</span><div class="spacer"></div>
-      <button class="btn ghost small" onclick="resetAll()">Auf Konzept zurücksetzen</button></div>`;
+/* ---------- State ---------- */
+function defaults(){
+  return { v:2, employees:[], absences:{}, swaps:{}, volumes:{}, log:[], updated:0,
+    settings:{ sollF:45, sollS:35, anchor:isoDate(mondayOf(new Date())), roles:DEFAULT_ROLES.slice(), minRoles:{}, timesF:'06:00 – 14:30', timesS:'14:00 – 22:30', company:'atrikom fulfillment', site:'Bischofsheim',
+      quals:[{name:'Staplerschein', minF:2, minS:2}, {name:'Ersthelfer', minF:1, minS:1}, {name:'Brandschutzhelfer', minF:1, minS:1}],
+      cap:{ on:false, unit:'Aufträge', hours:7, baseF:6, baseS:4, clients:['Rollei','GotBag','Alaiko','Deutsche Börse AG'].map((n, i) => ({ id:'c' + (i + 1), name:n, vol:0, rate:25, shareF:60 })) } } };
+}
+function cleanEmp(e){
+  if (!e) return null;
+  const name = String(e.name || '').trim();
+  if (!name) return null;
+  const quals = {};
+  Object.entries(obj(e.quals)).forEach(([k, v]) => { if (k) quals[k] = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; });
+  return { id: e.id || uid(), name, role: String(e.role || '').trim(), art: ARTEN.includes(e.art) ? e.art : 'Festangestellt', z: Z_LONG[e.z] ? e.z : 'A', note: String(e.note || ''), quals };
+}
+function normalize(p){
+  const d = defaults();
+  const s = Object.assign(d.settings, (p && p.settings) || {});
+  if (!Array.isArray(s.roles)) s.roles = DEFAULT_ROLES.slice();
+  s.minRoles = obj(s.minRoles);
+  s.quals = (Array.isArray(s.quals) ? s.quals : []).filter(q => q && q.name).map(q => ({ name: String(q.name), minF: +q.minF || 0, minS: +q.minS || 0 }));
+  s.cap = Object.assign(defaults().settings.cap, obj(s.cap));
+  s.cap.clients = (Array.isArray(s.cap.clients) ? s.cap.clients : []).filter(Boolean).map(c => ({ id: c.id || uid(), name: String(c.name || 'Kunde'), vol: +c.vol || 0, rate: +c.rate || 0, shareF: c.shareF == null ? 60 : +c.shareF }));
+  return { v:2, employees: ((p && p.employees) || []).map(cleanEmp).filter(Boolean), settings: s, volumes: obj(p && p.volumes),
+    absences: obj(p && p.absences), swaps: obj(p && p.swaps), log: Array.isArray(p && p.log) ? p.log.slice(-300) : [], updated: (p && p.updated) || 0 };
+}
+function load(){ try { const r = localStorage.getItem(LS_KEY); if (r) return normalize(JSON.parse(r)); } catch (e) {} return defaults(); }
+let S = load();
+let viewMonday = mondayOf(new Date());
 
-  // filter bar
-  out+=`<div class="card"><h3>Filter <span class="h3sub">${total} Personen gesamt</span></h3>
-    <div class="addrow">
-      <input id="tsearch" placeholder="Name suchen…" value="${esc(teamSearch)}" oninput="teamSearch=this.value;renderTeamList()" style="min-width:160px">
-      <select id="tfb" onchange="teamFilterBereich=this.value;renderTeamList()">
-        <option value="">Alle Bereiche</option>${BEREICHE.map(b=>`<option${b===teamFilterBereich?' selected':''}>${b}</option>`).join('')}</select>
-      <select id="tfs" onchange="teamFilterShift=this.value;renderTeamList()">
-        <option value="">Beide Schichten</option><option value="frueh"${teamFilterShift==='frueh'?' selected':''}>Frühschicht</option><option value="spaet"${teamFilterShift==='spaet'?' selected':''}>Spätschicht</option></select>
+function save(push = true){
+  S.updated = Date.now();
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+  if (push) scheduleSync();
+}
+
+/* ---------- Wochenbezogene Werte (Abwesenheit, Einmal-Tausch) ---------- */
+const kw = (m = viewMonday) => isoWeek(m);
+const wkey = (m = viewMonday) => isoDate(m);
+const absOf = (id, m = viewMonday) => (S.absences[wkey(m)] || {})[id] || '';
+const swapOf = (id, m = viewMonday) => (S.swaps[wkey(m)] || {})[id] || '';
+const effShift = (e, m = viewMonday) => swapOf(e.id, m) || shiftOf(e, m);
+function setWeekVal(map, id, val, m = viewMonday){
+  const k = wkey(m);
+  if (val) { (map[k] = map[k] || {})[id] = val; }
+  else if (map[k]) { delete map[k][id]; if (!Object.keys(map[k]).length) delete map[k]; }
+}
+function purge(map, id){ Object.keys(map).forEach(k => { delete map[k][id]; if (!Object.keys(map[k]).length) delete map[k]; }); }
+
+/* ---------- Format ---------- */
+const dec = n => n.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtN = n => Math.round(n).toLocaleString('de-DE');
+const pct = (x, d = 1) => (x * 100).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' %';
+const pp = d => (Math.abs(d) * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' Pp.';
+const fmtD = u => `${u.slice(8, 10)}.${u.slice(5, 7)}.${u.slice(2, 4)}`;
+
+/* ---------- Personalbedarf ---------- */
+const volFor = (cl, m = viewMonday) => { const w = S.volumes[wkey(m)]; return (w && w[cl.id] != null) ? +w[cl.id] : (+cl.vol || 0); };
+function capCalc(m = viewMonday){
+  const c = S.settings.cap, h = Math.max(0.5, +c.hours || 7);
+  let F = 0, Sp = 0, vol = 0;
+  const rows = c.clients.map(cl => {
+    const v = volFor(cl, m), r = +cl.rate || 0, sh = Math.min(100, Math.max(0, +cl.shareF || 0)) / 100;
+    const nF = r > 0 ? v * sh / (r * h) : 0, nS = r > 0 ? v * (1 - sh) / (r * h) : 0;
+    F += nF; Sp += nS; vol += v;
+    return { cl, v, nF, nS, wk: !!(S.volumes[wkey(m)] && S.volumes[wkey(m)][cl.id] != null) };
+  });
+  const bF = +c.baseF || 0, bS = +c.baseS || 0;
+  return { rows, vol, F, S: Sp, bF, bS, sollF: Math.ceil(bF + F - 1e-9), sollS: Math.ceil(bS + Sp - 1e-9) };
+}
+function sollFor(col, m = viewMonday){
+  const st = S.settings;
+  if (st.cap.on) { const r = capCalc(m); return col === 'F' ? r.sollF : r.sollS; }
+  return col === 'F' ? (+st.sollF || 0) : (+st.sollS || 0);
+}
+
+/* ---------- Qualifikationen ---------- */
+const hasQ = (e, q) => !!e.quals && Object.prototype.hasOwnProperty.call(e.quals, q);
+const qualValid = (e, q, m = viewMonday) => hasQ(e, q) && (!e.quals[q] || e.quals[q] >= isoDate(addDays(m, 6)));
+const presentQual = (q, col, m = viewMonday) => S.employees.filter(e => effShift(e, m) === col && !absOf(e.id, m) && qualValid(e, q, m)).length;
+function expiries(){
+  const today = isoDate(new Date()), lim = isoDate(addDays(new Date(), 60)), items = [];
+  S.employees.forEach(e => Object.entries(e.quals || {}).forEach(([q, u]) => { if (u && u <= lim) items.push({ e, q, u, expired: u < today }); }));
+  items.sort((a, b) => a.u.localeCompare(b.u));
+  return { items, expired: items.filter(i => i.expired).length, soon: items.filter(i => !i.expired).length };
+}
+function parseDateLoose(s){
+  s = (s || '').trim(); if (!s) return ''; let m;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if ((m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/))) { let y = +m[3]; if (y < 100) y += 2000; return `${y}-${String(m[2]).padStart(2, '0')}-${String(m[1]).padStart(2, '0')}`; }
+  if ((m = s.match(/^(\d{1,2})[\/.](\d{2,4})$/))) { let y = +m[2]; if (y < 100) y += 2000; return isoDate(new Date(y, +m[1], 0)); }
+  return null;
+}
+
+/* ---------- Undo & Protokoll ---------- */
+const hist = [];
+function snap(){ hist.push(JSON.stringify(S)); if (hist.length > 50) hist.shift(); }
+function undo(){
+  if (!hist.length) { toast('Nichts zum Rückgängigmachen', false); return; }
+  S = normalize(JSON.parse(hist.pop())); save(); render(); toast('Rückgängig gemacht', false);
+}
+// Änderungen aus Tabellenfeldern: neu zeichnen erst, wenn der Fokus im nächsten Feld ist
+let inFieldChange = false;
+document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.k) { inFieldChange = true; setTimeout(() => { inFieldChange = false; }, 0); } }, true);
+function commit(msg, undoable = true){
+  const editing = inFieldChange;
+  if (msg) { S.log.push({ t: Date.now(), m: msg }); if (S.log.length > 300) S.log = S.log.slice(-300); }
+  save();
+  if (editing) {
+    // erst neu zeichnen, wenn der Fokus (z. B. per Tab) im nächsten Feld angekommen ist
+    setTimeout(() => {
+      const a = document.activeElement, k = a && a.dataset ? a.dataset.k : null;
+      render();
+      if (k) { const el = document.querySelector(`[data-k="${CSS.escape(k)}"]`); if (el) { el.focus(); try { if (el.select) el.select(); } catch (e) {} } }
+    }, 0);
+  } else render();
+  if (msg) toast(msg, undoable);
+}
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg, undoable = true){
+  $('#toastTxt').textContent = msg;
+  $('#toastUndo').classList.toggle('hide', !undoable);
+  $('#toast').classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => $('#toast').classList.remove('show'), 4500);
+}
+$('#toastUndo').onclick = () => { $('#toast').classList.remove('show'); undo(); };
+
+/* ---------- Aktionen ---------- */
+const byId = id => S.employees.find(e => e.id === id);
+function moveTo(id, col, once){
+  const e = byId(id); if (!e) return;
+  if (once) return setSwap(id, col);
+  let nz;
+  if (col === 'X') nz = 'X';
+  else if (e.z === 'FF' || e.z === 'FS') nz = col === 'F' ? 'FF' : 'FS';
+  else nz = groupIn(col, viewMonday);
+  const hadSwap = !!swapOf(id);
+  if (nz === e.z && !hadSwap) return;
+  snap(); e.z = nz; if (hadSwap) setWeekVal(S.swaps, id, '');
+  commit(`${e.name} → ${COL_NAME[col]}${(nz === 'A' || nz === 'B') ? ' (Gruppe ' + nz + ')' : ''}`);
+}
+function setZ(id, z){
+  const e = byId(id); if (!e || e.z === z) return;
+  snap(); e.z = z; commit(`${e.name}: ${Z_LONG[z]}`);
+}
+function setSwap(id, col){
+  const e = byId(id); if (!e) return;
+  const val = col === shiftOf(e, viewMonday) ? '' : col;
+  if (val === swapOf(id)) return;
+  snap(); setWeekVal(S.swaps, id, val);
+  commit(val ? `${e.name}: nur KW ${kw()} → ${COL_NAME[col]}` : `${e.name}: Tausch KW ${kw()} aufgehoben`);
+}
+function setAbs(id, code){
+  const e = byId(id); if (!e || absOf(id) === code) return;
+  snap(); setWeekVal(S.absences, id, code);
+  commit(code ? `${e.name}: ${ABS[code]} in KW ${kw()}` : `${e.name}: wieder anwesend in KW ${kw()}`);
+}
+function removeEmp(id){
+  const e = byId(id); if (!e) return;
+  snap(); S.employees = S.employees.filter(x => x.id !== id); purge(S.absences, id); purge(S.swaps, id);
+  commit(`${e.name} gelöscht`);
+}
+
+/* ---------- Kennzahlen ---------- */
+function roleOrder(){
+  const order = S.settings.roles.slice();
+  S.employees.forEach(e => { if (e.role && !order.includes(e.role)) order.push(e.role); });
+  return order;
+}
+function counts(m = viewMonday){
+  const c = {F:0, S:0, X:0, aF:0, aS:0, aX:0};
+  S.employees.forEach(e => { const sh = effShift(e, m); if (absOf(e.id, m)) c['a' + sh]++; else c[sh]++; });
+  return c;
+}
+const presentByRole = (r, col, m = viewMonday) => S.employees.filter(e => e.role === r && effShift(e, m) === col && !absOf(e.id, m)).length;
+function minOf(r){
+  const v = S.settings.minRoles[r];
+  if (typeof v === 'number') return v;
+  return S.employees.some(e => e.role === r) ? 1 : 0;
+}
+function warnings(m = viewMonday){
+  const w = [], c = counts(m), st = S.settings;
+  [['F', sollFor('F', m)], ['S', sollFor('S', m)]].forEach(([col, soll]) => {
+    if (soll && c[col] < soll) w.push(`${COL_NAME[col]}: ${soll - c[col]} unter Soll (${c[col]}/${soll})`);
+  });
+  roleOrder().forEach(r => {
+    const min = minOf(r); if (!min) return;
+    ['F','S'].forEach(col => { const n = presentByRole(r, col, m); if (n < min) w.push(`${COL_NAME[col]}: ${r} ${n}/${min}`); });
+  });
+  st.quals.forEach(q => [['F', q.minF], ['S', q.minS]].forEach(([col, min]) => {
+    min = +min || 0; if (!min) return;
+    const n = presentQual(q.name, col, m); if (n < min) w.push(`${COL_NAME[col]}: ${q.name} ${n}/${min}`);
+  }));
+  return w;
+}
+
+/* ---------- Render ---------- */
+let view = (() => { try { return localStorage.getItem('leitstand-view') || 'Board'; } catch (e) { return 'Board'; } })();
+const VIEWS = ['Board','Stats','Cap','Qual'];
+if (!VIEWS.includes(view)) view = 'Board';
+function setView(v){
+  view = v; try { localStorage.setItem('leitstand-view', v); } catch (e) {}
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === v));
+  VIEWS.forEach(x => $('#view' + x).classList.toggle('hide', x !== v));
+  closeMenu(); render();
+}
+function render(){
+  renderWeek(); renderKpis(); renderAlerts(); renderFilters();
+  const ex = expiries(), nb = ex.expired + ex.soon;
+  $('#qBadge').textContent = nb; $('#qBadge').classList.toggle('hide', !nb);
+  if (view === 'Board') { renderBoard(); renderRoles(); renderLog(); }
+  else if (view === 'Stats') renderStats();
+  else if (view === 'Cap') renderCap();
+  else if (view === 'Qual') renderQual();
+}
+$('#tabs').addEventListener('click', ev => { const t = ev.target.closest('[data-view]'); if (t) setView(t.dataset.view); });
+$('#alerts').addEventListener('click', ev => { const t = ev.target.closest('[data-goto]'); if (t) { setView(t.dataset.goto); window.scrollTo({ top: $('#tabs').offsetTop - 70, behavior: 'smooth' }); } });
+
+function renderWeek(){
+  const end = addDays(viewMonday, 6);
+  const isNow = isoDate(viewMonday) === isoDate(mondayOf(new Date()));
+  $('#brandSub').textContent = `Schichtplanung ${S.settings.site}`;
+  $('#kwLabel').textContent = `KW ${kw()}` + (isNow ? ' · aktuell' : '');
+  $('#kwRange').textContent = `${fmt(viewMonday)} – ${fmt(end)}${end.getFullYear() !== new Date().getFullYear() ? ' ' + end.getFullYear() : ''}`;
+  const a = aIsFrueh(viewMonday), c = counts();
+  const cnt = z => S.employees.filter(e => e.z === z).length;
+  const absN = c.aF + c.aS + c.aX, swN = Object.keys(S.swaps[wkey()] || {}).length;
+  $('#rotInfo').innerHTML =
+    `<span class="tag f">Früh: Gruppe ${a ? 'A' : 'B'}</span>` +
+    `<span class="tag s">Spät: Gruppe ${a ? 'B' : 'A'}</span>` +
+    `<span class="tag">Gruppe A: ${cnt('A')}</span><span class="tag">Gruppe B: ${cnt('B')}</span>` +
+    `<span class="tag">Fest Früh: ${cnt('FF')}</span><span class="tag">Fest Spät: ${cnt('FS')}</span>` +
+    `<span class="tag x">Schichtunabhängig: ${cnt('X')}</span>` +
+    (absN ? `<span class="tag">Abwesend KW ${kw()}: ${absN}</span>` : '') +
+    (swN ? `<span class="tag w">Einmal-Tausch: ${swN}</span>` : '');
+}
+
+function ringSvg(pct, color){
+  const r = 40, C = 2 * Math.PI * r, p = Math.max(0, Math.min(1, pct));
+  return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${r}" fill="none" stroke="#25314f" stroke-width="9"/>` +
+    `<circle cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C * p} ${C}"/></svg>`;
+}
+const covColor = p => p >= 1 ? 'var(--ok)' : p >= .85 ? 'var(--warn)' : 'var(--bad)';
+function renderKpis(){
+  const c = counts(), st = S.settings;
+  const k = (col, n, abs, soll, cls) => {
+    const p = soll ? n / soll : 0, d = n - soll;
+    const status = soll === 0 ? '' : d >= 0 ? `<span class="status ok">Schicht steht${d > 0 ? ' · +' + d : ''}</span>` : p >= .85 ? `<span class="status warn">${-d} fehlen</span>` : `<span class="status bad">${-d} fehlen</span>`;
+    return `<div class="kpi ${cls}"><div class="ring">${ringSvg(p, covColor(p))}<div class="c"><div><b style="color:${covColor(p)}">${Math.round(p * 100)}%</b><small>DECKUNG</small></div></div></div>
+      <div class="meta"><span class="tag ${cls}">${COL_NAME[col].toUpperCase()}</span><div class="range" style="margin-top:6px">${esc(col === 'F' ? st.timesF : st.timesS)}</div>
+      <div class="row"><div><b>${n}</b><span>Anwesend</span></div><div><b>${soll}</b><span>Soll${st.cap.on ? ' · Vol.' : ''}</span></div><div><b style="color:${d >= 0 ? 'var(--ok)' : 'var(--bad)'}">${d > 0 ? '+' : ''}${d}</b><span>Diff</span></div><div><b style="color:var(--muted)">${abs}</b><span>Abwesend</span></div></div>${status}</div></div>`;
+  };
+  $('#kpis').innerHTML = k('F', c.F, c.aF, sollFor('F'), 'f') + k('S', c.S, c.aS, sollFor('S'), 's') +
+    `<div class="kpi x"><div class="ring">${ringSvg(S.employees.length ? (c.X + c.aX) / S.employees.length : 0, 'var(--x)')}<div class="c"><div><b style="color:var(--x)">${c.X}</b><small>ANWESEND</small></div></div></div>
+     <div class="meta"><span class="tag x">SCHICHTUNABHÄNGIG</span><div class="range" style="margin-top:6px">nicht in der Rotation</div>
+     <div class="row"><div><b>${S.employees.length}</b><span>Team gesamt</span></div><div><b>${c.F + c.S}</b><span>im Schichtbetrieb</span></div><div><b style="color:var(--muted)">${c.aF + c.aS + c.aX}</b><span>Abwesend</span></div></div></div></div>`;
+}
+
+function renderAlerts(){
+  if (!S.employees.length) { $('#alerts').innerHTML = ''; return; }
+  const w = warnings(), ex = expiries();
+  const exH = (ex.expired || ex.soon) ? `<button class="alert ${ex.expired ? 'bad' : 'more'}" data-goto="Qual">🪪 ${ex.expired ? ex.expired + ' Nachweis' + (ex.expired > 1 ? 'e' : '') + ' abgelaufen · ' : ''}${ex.soon} in 60 Tagen fällig</button>` : '';
+  if (!w.length) { $('#alerts').innerHTML = `<span class="alert ok">✓ Alle Vorgaben für KW ${kw()} erfüllt</span>` + exH; return; }
+  const max = 6;
+  $('#alerts').innerHTML = exH + `<span class="alert head">⚠ ${w.length} ${w.length === 1 ? 'Hinweis' : 'Hinweise'} für KW ${kw()}</span>` +
+    w.slice(0, max).map(t => `<span class="alert bad">${esc(t)}</span>`).join('') +
+    (w.length > max ? `<button class="alert more" data-goto="Board">+${w.length - max} weitere im Rollen-Check / bei den Qualifikationen</button>` : '');
+}
+
+function cardHtml(e){
+  const ab = absOf(e.id), sw = swapOf(e.id);
+  const opts = Object.keys(Z_SHORT).map(z => `<option value="${z}"${z === e.z ? ' selected' : ''}>${Z_SHORT[z]}</option>`).join('');
+  const art = ART_SHORT[e.art] ? `<span class="art" title="${esc(e.art)}">${ART_SHORT[e.art]}</span>` : '';
+  const absB = ab ? `<span class="badge abs${ab}">${ABS[ab]}</span>` : '';
+  const swB = sw ? `<span class="badge swap" title="Nur KW ${kw()} – regulär ${COL_NAME[shiftOf(e, viewMonday)]}">Tausch</span>` : '';
+  const tt = [e.note, Object.keys(e.quals || {}).join(', ')].filter(Boolean).join(' · ');
+  return `<div class="card${ab ? ' absent' : ''}${sw ? ' swapped' : ''}" data-id="${e.id}"${tt ? ` title="${esc(tt)}"` : ''}>
+    <span class="handle" aria-hidden="true">⋮⋮</span>
+    <span class="cname" data-edit="${e.id}"><span class="nm">${esc(e.name)}</span>${art}${absB}${swB}</span>
+    <select class="zsel z${e.z}" data-z="${e.id}" aria-label="Zuordnung ${esc(e.name)}">${opts}</select>
+    <button class="cmenu" data-menu="${e.id}" aria-label="Aktionen für ${esc(e.name)}" aria-haspopup="menu">⋯</button></div>`;
+}
+
+function renderBoard(){
+  const q = $('#q').value.trim().toLowerCase(), rf = $('#roleFilter').value;
+  const order = roleOrder(), st = S.settings, a = aIsFrueh(viewMonday);
+  const sub = { F: `${esc(st.timesF)} · Gruppe ${a ? 'A' : 'B'} + Fest Früh`, S: `${esc(st.timesS)} · Gruppe ${a ? 'B' : 'A'} + Fest Spät`, X: 'Tagdienst / nicht in der Rotation' };
+  const soll = { F: sollFor('F'), S: sollFor('S') };
+  ['F','S','X'].forEach(col => {
+    const el = document.querySelector(`.col[data-col="${col}"]`);
+    let list = S.employees.filter(e => effShift(e) === col);
+    const present = list.filter(e => !absOf(e.id)).length, absent = list.length - present;
+    if (q) list = list.filter(e => (e.name + ' ' + e.role + ' ' + e.note).toLowerCase().includes(q));
+    if (rf) list = list.filter(e => (e.role || '') === (rf === '__none' ? '' : rf));
+    const groups = new Map();
+    list.sort((x, y) => (absOf(x.id) ? 1 : 0) - (absOf(y.id) ? 1 : 0) || x.name.localeCompare(y.name, 'de')).forEach(e => {
+      const k = e.role || '';
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(e);
+    });
+    const keys = [...groups.keys()].sort((x, y) => (x === '' ? 1e9 : order.indexOf(x)) - (y === '' ? 1e9 : order.indexOf(y)));
+    let body = keys.map(k => {
+      const g = groups.get(k), n = g.filter(e => !absOf(e.id)).length, min = (col !== 'X' && k) ? minOf(k) : 0;
+      const cnt = min ? `<span class="${n < min ? 'under' : 'met'}">${n}/${min}</span>` : `<span>${n}${n !== g.length ? ' / ' + g.length : ''}</span>`;
+      return `<div class="rhead"><span>${esc(k || 'Ohne Rolle')}</span>${cnt}</div>` + g.map(cardHtml).join('');
+    }).join('');
+    if (!body) body = `<div class="empty">${(q || rf) && present + absent ? 'Keine Treffer' : S.employees.length ? 'Hierher ziehen' : 'Noch keine Mitarbeiter angelegt.<br><br><button class="btn sm" data-act="add">+ Mitarbeiter</button> <button class="btn sm" data-act="bulk">Liste einfügen</button>'}</div>`;
+    const sc = col === 'X' ? '' : `/ ${soll[col]}`;
+    const p = col === 'X' ? 0 : (soll[col] ? present / soll[col] : 0);
+    el.innerHTML = `<div class="chead"><div class="ctitle"><h3><i></i>${COL_NAME[col]}</h3><span class="count">${present} <span style="color:var(--muted);font-weight:500">${sc}</span></span></div>
+      <div class="csub">${sub[col]}${absent ? ` · ${absent} abwesend` : ''}</div>${col === 'X' ? '' : `<div class="bar"><span style="width:${Math.min(100, p * 100)}%;background:${covColor(p)}"></span></div>`}</div>
+      <div class="cbody">${body}</div>`;
+  });
+}
+
+function renderRoles(){
+  const order = roleOrder();
+  const chip = (n, min) => {
+    const cls = min ? (n >= min ? 'ok' : 'no') : (n ? 'ok' : 'na');
+    return `<td class="c"><span class="chip ${cls}"${min && n < min ? ` title="${min - n} fehlen"` : ''}>${n ? n + '×' : '–'}</span></td>`;
+  };
+  const rows = order.map(r => {
+    const min = minOf(r);
+    return `<tr><td>${esc(r)}</td><td class="c"><input class="mininp" type="number" min="0" max="99" value="${min}" data-min="${esc(r)}" data-k="min:${esc(r)}" aria-label="Mindestbesetzung ${esc(r)}"></td>` +
+      chip(presentByRole(r, 'F'), min) + chip(presentByRole(r, 'S'), min) + chip(presentByRole(r, 'X'), 0) + '</tr>';
+  }).join('');
+  $('#roleTable').innerHTML = `<thead><tr><th>Rolle</th><th class="c">Min.</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Unabh.</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="color:var(--dim)">Keine Rollen definiert</td></tr>'}</tbody>`;
+}
+$('#roleTable').addEventListener('change', ev => {
+  const i = ev.target.closest('[data-min]'); if (!i) return;
+  const r = i.dataset.min, v = Math.max(0, Math.min(99, parseInt(i.value, 10) || 0));
+  if (v === minOf(r)) { i.value = v; return; }
+  snap(); S.settings.minRoles[r] = v; commit(`Mindestbesetzung ${r}: ${v} pro Schicht`);
+});
+
+function renderFilters(){
+  const sel = $('#roleFilter'), cur = sel.value, order = roleOrder();
+  sel.innerHTML = `<option value="">Alle Rollen</option>` + order.map(r => `<option${r === cur ? ' selected' : ''}>${esc(r)}</option>`).join('') + `<option value="__none"${cur === '__none' ? ' selected' : ''}>Ohne Rolle</option>`;
+  $('#roleList').innerHTML = order.map(r => `<option value="${esc(r)}">`).join('');
+}
+
+let logAll = false;
+function renderLog(){
+  const L = S.log.slice().reverse(), show = logAll ? L : L.slice(0, 10);
+  $('#logList').innerHTML = show.length ? show.map(x => `<div><time>${stamp(x.t)}</time><span>${esc(x.m)}</span></div>`).join('') : '<div class="none">Noch keine Änderungen erfasst.</div>';
+  $('#logMore').classList.toggle('hide', L.length <= 10);
+  $('#logMore').textContent = logAll ? 'Weniger' : `Alle anzeigen (${L.length})`;
+}
+$('#logMore').onclick = () => { logAll = !logAll; renderLog(); };
+
+/* ---------- Kartenmenü ---------- */
+const menu = $('#menu');
+let menuId = null, menuAt = 0;
+function openMenu(id, btn){
+  const e = byId(id); if (!e) return;
+  closeMenu(); menuId = id; menuAt = performance.now(); btn.classList.add('on');
+  const ab = absOf(id), sw = swapOf(id), base = shiftOf(e, viewMonday), cur = effShift(e);
+  const targets = ['F','S','X'].filter(c => c !== cur && !(sw && c === base));
+  menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw()} · regulär ${COL_NAME[base]}${e.role ? ' · ' + esc(e.role) : ''}</small></div>
+    <div class="ml">Abwesenheit – nur KW ${kw()}</div>
+    <div class="mrow"><button class="opt${!ab ? ' on' : ''}" data-abs="">Anwesend</button>${Object.entries(ABS).map(([k, v]) => `<button class="opt${ab === k ? ' on' : ''}" data-abs="${k}">${v}</button>`).join('')}</div>
+    <div class="ml">Einmal-Tausch – nur KW ${kw()}</div>
+    <div class="mrow">${targets.map(c => `<button class="opt sw" data-swap="${c}">→ ${c === 'X' ? 'Schichtunabh.' : COL_NAME[c]}</button>`).join('')}${sw ? `<button class="opt" data-swap="${base}">Tausch aufheben</button>` : ''}</div>
+    <hr><button class="mi" data-mact="edit">Bearbeiten …</button><button class="mi danger" data-mact="del">Mitarbeiter löschen</button>`;
+  menu.classList.remove('hide');
+  const r = btn.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
+  const x = Math.max(8, Math.min(r.right - mw, innerWidth - mw - 8));
+  let y = r.bottom + 6; if (y + mh > innerHeight - 8) y = Math.max(8, r.top - mh - 6);
+  menu.style.left = x + 'px'; menu.style.top = y + 'px';
+}
+function closeMenu(){ if (menuId === null) return; menu.classList.add('hide'); document.querySelectorAll('.cmenu.on').forEach(b => b.classList.remove('on')); menuId = null; }
+menu.addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b || menuId === null) return;
+  const id = menuId; closeMenu();
+  if ('abs' in b.dataset) setAbs(id, b.dataset.abs);
+  else if (b.dataset.swap) setSwap(id, b.dataset.swap);
+  else if (b.dataset.mact === 'edit') openEmp(id);
+  else if (b.dataset.mact === 'del') removeEmp(id);
+});
+document.addEventListener('pointerdown', ev => { if (menuId !== null && !ev.target.closest('#menu,[data-menu]')) closeMenu(); });
+window.addEventListener('resize', closeMenu);
+window.addEventListener('scroll', () => { if (!drag && performance.now() - menuAt > 400) closeMenu(); }, { passive: true });
+
+/* ---------- Board-Events ---------- */
+const board = $('#board');
+board.addEventListener('change', ev => { const s = ev.target.closest('[data-z]'); if (s) setZ(s.dataset.z, s.value); });
+board.addEventListener('click', ev => {
+  if (justDragged) return;
+  const mb = ev.target.closest('[data-menu]'); if (mb) { const id = mb.dataset.menu; return menuId === id ? closeMenu() : openMenu(id, mb); }
+  const ed = ev.target.closest('[data-edit]'); if (ed) return openEmp(ed.dataset.edit);
+  const act = ev.target.closest('[data-act]'); if (act) return act.dataset.act === 'add' ? openEmp() : openBulk();
+});
+
+/* Drag & Drop (Maus: ganze Karte, Touch: Griff ⋮⋮, Shift = nur diese Woche) */
+let drag = null, justDragged = false, lastPt = null, scrollRaf = 0;
+board.addEventListener('pointerdown', ev => {
+  const card = ev.target.closest('.card');
+  if (!card || ev.target.closest('select,button,input')) return;
+  if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+  if (ev.pointerType !== 'mouse' && !ev.target.closest('.handle')) return;
+  const r = card.getBoundingClientRect();
+  drag = { id: card.dataset.id, card, sx: ev.clientX, sy: ev.clientY, ox: ev.clientX - r.left, oy: ev.clientY - r.top, w: r.width, started: false, over: null, ghost: null };
+  ev.preventDefault();
+});
+window.addEventListener('pointermove', ev => {
+  if (!drag) return;
+  if (!drag.started) {
+    if (Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) < 6) return;
+    drag.started = true; closeMenu();
+    const g = drag.card.cloneNode(true);
+    g.classList.add("dragghost"); g.style.width = drag.w + 'px';
+    document.body.appendChild(g); drag.ghost = g;
+    drag.card.classList.add('dragging'); document.body.classList.add('dragmode');
+    scrollRaf = requestAnimationFrame(autoScroll);
+  }
+  ev.preventDefault();
+  lastPt = { x: ev.clientX, y: ev.clientY };
+  drag.ghost.style.transform = `translate(${ev.clientX - drag.ox}px,${ev.clientY - drag.oy}px) rotate(1.5deg)`;
+  drag.ghost.style.borderColor = ev.shiftKey ? 'var(--warn)' : '';
+  drag.ghost.style.display = 'none';
+  const col = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.col');
+  drag.ghost.style.display = '';
+  if (col !== drag.over) { drag.over?.classList.remove('over'); col?.classList.add('over'); drag.over = col; }
+}, { passive: false });
+function autoScroll(){
+  if (!drag || !drag.started) return;
+  if (lastPt) {
+    const m = 70;
+    if (lastPt.y < m + 62) window.scrollBy(0, -Math.ceil((m + 62 - lastPt.y) / 5));
+    else if (lastPt.y > innerHeight - m) window.scrollBy(0, Math.ceil((lastPt.y - innerHeight + m) / 5));
+  }
+  scrollRaf = requestAnimationFrame(autoScroll);
+}
+function endDrag(ev, cancel){
+  if (!drag) return;
+  const d = drag; drag = null;
+  cancelAnimationFrame(scrollRaf);
+  if (!d.started) return;
+  d.ghost.remove(); d.card.classList.remove('dragging'); document.body.classList.remove('dragmode');
+  d.over?.classList.remove('over');
+  justDragged = true; setTimeout(() => justDragged = false, 50);
+  if (!cancel && d.over) moveTo(d.id, d.over.dataset.col, !!(ev && ev.shiftKey));
+}
+window.addEventListener('pointerup', ev => endDrag(ev, false));
+window.addEventListener('pointercancel', ev => endDrag(ev, true));
+
+/* ---------- Mitarbeiter-Dialog ---------- */
+const dlgEmp = $('#dlgEmp');
+let editId = null;
+$('#fArt').innerHTML = ARTEN.map(a => `<option>${a}</option>`).join('');
+const zOptions = Object.keys(Z_LONG).map(z => `<option value="${z}">${Z_LONG[z]}</option>`).join('');
+$('#fZ').innerHTML = zOptions; $('#bulkZ').innerHTML = zOptions;
+function zHint(){
+  const z = $('#fZ').value, a = aIsFrueh(viewMonday);
+  const t = { A: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Früh' : 'Spät'}.`, B: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Spät' : 'Früh'}.`, FF: 'Immer Frühschicht, keine Rotation.', FS: 'Immer Spätschicht, keine Rotation.', X: 'Nicht vom Schichtsystem betroffen (z. B. Tagdienst, Büro, Leitung).' };
+  $('#fZHint').textContent = t[z];
+}
+$('#fZ').onchange = zHint;
+function openEmp(id){
+  editId = id || null;
+  const e = id ? byId(id) : null;
+  $('#empTitle').textContent = e ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter';
+  $('#fName').value = e ? e.name : '';
+  $('#fRole').value = e ? e.role : '';
+  $('#fArt').value = e ? e.art : 'Festangestellt';
+  $('#fNote').value = e ? e.note : '';
+  if (e) $('#fZ').value = e.z;
+  else { const c = counts(), st = S.settings; const needF = sollFor('F') - c.F, needS = sollFor('S') - c.S; $('#fZ').value = needS > needF ? groupIn('S', viewMonday) : groupIn('F', viewMonday); }
+  $('#btnEmpDel').classList.toggle('hide', !e);
+  $('#btnEmpSave').textContent = e ? 'Speichern' : 'Hinzufügen';
+  zHint();
+  dlgEmp.showModal(); setTimeout(() => $('#fName').focus(), 30);
+}
+dlgEmp.addEventListener('close', () => {
+  if (dlgEmp.returnValue !== 'ok') return;
+  const data = { name: $('#fName').value.trim(), role: $('#fRole').value.trim(), art: $('#fArt').value, z: $('#fZ').value, note: $('#fNote').value.trim() };
+  if (!data.name) return;
+  snap();
+  if (editId) { Object.assign(byId(editId), data); commit(`${data.name} bearbeitet`); }
+  else { S.employees.push(cleanEmp(data)); commit(`${data.name} hinzugefügt → ${Z_LONG[data.z]}`); }
+});
+$('#btnEmpDel').onclick = () => { const id = editId; dlgEmp.close('cancel'); removeEmp(id); };
+$('#btnAdd').onclick = () => openEmp();
+
+/* ---------- Liste einfügen ---------- */
+const dlgBulk = $('#dlgBulk');
+function openBulk(){ $('#bulkText').value = ''; $('#bulkZ').value = groupIn('F', viewMonday); dlgBulk.showModal(); setTimeout(() => $('#bulkText').focus(), 30); }
+$('#btnBulk').onclick = openBulk;
+dlgBulk.addEventListener('close', () => {
+  if (dlgBulk.returnValue !== 'ok') return;
+  const z = $('#bulkZ').value;
+  const rows = $('#bulkText').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const existing = new Set(S.employees.map(e => e.name.toLowerCase()));
+  let added = 0, skipped = 0;
+  snap();
+  rows.forEach(l => {
+    const [name, role, art] = l.split(/\t|;/).map(s => (s || '').trim());
+    if (!name) return;
+    if (existing.has(name.toLowerCase())) { skipped++; return; }
+    const artMatch = ARTEN.find(a => art && a.toLowerCase().startsWith(art.toLowerCase()));
+    S.employees.push(cleanEmp({ name, role: role || '', art: artMatch || 'Festangestellt', z }));
+    existing.add(name.toLowerCase()); added++;
+  });
+  if (!added) { hist.pop(); toast(skipped ? `${skipped} bereits vorhanden – nichts hinzugefügt` : 'Keine Namen erkannt', false); return; }
+  commit(`${added} Mitarbeiter hinzugefügt${skipped ? ` · ${skipped} Duplikate übersprungen` : ''}`);
+});
+
+/* ---------- Druck / Aushang ---------- */
+const dlgPrint = $('#dlgPrint');
+$('#btnPrint').onclick = () => { $('#pWeekTxt').textContent = `KW ${kw()} (${fmtY(viewMonday)} – ${fmtY(addDays(viewMonday, 6))}): alle Mitarbeiter nach Schicht und Rolle, mit Abwesenheiten.`; dlgPrint.showModal(); };
+dlgPrint.addEventListener('close', () => {
+  if (dlgPrint.returnValue !== 'ok') return;
+  const type = dlgPrint.querySelector('input[name=ptype]:checked').value, n = +$('#pWeeks').value || 4;
+  const html = type === 'stats' ? printStats() : (type !== 'rot' ? printWeek() : '') + (type !== 'week' ? printRotation(n) : '');
+  $('#printArea').innerHTML = html;
+  setTimeout(() => window.print(), 60);
+});
+function printHeader(title, sub){
+  const st = S.settings;
+  return `<header class="ph"><div><div class="pco">${esc(st.company)} · Standort ${esc(st.site)}</div><h1>${title}</h1><div class="psub">${sub}</div></div><div class="pbadge">MB</div></header>`;
+}
+function printFooter(){
+  const now = new Date();
+  return `<footer class="pf"><span>Stand: ${now.toLocaleString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})} · Leitstand Schichtplanung</span><span>Freigabe Lagerleitung: ____________________________</span></footer>`;
+}
+function sortForList(list, m){
+  const order = roleOrder();
+  return list.slice().sort((x, y) => ((x.role ? order.indexOf(x.role) : 1e9) - (y.role ? order.indexOf(y.role) : 1e9)) || x.name.localeCompare(y.name, 'de'));
+}
+function printWeek(){
+  const m = viewMonday, st = S.settings, c = counts(m), a = aIsFrueh(m), soll = { F: sollFor('F', m), S: sollFor('S', m) };
+  const col = k => {
+    const list = sortForList(S.employees.filter(e => effShift(e, m) === k), m);
+    let html = '', lastRole = null;
+    list.forEach(e => {
+      const r = e.role || 'Ohne Rolle';
+      if (r !== lastRole) {
+        if (lastRole !== null) html += '</ul>';
+        const n = e.role ? presentByRole(e.role, k, m) : 0, min = (k !== 'X' && e.role) ? minOf(e.role) : 0;
+        html += `<div class="prole"><span>${esc(r)}</span>${min ? `<span class="${n < min ? 'u' : ''}">${n}/${min}</span>` : ''}</div><ul>`;
+        lastRole = r;
+      }
+      const ab = absOf(e.id, m), sw = swapOf(e.id, m);
+      html += `<li class="${ab ? 'pabs' : ''}"><span>${esc(e.name)}${sw ? ' *' : ''}</span><em>${ab ? ABS[ab] : (ART_SHORT[e.art] || '')}</em></li>`;
+    });
+    if (lastRole !== null) html += '</ul>';
+    const head = k === 'X' ? `${c.X} anwesend${c.aX ? ` · ${c.aX} abwesend` : ''}` : `${c[k]} / ${soll[k]} anwesend${c['a' + k] ? ` · ${c['a' + k]} abwesend` : ''}`;
+    return `<div class="pcol"><h2 class="p${k}">${COL_NAME[k]}<span>${k === 'X' ? 'Tagdienst' : esc(k === 'F' ? st.timesF : st.timesS)}</span></h2><div class="pcount">${head}${k !== 'X' ? ` · Gruppe ${(k === 'F') === a ? 'A' : 'B'}` : ''}</div>${html || '<div class="pcount">—</div>'}</div>`;
+  };
+  const w = warnings(m);
+  return `<section class="ppage">${printHeader(`Schichtplan KW ${kw(m)}`, `${fmtY(m)} – ${fmtY(addDays(m, 6))} · Frühschicht: Gruppe ${a ? 'A' : 'B'} · Spätschicht: Gruppe ${a ? 'B' : 'A'}`)}
+    <div class="pkpis">
+      <div><b>${c.F} / ${soll.F}</b><span>Frühschicht anwesend</span></div>
+      <div><b>${c.S} / ${soll.S}</b><span>Spätschicht anwesend</span></div>
+      <div><b>${c.X}</b><span>Schichtunabhängig</span></div>
+      <div><b>${c.aF + c.aS + c.aX}</b><span>Abwesend (Urlaub, Krank, …)</span></div>
     </div>
-    <div class="row" style="margin-top:12px;gap:6px">${BEREICHE.filter(b=>byB[b]).map(b=>`<span class="tagline" style="cursor:pointer" onclick="teamFilterBereich='${b.replace(/'/g,"")}';renderTeamList()">${b}: ${byB[b]}</span>`).join('')}</div>
-  </div>`;
-
-  out+=`<div id="teamlist"></div>`;
-  el.innerHTML=out;
-  renderTeamList();
+    <div class="pgrid">${col('F')}${col('S')}${col('X')}</div>
+    ${w.length ? `<div class="pwarn"><b>Offene Punkte (${w.length}):</b> ${w.slice(0, 8).map(esc).join(' · ')}${w.length > 8 ? ` · … ${w.length - 8} weitere` : ''}</div>` : ''}
+    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · x/y = anwesend / Mindestbesetzung · LA = Leiharbeit, TZ = Teilzeit, AH = Aushilfe, AZ = Azubi</div>
+    ${printFooter()}</section>`;
 }
-function renderTeamList(){
-  const host=$('#teamlist'); if(!host)return;
-  const q=teamSearch.trim().toLowerCase();
-  const idx=DB.team.map((m,i)=>({m,i}))
-    .filter(({m})=>(!teamFilterBereich||m.bereich===teamFilterBereich)&&(!teamFilterShift||m.shift===teamFilterShift)&&(!q||m.name.toLowerCase().includes(q)));
-  let out='';
-  out+=`<div class="card"><h3>Mitarbeiter <span class="h3sub">${idx.length} angezeigt${teamFilterBereich?' · '+teamFilterBereich:''}</span></h3>`;
-  if(!idx.length){out+=`<div class="empty">Keine Treffer für diesen Filter.</div>`;}
-  else{
-    out+=`<table><thead><tr><th style="width:30%">Name</th><th style="width:20%">Bereich</th><th style="width:16%">Schicht</th><th style="width:26%">Rolle</th><th></th></tr></thead><tbody>`;
-    idx.forEach(({m,i})=>{
-      out+=`<tr>
-        <td><input value="${esc(m.name)}" onchange="upTeam(${i},'name',this.value)"></td>
-        <td><select onchange="upTeam(${i},'bereich',this.value)">${opt(BEREICHE,m.bereich||'Festangestellte')}</select></td>
-        <td><select onchange="upTeam(${i},'shift',this.value);renderTeamList()"><option value="frueh"${m.shift==='frueh'?' selected':''}>Früh</option><option value="spaet"${m.shift==='spaet'?' selected':''}>Spät</option></select></td>
-        <td><select onchange="upTeam(${i},'role',this.value)">${opt(ROLES,m.role)}</select></td>
-        <td style="text-align:right"><button class="iconbtn" onclick="delTeam(${i})" title="Entfernen">✕</button></td></tr>`;});
-    out+=`</tbody></table>`;
+function printRotation(n){
+  const st = S.settings;
+  const rows = Array.from({ length: n }, (_, i) => {
+    const m = addDays(viewMonday, 7 * i), a = aIsFrueh(m), c = counts(m), w = warnings(m).length, soll = { F: sollFor('F', m), S: sollFor('S', m) };
+    const cell = (k) => `<td class="${c[k] >= soll[k] ? 'ok' : 'bad'}">${c[k]} / ${soll[k]}</td>`;
+    return `<tr><td><b>KW ${kw(m)}</b></td><td>${fmt(m)} – ${fmtY(addDays(m, 6))}</td><td>Gruppe ${a ? 'A' : 'B'}</td><td>Gruppe ${a ? 'B' : 'A'}</td>${cell('F')}${cell('S')}<td>${c.aF + c.aS + c.aX}</td><td class="${w ? 'bad' : 'ok'}">${w ? w + ' offen' : 'erfüllt'}</td></tr>`;
+  }).join('');
+  const grp = (title, z, k) => {
+    const list = sortForList(S.employees.filter(e => e.z === z));
+    return `<div class="pcol"><h2 class="p${k}">${title}<span>${list.length}</span></h2><ul>${list.map(e => `<li><span>${esc(e.name)}</span><em>${esc(e.role)}</em></li>`).join('') || '<li><span>—</span></li>'}</ul></div>`;
+  };
+  const last = addDays(viewMonday, 7 * (n - 1));
+  return `<section class="ppage">${printHeader(`Rotationsplan KW ${kw()} – KW ${kw(last)}`, `${fmtY(viewMonday)} – ${fmtY(addDays(last, 6))} · Wechsel jeweils montags · Früh ${esc(st.timesF)} · Spät ${esc(st.timesS)}`)}
+    <table class="ptable"><thead><tr><th>Woche</th><th>Zeitraum</th><th>Frühschicht</th><th>Spätschicht</th><th>Besetzung Früh</th><th>Besetzung Spät</th><th>Abwesend</th><th>Vorgaben</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="pgroups">${grp('Gruppe A', 'A', 'F')}${grp('Gruppe B', 'B', 'S')}${grp('Fest Früh', 'FF', 'F')}${grp('Fest Spät', 'FS', 'S')}${grp('Schichtunabh.', 'X', 'X')}</div>
+    ${printFooter()}</section>`;
+}
+
+/* ---------- Kennzahlen ---------- */
+const AB_COL = { dark: { U:'#3987e5', K:'#d95926', S:'#199e70', F:'#c98500' }, light: { U:'#2a78d6', K:'#eb6834', S:'#1baf7a', F:'#eda100' } };
+function weekStats(m){
+  const total = S.employees.length, by = { U:0, K:0, S:0, F:0 }, a = S.absences[wkey(m)] || {};
+  Object.entries(a).forEach(([id, c]) => { if (by[c] != null && byId(id)) by[c]++; });
+  const abs = by.U + by.K + by.S + by.F;
+  return { m, total, by, abs, q: total ? abs / total : 0, kq: total ? by.K / total : 0, c: counts(m), sF: sollFor('F', m), sS: sollFor('S', m), w: warnings(m).length };
+}
+const statWeeks = n => Array.from({ length: n }, (_, i) => weekStats(addDays(viewMonday, -7 * (n - 1 - i))));
+const laQuote = col => { const l = S.employees.filter(e => effShift(e) === col); return l.length ? l.filter(e => e.art === 'Leiharbeit').length / l.length : 0; };
+function topRound(x, y, w, h, r){ r = Math.min(r, h, w / 2); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+function absChart(ws, theme){
+  const C = AB_COL[theme], ink = theme === 'dark' ? { grid:'#222e4c', txt:'#8a96b4', hi:'#e8edf7' } : { grid:'#d4d4d4', txt:'#555', hi:'#111' };
+  const W = 640, H = 230, pl = 42, pr = 8, pt = 20, pb = 26, iw = W - pl - pr, ih = H - pt - pb;
+  const top = Math.ceil(Math.max(0.05, ...ws.map(w => w.q)) * 20) / 20;
+  const y = v => pt + ih - v / top * ih;
+  const n = ws.length, slot = iw / n, bw = Math.min(30, slot * 0.6), every = n > 13 ? 2 : 1;
+  let out = '';
+  [0, top / 2, top].forEach(v => { out += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="${ink.grid}"/><text x="${pl - 7}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="${ink.txt}">${Math.round(v * 100)} %</text>`; });
+  ws.forEach((w, i) => {
+    const x = pl + slot * i + (slot - bw) / 2, cur = isoDate(w.m) === isoDate(viewMonday);
+    const keys = ['U','K','S','F'].filter(k => w.by[k]);
+    let base = pt + ih;
+    keys.forEach((k, j) => {
+      const h = w.by[k] / (w.total || 1) / top * ih, yT = base - h, last = j === keys.length - 1;
+      out += last ? `<path d="${topRound(x, yT, bw, h, 4)}" fill="${C[k]}"/>` : `<rect x="${x}" y="${yT + 2}" width="${bw}" height="${Math.max(0, h - 2)}" fill="${C[k]}"/>`;
+      base = yT;
+    });
+    if (cur && w.abs) out += `<text x="${x + bw / 2}" y="${y(w.q) - 6}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${ink.hi}">${pct(w.q)}</text>`;
+    if (i % every === 0 || cur) out += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" font-size="10" fill="${cur ? ink.hi : ink.txt}" font-weight="${cur ? 700 : 400}">${n > 13 ? kw(w.m) : 'KW ' + kw(w.m)}</text>`;
+    const tip = `<b>KW ${kw(w.m)}</b> · ${pct(w.q)} abwesend (${w.abs})<br>` + ['U','K','S','F'].map(k => `<i style="background:${C[k]}"></i>${ABS[k]}: ${w.by[k]}`).join('<br>');
+    out += `<rect x="${pl + slot * i}" y="${pt}" width="${slot}" height="${ih}" fill="transparent" data-tip="${esc(tip)}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Abwesenheitsquote je Woche, gestapelt nach Grund">${out}</svg>`;
+}
+const legendHtml = theme => ['U','K','S','F'].map(k => `<span><i style="background:${AB_COL[theme][k]}"></i>${ABS[k]}</span>`).join('');
+function compTable(){
+  const cols = ['F','S','X'], cnt = (art, col) => S.employees.filter(e => e.art === art && effShift(e) === col).length;
+  const tot = col => S.employees.filter(e => effShift(e) === col).length;
+  const rows = ARTEN.map(a => { const v = cols.map(c => cnt(a, c)); const sum = v.reduce((x, y) => x + y, 0); return sum ? `<tr><td>${a}</td>${v.map(n => `<td class="num">${n}</td>`).join('')}<td class="num"><b>${sum}</b></td></tr>` : ''; }).join('');
+  return `<thead><tr><th>Art</th><th class="num">Früh</th><th class="num">Spät</th><th class="num">Unabh.</th><th class="num">Gesamt</th></tr></thead><tbody>${rows}
+    <tr><td><b>Gesamt</b></td>${cols.map(c => `<td class="num"><b>${tot(c)}</b></td>`).join('')}<td class="num"><b>${S.employees.length}</b></td></tr>
+    <tr><td style="color:var(--muted)">Leiharbeit-Anteil</td>${cols.map(c => `<td class="num" style="color:var(--muted)">${pct(laQuote(c), 0)}</td>`).join('')}<td class="num" style="color:var(--muted)">${pct(S.employees.length ? S.employees.filter(e => e.art === 'Leiharbeit').length / S.employees.length : 0, 0)}</td></tr></tbody>`;
+}
+function statTiles(ws){
+  const cur = ws[ws.length - 1], prev = ws.slice(-5, -1), ex = expiries();
+  const avgK = prev.length ? prev.reduce((a, w) => a + w.kq, 0) / prev.length : 0, dK = cur.kq - avgK;
+  const trend = !prev.length ? '' : Math.abs(dK) < 0.0005 ? '● gleich wie Ø 4 Vorwochen' : `<span class="${dK > 0 ? 'up' : 'down'}">${dK > 0 ? '▲' : '▼'} ${pp(dK)}</span> vs. Ø 4 Vorwochen`;
+  return [
+    ['Team gesamt', S.employees.length, `${cur.c.F + cur.c.aF} Früh · ${cur.c.S + cur.c.aS} Spät · ${cur.c.X + cur.c.aX} unabh.`],
+    ['Abwesenheitsquote', pct(cur.q), `${cur.abs} Personen in KW ${kw()}`],
+    ['Krankenquote', pct(cur.kq), trend],
+    ['Leiharbeit Früh / Spät', `${pct(laQuote('F'), 0)} / ${pct(laQuote('S'), 0)}`, 'Anteil an der Schicht'],
+    ['Deckung Früh / Spät', `${pct(cur.sF ? cur.c.F / cur.sF : 0, 0)} / ${pct(cur.sS ? cur.c.S / cur.sS : 0, 0)}`, `Anwesend vs. Soll ${cur.sF} / ${cur.sS}`],
+    ['Offene Vorgaben', cur.w, `${ex.expired} Nachweise abgelaufen · ${ex.soon} bald fällig`]
+  ];
+}
+function weekRows(ws, cls = ''){
+  return ws.slice().reverse().map(w => `<tr${isoDate(w.m) === isoDate(viewMonday) ? ' style="font-weight:600"' : ''}><td>KW ${kw(w.m)}</td><td>${fmt(w.m)} – ${fmt(addDays(w.m, 6))}</td>
+    <td class="num r">${w.c.F} / ${w.sF}</td><td class="num r">${w.c.S} / ${w.sS}</td><td class="num r">${w.abs}</td><td class="num r">${pct(w.q)}</td><td class="num r">${pct(w.kq)}</td>
+    <td class="num r ${w.w ? 'bad' : 'ok'}"${cls ? '' : ` style="color:${w.w ? 'var(--bad)' : 'var(--ok)'}"`}>${w.w ? w.w + ' offen' : '✓'}</td></tr>`).join('');
+}
+const weekHead = `<thead><tr><th>Woche</th><th>Zeitraum</th><th class="num r">Früh anw./Soll</th><th class="num r">Spät anw./Soll</th><th class="num r">Abwesend</th><th class="num r">Abw.-Quote</th><th class="num r">Krankenquote</th><th class="num r">Vorgaben</th></tr></thead>`;
+function renderStats(){
+  const ws = statWeeks(+$('#stWeeks').value || 12);
+  $('#stTiles').innerHTML = statTiles(ws).map(([l, v, sub]) => `<div class="tile"><span>${l}</span><b>${v}</b><small>${sub}</small></div>`).join('');
+  $('#stLegend').innerHTML = legendHtml('dark');
+  const any = ws.some(w => w.abs);
+  $('#stChart').innerHTML = absChart(ws, 'dark') + (any ? '' : '<div class="note" style="text-align:center;margin-top:6px">Noch keine Abwesenheiten erfasst – im Board über ⋯ an der Karte eintragen.</div>');
+  $('#stCompSub').textContent = `KW ${kw()} · inkl. Abwesende`;
+  $('#stComp').innerHTML = compTable();
+  $('#stTable').innerHTML = weekHead + `<tbody>${weekRows(ws)}</tbody>`;
+}
+$('#stWeeks').addEventListener('change', renderStats);
+const tipEl = $('#tip');
+$('#stChart').addEventListener('mousemove', ev => {
+  const t = ev.target.closest('[data-tip]');
+  if (!t) { tipEl.classList.add('hide'); return; }
+  tipEl.innerHTML = t.dataset.tip; tipEl.classList.remove('hide');
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  tipEl.style.left = Math.min(ev.clientX + 14, innerWidth - w - 8) + 'px';
+  tipEl.style.top = Math.max(8, ev.clientY - h - 12) + 'px';
+});
+$('#stChart').addEventListener('mouseleave', () => tipEl.classList.add('hide'));
+$('#btnStatsPrint').onclick = () => { $('#printArea').innerHTML = printStats(); setTimeout(() => window.print(), 60); };
+function printStats(){
+  const ws = statWeeks(+$('#stWeeks').value || 12), first = ws[0].m, ex = expiries();
+  const tiles = statTiles(ws).map(([l, v, sub]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const fr = ex.items.slice(0, 8).map(i => `<tr><td>${esc(i.e.name)}</td><td>${esc(i.q)}</td><td class="${i.expired ? 'bad' : ''}">${i.expired ? 'abgelaufen ' : ''}${fmtY(parseIso(i.u))}</td></tr>`).join('');
+  const comp = compTable().replace(/ style="[^"]*"/g, '').replace(/class="num"/g, 'class="r"');
+  return `<section class="ppage">${printHeader(`Personal-Kennzahlen KW ${kw(first)} – KW ${kw()}`, `${fmtY(first)} – ${fmtY(addDays(viewMonday, 6))} · ${S.employees.length} Mitarbeiter · Soll ${S.settings.cap.on ? 'aus Auftragsvolumen' : 'manuell'}`)}
+    <div class="pkpis pk6">${tiles}</div>
+    <div class="pstat">
+      <div class="pbox"><h3>Abwesenheitsquote je Woche</h3><div class="plg">${legendHtml('light')}</div>${absChart(ws, 'light')}</div>
+      <div><div class="pbox"><h3>Beschäftigungsart je Schicht (KW ${kw()})</h3><table class="ptable sm">${comp}</table></div>
+        <div class="pbox" style="margin-top:3mm"><h3>Fristen Qualifikationen</h3>${fr ? `<table class="ptable sm"><tbody>${fr}</tbody></table>${ex.items.length > 8 ? `<div class="plegend">… und ${ex.items.length - 8} weitere</div>` : ''}` : '<div class="plegend">Keine Fristen in den nächsten 60 Tagen.</div>'}</div></div>
+    </div>
+    <table class="ptable sm">${weekHead}<tbody>${weekRows(ws.slice(-6), "p")}</tbody></table>
+    ${printFooter()}</section>`;
+}
+
+/* ---------- Personalbedarf-Ansicht ---------- */
+function renderCap(){
+  const c = S.settings.cap, r = capCalc(), unit = esc(c.unit || 'Einheiten'), cnt = counts();
+  $('#capOn').checked = !!c.on;
+  ['unit','hours','baseF','baseS'].forEach(k => { const i = document.querySelector(`[data-cap="${k}"]`); if (document.activeElement !== i) i.value = c[k]; });
+  const inp = (id, f, val, ph = '', cls = '') => `<input class="tinp ${cls}" ${f === 'name' ? 'type="text"' : 'type="number" min="0" step="any"'} data-cl="${id}:${f}" data-k="cl:${id}:${f}" value="${val === '' || val == null ? '' : esc(val)}" placeholder="${esc(ph)}" aria-label="${f}">`;
+  const body = r.rows.map(x => `<tr><td>${inp(x.cl.id, 'name', x.cl.name, '', 'l')}</td><td>${inp(x.cl.id, 'wvol', x.wk ? S.volumes[wkey()][x.cl.id] : '', 'Std. ' + fmtN(+x.cl.vol || 0))}</td>
+    <td>${inp(x.cl.id, 'vol', x.cl.vol)}</td><td>${inp(x.cl.id, 'rate', x.cl.rate)}</td><td>${inp(x.cl.id, 'shareF', x.cl.shareF)}</td>
+    <td class="num">${dec(x.nF)}</td><td class="num">${dec(x.nS)}</td><td><button class="x-del" data-cldel="${x.cl.id}" aria-label="${esc(x.cl.name)} entfernen">×</button></td></tr>`).join('');
+  $('#capTable').innerHTML = `<thead><tr><th>Kunde</th><th class="num">${unit}/Tag KW ${kw()}</th><th class="num">Standard/Tag</th><th class="num">${unit} je MA-Std.</th><th class="num">Anteil Früh %</th><th class="num">MA Früh</th><th class="num">MA Spät</th><th></th></tr></thead>
+    <tbody>${body || '<tr><td colspan="8" style="color:var(--dim)">Noch keine Kunden angelegt.</td></tr>'}
+    <tr><td colspan="5" style="color:var(--muted)">+ Grundbesetzung (Teamleitung, Stapler, Wareneingang …)</td><td class="num">${dec(r.bF)}</td><td class="num">${dec(r.bS)}</td><td></td></tr>
+    <tr><td><b>Summe</b></td><td class="num"><b>${fmtN(r.vol)}</b></td><td colspan="3" style="color:var(--muted)">aufgerundet = Soll</td><td class="num"><b style="font-size:16px">${r.sollF}</b> <span style="color:var(--dim)">(${dec(r.bF + r.F)})</span></td><td class="num"><b style="font-size:16px">${r.sollS}</b> <span style="color:var(--dim)">(${dec(r.bS + r.S)})</span></td><td></td></tr></tbody>`;
+  const diff = d => d === 0 ? '<span style="color:var(--ok)">genau gedeckt</span>' : d > 0 ? `<span style="color:var(--ok)">+${d} über Bedarf</span>` : `<span style="color:var(--bad)">${-d} fehlen</span>`;
+  const t = (l, v, sub) => `<div class="tile"><span>${l}</span><b>${v}</b><small>${sub}</small></div>`;
+  $('#capTiles').innerHTML = t('Bedarf Frühschicht', r.sollF, `${cnt.F} anwesend · ${diff(cnt.F - r.sollF)}`) + t('Bedarf Spätschicht', r.sollS, `${cnt.S} anwesend · ${diff(cnt.S - r.sollS)}`) +
+    t(`Volumen pro Tag`, fmtN(r.vol), `${unit} · KW ${kw()}`) + t('Soll-Quelle', c.on ? 'Automatisch' : 'Manuell', c.on ? 'Board &amp; Aushang nutzen diese Werte' : `aktuell ${S.settings.sollF} / ${S.settings.sollS} · Berechnung nur Vorschau`);
+  $('#capWeeks').innerHTML = `<thead><tr><th>Woche</th><th class="num">${unit}/Tag</th><th class="num">Bedarf Früh</th><th class="num">Anwesend Früh</th><th class="num">Bedarf Spät</th><th class="num">Anwesend Spät</th><th class="num">Differenz</th></tr></thead><tbody>` +
+    Array.from({ length: 6 }, (_, i) => { const m = addDays(viewMonday, 7 * i), x = capCalc(m), k = counts(m), d = (k.F - x.sollF) + (k.S - x.sollS);
+      return `<tr><td>KW ${kw(m)}</td><td class="num">${fmtN(x.vol)}</td><td class="num">${x.sollF}</td><td class="num">${k.F}</td><td class="num">${x.sollS}</td><td class="num">${k.S}</td><td class="num" style="color:${d >= 0 ? 'var(--ok)' : 'var(--bad)'}">${d > 0 ? '+' : ''}${d}</td></tr>`; }).join('') + '</tbody>';
+}
+const CAP_LBL = { unit:'Einheit', hours:'Produktive Std.', baseF:'Grundbesetzung Früh', baseS:'Grundbesetzung Spät' };
+const CL_LBL = { vol:'Standardvolumen', rate:'Leistung je MA-Std.', shareF:'Anteil Früh %' };
+$('#viewCap').addEventListener('change', ev => {
+  const t = ev.target, c = S.settings.cap;
+  if (t.id === 'capOn') { snap(); c.on = t.checked; return commit(c.on ? 'Soll wird jetzt aus dem Auftragsvolumen berechnet' : 'Soll wieder manuell'); }
+  if (t.dataset.cap) {
+    const k = t.dataset.cap, v = k === 'unit' ? t.value.trim() : Math.max(0, parseFloat(t.value) || 0);
+    if (c[k] === v) return; snap(); c[k] = v; return commit(`Personalbedarf: ${CAP_LBL[k]} = ${v}`);
   }
-  // add row
-  out+=`<div class="addrow">
-    <input id="nn" placeholder="Name eingeben…" style="min-width:150px">
-    <select id="nb">${opt(BEREICHE, teamFilterBereich||'Festangestellte')}</select>
-    <select id="ns"><option value="frueh">Früh</option><option value="spaet">Spät</option></select>
-    <select id="nr">${opt(ROLES,'Kommissionierung')}</select>
-    <button class="btn primary small" onclick="addTeam()">+ Hinzufügen</button></div></div>`;
-  host.innerHTML=out;
-}
-function addTeam(){const n=$('#nn').value.trim();if(!n)return;
-  DB.team.push({name:n,bereich:$('#nb').value,shift:$('#ns').value,role:$('#nr').value});persist();renderTeam();}
-function upTeam(i,k,v){DB.team[i][k]=v;persist();}
-function delTeam(i){DB.team.splice(i,1);persist();renderTeamList();}
+  if (t.dataset.cl) {
+    const [id, f] = t.dataset.cl.split(':'), cl = c.clients.find(x => x.id === id); if (!cl) return;
+    const num = Math.max(0, parseFloat(t.value) || 0);
+    snap();
+    if (f === 'name') { const old = cl.name; cl.name = t.value.trim() || old; return commit(`Kunde umbenannt: ${old} → ${cl.name}`); }
+    if (f === 'wvol') {
+      const k = wkey();
+      if (t.value === '') { if (S.volumes[k]) { delete S.volumes[k][id]; if (!Object.keys(S.volumes[k]).length) delete S.volumes[k]; } }
+      else (S.volumes[k] = S.volumes[k] || {})[id] = num;
+      return commit(`Volumen ${cl.name} KW ${kw()}: ${t.value === '' ? 'Standard' : fmtN(num) + '/Tag'}`);
+    }
+    if (f === 'shareF') cl.shareF = Math.min(100, num); else cl[f] = num;
+    return commit(`${cl.name}: ${CL_LBL[f]} = ${cl[f]}`);
+  }
+});
+$('#viewCap').addEventListener('click', ev => {
+  if (ev.target.id === 'capAdd') { snap(); const id = uid(); S.settings.cap.clients.push({ id, name: 'Neuer Kunde', vol: 0, rate: 25, shareF: 60 }); commit('Kunde hinzugefügt'); const el = document.querySelector(`[data-k="cl:${id}:name"]`); if (el) { el.focus(); el.select(); } return; }
+  const d = ev.target.closest('[data-cldel]'); if (!d) return;
+  const c = S.settings.cap, cl = c.clients.find(x => x.id === d.dataset.cldel); if (!cl) return;
+  snap(); c.clients = c.clients.filter(x => x !== cl); Object.values(S.volumes).forEach(w => delete w[cl.id]); commit(`Kunde ${cl.name} entfernt`);
+});
 
-function renderOrg(){
-  const el=$('#p-org');
-  let out=`<div class="eyebrow">Struktur</div><h1 class="title">Organigramm</h1>
-    <p class="lead-txt">Führungsstruktur je Schicht — Namen und Vertretungen live pflegen.</p>
-    <div class="card"><div class="lead-card"><div class="role">${esc(DB.lead.role)}</div><div class="nm">${esc(DB.lead.name||'—')}</div></div>
-      <div class="row" style="justify-content:center;margin-top:12px">
-        <input style="max-width:170px" value="${esc(DB.lead.role)}" onchange="upLead('role',this.value)" placeholder="Funktion">
-        <input style="max-width:200px" value="${esc(DB.lead.name)}" onchange="upLead('name',this.value)" placeholder="Name"></div></div><div class="split">`;
-  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk];
-    out+=`<div class="orgcol ${s.cls}"><div class="head">${s.label}</div>`;
-    DB.org[sk].forEach((b,i)=>{out+=`<div class="obox">
-      <input class="role-in" value="${esc(b.role)}" onchange="upOrg('${sk}',${i},'role',this.value)">
-      <div class="row" style="gap:6px;margin-top:5px"><input style="flex:1" value="${esc(b.name)}" onchange="upOrg('${sk}',${i},'name',this.value)" placeholder="Name">
-        <button class="iconbtn" onclick="delOrg('${sk}',${i})" title="Entfernen">✕</button></div>
-      <div class="vt">Vertretung <input value="${esc(b.vt)}" onchange="upOrg('${sk}',${i},'vt',this.value)" placeholder="—"></div></div>`;});
-    out+=`<button class="btn ghost small" style="width:100%" onclick="addOrg('${sk}')">+ Position</button></div>`;}
-  out+=`</div><div class="hint">Der Inhouse-TL fährt die Zwischenschicht und ist deshalb in beiden Schichten präsent.</div>`;
-  el.innerHTML=out;
+/* ---------- Qualifikationen-Ansicht ---------- */
+function renderQual(){
+  $('#qKw').textContent = kw();
+  const Q = S.settings.quals;
+  const chip = (n, min) => `<span class="chip ${min ? (n >= min ? 'ok' : 'no') : (n ? 'ok' : 'na')}">${n}${min ? '/' + min : ''}</span>`;
+  const mi = (i, f, v, q) => `<input class="mininp" type="number" min="0" max="99" value="${v}" data-qmin="${i}:${f}" data-k="qmin:${i}:${f}" aria-label="Minimum ${f === 'minF' ? 'Früh' : 'Spät'} ${esc(q)}">`;
+  $('#qReq').innerHTML = `<thead><tr><th>Qualifikation</th><th class="c">Min. Früh</th><th class="c">Min. Spät</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Gültig</th><th></th></tr></thead><tbody>` +
+    (Q.map((q, i) => `<tr><td>${esc(q.name)}</td><td class="c">${mi(i, 'minF', q.minF, q.name)}</td><td class="c">${mi(i, 'minS', q.minS, q.name)}</td>
+      <td class="c">${chip(presentQual(q.name, 'F'), q.minF)}</td><td class="c">${chip(presentQual(q.name, 'S'), q.minS)}</td><td class="c">${S.employees.filter(e => qualValid(e, q.name)).length}</td>
+      <td><button class="x-del" data-qdel="${i}" aria-label="${esc(q.name)} entfernen">×</button></td></tr>`).join('') || '<tr><td colspan="7" style="color:var(--dim)">Noch keine Qualifikationen angelegt.</td></tr>') + '</tbody>';
+  const ex = expiries();
+  $('#qExp').innerHTML = ex.items.length ? ex.items.map(i => `<div><span>${esc(i.e.name)} · ${esc(i.q)}</span><span style="color:${i.expired ? 'var(--bad)' : 'var(--warn)'};white-space:nowrap">${i.expired ? '⚠ abgelaufen ' : 'bis '}${fmtY(parseIso(i.u))}</span></div>`).join('') : '<div class="none">✓ Keine Fristen in den nächsten 60 Tagen.</div>';
+  const qs = $('#qSearch').value.trim().toLowerCase(), order = roleOrder(), today = isoDate(new Date()), lim = isoDate(addDays(new Date(), 60));
+  const list = S.employees.filter(e => !qs || (e.name + ' ' + e.role).toLowerCase().includes(qs))
+    .sort((x, y) => ((x.role ? order.indexOf(x.role) : 1e9) - (y.role ? order.indexOf(y.role) : 1e9)) || x.name.localeCompare(y.name, 'de'));
+  const cell = (e, q, i) => {
+    const has = hasQ(e, q.name), u = has ? e.quals[q.name] : '';
+    const cls = !has ? '' : (u && u < today) ? 'exp' : (u && u <= lim) ? 'soon' : 'has';
+    const txt = !has ? '—' : u ? (u < today ? '⚠ ' : '') + 'bis ' + fmtD(u) : '✓ unbefristet';
+    return `<td><button type="button" class="qc ${cls}" data-qc="${e.id}|${i}" aria-label="${esc(q.name)} für ${esc(e.name)}">${txt}</button></td>`;
+  };
+  $('#qMatrix').innerHTML = `<thead><tr><th>Mitarbeiter</th>${Q.map(q => `<th class="c">${esc(q.name)}</th>`).join('')}</tr></thead><tbody>` +
+    (list.map(e => `<tr><td><div>${esc(e.name)}</div><div class="qsub">${esc(e.role || 'Ohne Rolle')} · KW ${kw()}: ${COL_NAME[effShift(e)]}</div></td>${Q.map((q, i) => cell(e, q, i)).join('')}</tr>`).join('') ||
+    `<tr><td colspan="${Q.length + 1}" style="color:var(--dim)">Keine Mitarbeiter gefunden.</td></tr>`) + '</tbody>';
 }
-function upLead(k,v){DB.lead[k]=v;persist();renderOrg();}
-function upOrg(sk,i,k,v){DB.org[sk][i][k]=v;persist();if(k!=='vt')renderOrg();}
-function addOrg(sk){DB.org[sk].push({role:"Neue Position",name:"",vt:""});persist();renderOrg();}
-function delOrg(sk,i){DB.org[sk].splice(i,1);persist();renderOrg();}
+$('#qSearch').addEventListener('input', renderQual);
+$('#viewQual').addEventListener('change', ev => {
+  const t = ev.target.closest('[data-qmin]'); if (!t) return;
+  const [i, f] = t.dataset.qmin.split(':'), q = S.settings.quals[+i], v = Math.max(0, Math.min(99, parseInt(t.value, 10) || 0));
+  if (!q || q[f] === v) return;
+  snap(); q[f] = v; commit(`Mindestbesetzung ${q.name} ${f === 'minF' ? 'Früh' : 'Spät'}: ${v}`);
+});
+let qEdit = null;
+const dlgQual = $('#dlgQual');
+$('#viewQual').addEventListener('click', ev => {
+  if (ev.target.id === 'qAdd') {
+    const name = $('#qNewName').value.trim(); if (!name) return $('#qNewName').focus();
+    if (S.settings.quals.some(q => q.name.toLowerCase() === name.toLowerCase())) return toast(`${name} gibt es schon`, false);
+    snap(); S.settings.quals.push({ name, minF: 0, minS: 0 }); $('#qNewName').value = ''; return commit(`Qualifikation ${name} angelegt`);
+  }
+  if (ev.target.id === 'qImport') { $('#qiText').value = ''; $('#dlgQImport').showModal(); return; }
+  const d = ev.target.closest('[data-qdel]');
+  if (d) { const q = S.settings.quals[+d.dataset.qdel]; if (!q) return; snap(); S.settings.quals.splice(+d.dataset.qdel, 1); S.employees.forEach(e => { if (e.quals) delete e.quals[q.name]; }); return commit(`Qualifikation ${q.name} entfernt`); }
+  const c = ev.target.closest('[data-qc]');
+  if (c) {
+    const [id, i] = c.dataset.qc.split('|'), e = byId(id), q = S.settings.quals[+i]; if (!e || !q) return;
+    qEdit = { id, q: q.name };
+    $('#dqTitle').textContent = `${q.name} – ${e.name}`;
+    $('#dqHas').checked = true;
+    $('#dqUntil').value = hasQ(e, q.name) ? e.quals[q.name] : '';
+    dlgQual.showModal();
+  }
+});
+$('#dqUntil').addEventListener('input', () => { if ($('#dqUntil').value) $('#dqHas').checked = true; });
+dlgQual.addEventListener('close', () => {
+  if (dlgQual.returnValue !== 'ok' || !qEdit) return;
+  const e = byId(qEdit.id), q = qEdit.q; qEdit = null; if (!e) return;
+  const has = $('#dqHas').checked, u = $('#dqUntil').value;
+  const was = hasQ(e, q) ? e.quals[q] : null;
+  if ((has ? u : null) === was) return;
+  snap(); e.quals = e.quals || {};
+  if (has) e.quals[q] = u; else delete e.quals[q];
+  commit(has ? `${e.name}: ${q}${u ? ' gültig bis ' + fmtY(parseIso(u)) : ' (unbefristet)'}` : `${e.name}: ${q} entfernt`);
+});
+$('#dlgQImport').addEventListener('close', () => {
+  if ($('#dlgQImport').returnValue !== 'ok') return;
+  const rows = $('#qiText').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const byName = new Map(S.employees.map(e => [e.name.toLowerCase(), e]));
+  let n = 0, newQ = 0; const missing = [], badDate = [];
+  snap();
+  rows.forEach(l => {
+    const [name, qn, d] = l.split(/\t|;/).map(x => (x || '').trim());
+    if (!name || !qn) return;
+    const e = byName.get(name.toLowerCase()); if (!e) { missing.push(name); return; }
+    let q = S.settings.quals.find(x => x.name.toLowerCase() === qn.toLowerCase());
+    if (!q) { q = { name: qn, minF: 0, minS: 0 }; S.settings.quals.push(q); newQ++; }
+    let u = parseDateLoose(d); if (u === null) { badDate.push(name); u = ''; }
+    e.quals = e.quals || {}; e.quals[q.name] = u; n++;
+  });
+  if (!n) { hist.pop(); toast(missing.length ? `Keine Treffer – unbekannt: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ' …' : ''}` : 'Keine gültigen Zeilen erkannt', false); return; }
+  commit(`${n} Nachweise übernommen${newQ ? ` · ${newQ} neue Qualifikation(en)` : ''}${missing.length ? ` · ${missing.length} Namen unbekannt` : ''}${badDate.length ? ` · ${badDate.length} Datum unlesbar (unbefristet gesetzt)` : ''}`);
+});
 
-function renderAbs(){
-  const el=$('#p-abs');
-  const allNames=[...new Set(DB.team.map(m=>m.name))].sort();
-  const springer=DB.team.filter(m=>m.role==='Springer');
-  let out=`<div class="eyebrow">Verfügbarkeit</div><h1 class="title">Ausfälle & Springer</h1>
-    <p class="lead-txt">Urlaub, Krankheit und Ausfälle erfassen — wirkt sofort aufs Cockpit (für heute).</p>`;
-  out+=`<div class="card"><h3>Springer-Pool <span class="h3sub">${springer.length} Kräfte</span></h3>`;
-  out+= springer.length?`<div class="row">`+springer.map(s=>`<span class="tagline">${esc(s.name)} · ${SHIFTS[s.shift].label}</span>`).join('')+`</div>`
-    :`<div class="empty">Noch keine Springer. Lege im Reiter „Team" Personen mit Rolle „Springer" an.</div>`;
-  out+=`</div>`;
-  out+=`<div class="card"><h3>Erfasste Ausfälle <span class="savenote" style="margin-left:auto">${pillHTML()}</span></h3>`;
-  if(!DB.absences.length){out+=`<div class="empty">Keine Ausfälle erfasst.</div>`;}
-  else{out+=`<div class="absrow" style="color:var(--dim);font-family:var(--disp);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase">
-      <div>Name</div><div>Grund</div><div>Von</div><div>Bis</div><div></div></div>`;
-    DB.absences.forEach((a,i)=>{out+=`<div class="absrow">
-      <div><input value="${esc(a.name)}" onchange="upAbs(${i},'name',this.value)" list="names"></div>
-      <div><select onchange="upAbs(${i},'reason',this.value)">${opt(['Urlaub','Krankheit','Schulung','Sonstiges'],a.reason)}</select></div>
-      <div><input type="date" value="${a.from||''}" onchange="upAbs(${i},'from',this.value)"></div>
-      <div><input type="date" value="${a.to||''}" onchange="upAbs(${i},'to',this.value)"></div>
-      <div style="text-align:right"><button class="iconbtn" onclick="delAbs(${i})">✕</button></div></div>`;});}
-  out+=`<datalist id="names">${allNames.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
-    <div class="addrow"><button class="btn primary small" onclick="addAbs()">+ Ausfall erfassen</button></div></div>`;
-  out+=`<div class="card"><h3>Auswirkung heute</h3><div class="split">`;
-  for(const sk of ['frueh','spaet']){const s=SHIFTS[sk],ab=absentCount(sk),pr=present(sk),soll=DB.target[sk];
-    out+=`<div class="row"><span class="pill ${s.cls}">${s.label}</span><span class="tagline">${ab} Ausfall</span>
-      <span class="badge ${pr>=soll?'ok':'warn'}">${pr>=soll?'gedeckt':(soll-pr)+' fehlen'}</span></div>`;}
-  out+=`</div><div class="hint">Ausfälle mit heutigem Datum im Zeitraum zählen. Ohne „Bis" gilt der Tag als eintägig.</div></div>`;
-  el.innerHTML=out;
+/* ---------- Einstellungen ---------- */
+const dlgSet = $('#dlgSet');
+function rotNote(){
+  $('#rotNote').innerHTML = `Angezeigt: <b>KW ${kw()}</b> → Früh = Gruppe <b>${aIsFrueh(viewMonday) ? 'A' : 'B'}</b>. Die Gruppen tauschen jeden Montag automatisch.`;
 }
-function addAbs(){DB.absences.push({name:'',reason:'Urlaub',from:today(),to:today()});persist();renderAbs();}
-function upAbs(i,k,v){DB.absences[i][k]=v;persist();if(k!=='reason')renderAbs();}
-function delAbs(i){DB.absences.splice(i,1);persist();renderAbs();}
-
-function renderSync(){
-  const el=$('#p-sync');const c=cloudReady();
-  let out=`<div class="eyebrow">Geräte</div><h1 class="title">Sync & Backup</h1>
-    <p class="lead-txt">Verbinde die App mit deiner Cloud-Ablage, damit Handy und Laptop denselben Stand zeigen.</p>`;
-  out+=`<div class="card"><h3>Status <span class="savenote" style="margin-left:auto">${pillHTML()}</span></h3>`;
-  if(c){out+=`<div class="row"><span class="badge ok">Verbunden</span><span class="tagline">Bin ${esc(CFG.bin.slice(0,8))}…</span>
-    <div class="spacer"></div><button class="btn ghost small" onclick="pullNow()">Neu laden</button><button class="btn primary small" onclick="pushNow()">Hochladen</button></div>
-    <div class="hint">Änderungen werden automatisch hochgeladen. „Neu laden" holt den Stand vom anderen Gerät.</div>`;}
-  else{out+=`<div class="row"><span class="badge warn">Nicht verbunden</span><span class="tagline">Läuft nur lokal auf diesem Gerät</span></div>
-    <div class="hint">Trage unten Key und Bin-ID ein, um die Synchronisierung zu aktivieren.</div>`;}
-  out+=`</div>`;
-  out+=`<div class="card"><h3>Cloud-Verbindung</h3><div style="display:grid;gap:12px;max-width:560px">
-    <label style="font-size:12px;color:var(--mut)">X-Master-Key (jsonbin.io)<input id="cfg-key" value="${esc(CFG.key)}" placeholder="\$2a\$10\$…" style="margin-top:5px"></label>
-    <label style="font-size:12px;color:var(--mut)">Bin-ID<input id="cfg-bin" value="${esc(CFG.bin)}" placeholder="z. B. 6650a1f2ad19ca34…" style="margin-top:5px"></label>
-    <div class="row"><button class="btn primary small" onclick="connectCloud()">Verbinden & synchronisieren</button>${c?`<button class="btn danger small" onclick="disconnectCloud()">Trennen</button>`:''}</div></div>
-    <div class="hint">Key & Bin-ID werden nur lokal auf dem Gerät gespeichert. Auf dem zweiten Gerät dieselben Werte eintragen — dann sehen beide denselben Stand.</div></div>`;
-  out+=`<div class="card"><h3>Einrichtung · 4 Schritte, kostenlos</h3><ol style="margin-left:18px;font-size:13.5px;line-height:2;color:var(--mut)">
-    <li>Auf <b style="color:var(--ink)">jsonbin.io</b> kostenlos registrieren.</li>
-    <li>Unter <b style="color:var(--ink)">API Keys</b> den <b style="color:var(--ink)">X-Master-Key</b> kopieren.</li>
-    <li>Neuen <b style="color:var(--ink)">Bin</b> anlegen (Inhalt <code>{}</code>), die <b style="color:var(--ink)">Bin-ID</b> kopieren.</li>
-    <li>Oben eintragen, „Verbinden" tippen — am Handy dieselben Werte.</li></ol></div>`;
-  out+=`<div class="card"><h3>Backup</h3><div class="row">
-    <button class="btn ghost small" onclick="exportData()">Als Datei exportieren</button>
-    <label class="btn ghost small" style="cursor:pointer">Aus Datei importieren<input type="file" accept="application/json" style="display:none" onchange="importData(event)"></label></div>
-    <div class="hint">Unabhängig von der Cloud jederzeit ein Backup sichern oder übertragen.</div></div>`;
-  el.innerHTML=out;
+function openSet(){
+  const st = S.settings;
+  $('#sCompany').value = st.company; $('#sSite').value = st.site;
+  $('#sSollF').value = st.sollF; $('#sSollS').value = st.sollS;
+  $('#sSollF').disabled = $('#sSollS').disabled = !!st.cap.on;
+  $('#sSollF').title = $('#sSollS').title = st.cap.on ? 'Wird unter „Personalbedarf“ aus dem Auftragsvolumen berechnet' : '';
+  $('#sTimeF').value = st.timesF; $('#sTimeS').value = st.timesS;
+  $('#sRoles').value = st.roles.join('\n');
+  $('#sBin').value = SY.id || ''; $('#sKey').value = SY.key || ''; $('#sAuto').checked = !!SY.auto;
+  rotNote(); dlgSet.showModal();
 }
-async function connectCloud(){
-  const key=$('#cfg-key').value.trim(),bin=$('#cfg-bin').value.trim();
-  if(!key||!bin){alert('Bitte Key und Bin-ID eintragen.');return;}
-  CFG={key,bin};saveCfg();setSync('sync','Verbinde…');
-  try{const r=await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
-    if(r.ok){const j=await r.json();
-      if(j&&j.record&&j.record.team){if(confirm('In der Cloud liegt bereits ein Stand. Diesen laden? (Abbrechen = aktuellen Stand hochladen)')){DB=j.record;cacheLocal();}else{await pushNow();}}
-      else{await pushNow();}
-      setSync('ok','Synchron');}
-    else{setSync('warn','Fehlgeschlagen');alert('Verbindung fehlgeschlagen. Key und Bin-ID prüfen.');}
-  }catch(e){setSync('warn','Offline');alert('Cloud nicht erreichbar. Internet prüfen.');}
-  renderAll();
+$('#btnSettings').onclick = openSet;
+dlgSet.addEventListener('close', () => {
+  if (dlgSet.returnValue !== 'ok') return;
+  snap();
+  const st = S.settings;
+  st.company = $('#sCompany').value.trim(); st.site = $('#sSite').value.trim();
+  st.sollF = Math.max(0, parseInt($('#sSollF').value, 10) || 0);
+  st.sollS = Math.max(0, parseInt($('#sSollS').value, 10) || 0);
+  st.timesF = $('#sTimeF').value.trim(); st.timesS = $('#sTimeS').value.trim();
+  st.roles = [...new Set($('#sRoles').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean))];
+  saveSyncCfg();
+  commit('Einstellungen geändert');
+});
+$('#btnAnchorA').onclick = () => { snap(); S.settings.anchor = isoDate(viewMonday); commit(`Rotation: Gruppe A ist in KW ${kw()} Früh`); rotNote(); };
+$('#btnAnchorSwap').onclick = () => { snap(); S.settings.anchor = isoDate(addDays(parseIso(S.settings.anchor), 7)); commit('Rotation umgedreht'); rotNote(); };
+
+/* Export / Import */
+function download(name, text, type){
+  const blob = new Blob([text], { type });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-function disconnectCloud(){if(!confirm('Cloud-Verbindung auf diesem Gerät trennen? Der lokale Stand bleibt.'))return;CFG={key:'',bin:''};saveCfg();setSync('local','Lokal');renderAll();}
-function exportData(){const b=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='schichtplan_'+today()+'.json';a.click();}
-function importData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.team)throw 0;DB=d;persist();renderAll();alert('Import erfolgreich.');}catch(e){alert('Datei konnte nicht gelesen werden.');}};r.readAsText(f);}
-
-function resetAll(){if(!confirm('Alle Eingaben auf den Konzept-Stand zurücksetzen? Änderungen gehen verloren.'))return;
-  DB={target:{...SEED.target},lead:{...SEED.lead},org:JSON.parse(JSON.stringify(SEED.org)),team:JSON.parse(JSON.stringify(SEED.team)),absences:[]};persist();renderAll();}
-
-const ICON={
-  cockpit:'<path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-2"/><circle cx="12" cy="12" r="1.6"/>',
-  team:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 11a3 3 0 0 0 0-6"/><path d="M21 20c0-2.5-2-4.2-4-4.7"/>',
-  org:'<rect x="9" y="3" width="6" height="4" rx="1"/><rect x="3" y="16" width="6" height="4" rx="1"/><rect x="15" y="16" width="6" height="4" rx="1"/><path d="M12 7v5M6 16v-2h12v2"/>',
-  abs:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4M9 14l2 2 4-4"/>',
-  sync:'<path d="M4 12a8 8 0 0 1 14-5l2 2"/><path d="M20 12a8 8 0 0 1-14 5l-2-2"/><path d="M18 4v5h-5M6 20v-5h5"/>'
+$('#btnExport').onclick = () => download(`leitstand-schicht-${isoDate(new Date())}.json`, JSON.stringify(S, null, 2), 'application/json');
+$('#btnLogCsv').onclick = () => {
+  const csv = '﻿Zeitpunkt;Änderung\n' + S.log.map(x => `${new Date(x.t).toLocaleString('de-DE')};"${String(x.m).replace(/"/g, '""')}"`).join('\n');
+  download(`schicht-protokoll-${isoDate(new Date())}.csv`, csv, 'text/csv');
 };
-const TABS=[['cockpit','Cockpit'],['team','Team'],['org','Orga'],['abs','Ausfälle'],['sync','Sync']];
-const RENDER={cockpit:renderCockpit,team:renderTeam,org:renderOrg,abs:renderAbs,sync:renderSync};
-let active='cockpit';
-function renderDock(){$('#dock').innerHTML=TABS.map(([k,l])=>`<button class="${k===active?'on':''}" onclick="go('${k}')" aria-label="${l}"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${l}</button>`).join('');}
-function go(k){active=k;renderDock();document.querySelectorAll('.panel-v').forEach(p=>p.classList.remove('on'));$('#p-'+k).classList.add('on');RENDER[k]();window.scrollTo({top:0,behavior:'smooth'});}
-function renderAll(){renderDock();RENDER[active]();document.querySelectorAll('.panel-v').forEach(p=>p.classList.remove('on'));$('#p-'+active).classList.add('on');}
+$('#btnImport').onclick = () => $('#fileImport').click();
+$('#fileImport').onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try { const data = JSON.parse(rd.result); importData(data.record || data); }
+    catch (e) { toast('Datei konnte nicht gelesen werden', false); }
+    ev.target.value = '';
+  };
+  rd.readAsText(f);
+};
+function mapForeign(it){
+  if (!it || typeof it !== 'object') return null;
+  const name = it.name || it.Name || [it.vorname || it.firstName, it.nachname || it.lastName].filter(Boolean).join(' ');
+  const role = it.role || it.rolle || it.Rolle || it.funktion || it.position || '';
+  const sh = String(it.schicht || it.shift || '').toLowerCase();
+  const z = Z_LONG[it.z] ? it.z : /fr/.test(sh) ? groupIn('F', viewMonday) : /sp/.test(sh) ? groupIn('S', viewMonday) : /norm|tag|unab|keine/.test(sh) ? 'X' : 'A';
+  const artRaw = String(it.art || it.typ || it.beschaeftigung || it.type || '').toLowerCase();
+  const art = ARTEN.find(a => artRaw && a.toLowerCase().startsWith(artRaw.slice(0, 4))) || 'Festangestellt';
+  return cleanEmp({ name, role, z, art, note: it.note || '' });
+}
+function importData(data){
+  snap();
+  if (data && data.v === 2 && Array.isArray(data.employees)) {
+    S = normalize(data);
+    dlgSet.close('cancel'); commit(`${S.employees.length} Mitarbeiter importiert (ersetzt)`);
+    return;
+  }
+  const arr = Array.isArray(data) ? data : (data.employees || data.mitarbeiter || data.team || data.staff || []);
+  const existing = new Set(S.employees.map(e => e.name.toLowerCase()));
+  let n = 0;
+  arr.map(mapForeign).filter(Boolean).forEach(e => { if (!existing.has(e.name.toLowerCase())) { S.employees.push(e); existing.add(e.name.toLowerCase()); n++; } });
+  if (!n) { hist.pop(); toast('Keine neuen Mitarbeiter gefunden', false); return; }
+  dlgSet.close('cancel'); commit(`${n} Mitarbeiter importiert (hinzugefügt)`);
+}
+$('#btnDemo').onclick = () => {
+  const names = ['Anna Becker','Lukas Wagner','Mehmet Yıldız','Sofia Rossi','Jan Kowalski','Laura Schmitt','Tim Hoffmann','Elif Demir','Marco Bianchi','Nina Krause','Paul Richter','Ivana Horvat','Kevin Braun','Sarah Lange','David Weber','Aylin Kaya','Felix Neumann','Olga Petrova','Jonas Fischer','Lea Zimmermann'];
+  const roles = ['Staplerfahrer','Kommissionierung','Packen / Versand','Wareneingang','Retouren','Lagermitarbeiter'];
+  snap();
+  const existing = new Set(S.employees.map(e => e.name.toLowerCase()));
+  names.forEach((n, i) => { if (!existing.has(n.toLowerCase())) S.employees.push(cleanEmp({ name: n, role: roles[i % roles.length], z: i % 2 ? 'B' : 'A', art: i % 5 === 3 ? 'Leiharbeit' : 'Festangestellt' })); });
+  [['Petra Vogel','Teamleitung Wareneingang','X'],['Stefan Klein','Teamleitung Versand','A'],['Miriam Wolf','Teamleitung Frachten','B'],['Tobias Kraft','Inhouse-TL (Zwischenschicht)','X']].forEach(([n, r, z]) => { if (!existing.has(n.toLowerCase())) S.employees.push(cleanEmp({ name: n, role: r, z })); });
+  dlgSet.close('cancel'); commit('Beispieldaten geladen');
+};
+$('#btnWipe').onclick = () => {
+  if (!S.employees.length) return;
+  if (!confirm(`Wirklich alle ${S.employees.length} Mitarbeiter löschen?`)) return;
+  snap(); S.employees = []; S.absences = {}; S.swaps = {}; dlgSet.close('cancel'); commit('Alle Mitarbeiter gelöscht');
+};
 
-(async function(){await load();renderAll();})();
+/* ---------- jsonbin Sync ---------- */
+let SY = (() => { try { return JSON.parse(localStorage.getItem(LS_SYNC)) || {}; } catch (e) { return {}; } })();
+function saveSyncCfg(){
+  SY = { id: $('#sBin').value.trim(), key: $('#sKey').value.trim(), auto: $('#sAuto').checked };
+  try { localStorage.setItem(LS_SYNC, JSON.stringify(SY)); } catch (e) {}
+  syncState(SY.id && SY.key ? (SY.auto ? 'ok' : '') : '', SY.id && SY.key ? (SY.auto ? 'Sync aktiv' : 'Sync manuell') : 'Lokal');
+}
+function syncState(cls, txt){ $('#syncDot').className = 'dot ' + (cls || ''); $('#syncTxt').textContent = txt; }
+const syncReady = () => SY.id && SY.key;
+let syncT;
+function scheduleSync(){ if (!syncReady() || !SY.auto) return; clearTimeout(syncT); syncState('busy', 'Speichert …'); syncT = setTimeout(push, 1500); }
+async function push(){
+  if (!syncReady()) return toast('Bin-ID und Key fehlen', false);
+  try {
+    syncState('busy', 'Speichert …');
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(SY.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': SY.key }, body: JSON.stringify(S) });
+    if (!r.ok) throw new Error(r.status);
+    syncState('ok', 'Synchron · ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+  } catch (e) { syncState('err', 'Sync-Fehler'); }
+}
+async function pull(silent){
+  if (!syncReady()) { if (!silent) toast('Bin-ID und Key fehlen', false); return; }
+  try {
+    syncState('busy', 'Lädt …');
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(SY.id)}/latest`, { headers: { 'X-Master-Key': SY.key } });
+    if (!r.ok) throw new Error(r.status);
+    const rec = (await r.json()).record;
+    if (rec && rec.v === 2) {
+      if (silent && (rec.updated || 0) <= (S.updated || 0)) { syncState('ok', 'Synchron'); return; }
+      snap(); S = normalize(rec); save(false); render();
+      syncState('ok', 'Geladen · ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
+      if (!silent) toast(`${S.employees.length} Mitarbeiter aus der Cloud geladen`);
+    } else if (rec) {
+      if (silent) { syncState('err', 'Bin hat altes Format'); return; }
+      importData(rec); syncState('ok', 'Importiert');
+    }
+  } catch (e) { syncState('err', 'Sync-Fehler'); if (!silent) toast('Laden fehlgeschlagen – Bin-ID / Key prüfen', false); }
+}
+$('#btnPull').onclick = () => { saveSyncCfg(); pull(false); };
+$('#btnPush').onclick = () => { saveSyncCfg(); push(); };
+
+/* ---------- Woche & Filter ---------- */
+$('#prevW').onclick = () => { viewMonday = addDays(viewMonday, -7); closeMenu(); render(); };
+$('#nextW').onclick = () => { viewMonday = addDays(viewMonday, 7); closeMenu(); render(); };
+$('#todayW').onclick = () => { viewMonday = mondayOf(new Date()); closeMenu(); render(); };
+$('#q').addEventListener('input', renderBoard);
+$('#roleFilter').addEventListener('change', renderBoard);
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { if (drag) endDrag(ev, true); closeMenu(); }
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName);
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && !typing && !document.querySelector('dialog[open]')) { ev.preventDefault(); undo(); }
+  if (ev.key === '/' && !typing) { ev.preventDefault(); $('#q').focus(); }
+});
+
+/* ---------- Start ---------- */
+setView(view);
+if (syncReady()) { syncState(SY.auto ? 'ok' : '', SY.auto ? 'Sync aktiv' : 'Sync manuell'); if (SY.auto) pull(true); }
+})();
 </script>
 </body>
 </html>
