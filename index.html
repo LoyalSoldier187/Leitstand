@@ -296,6 +296,48 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .bulkbar .inp{width:auto;padding:6px 30px 6px 10px}
 .bulkbar .tinp{text-align:left}
 
+/* Stammdaten */
+details.md summary{cursor:pointer;display:flex;gap:12px;align-items:center;list-style:none;flex-wrap:wrap}
+details.md summary::-webkit-details-marker{display:none}
+details.md summary::before{content:"▸";color:var(--muted);transition:transform .15s;display:inline-block}
+details.md[open] summary::before{transform:rotate(90deg)}
+details.md[open] summary{margin-bottom:14px}
+.md2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.mdl{display:flex;flex-direction:column;gap:6px;max-height:380px;overflow:auto;padding-right:4px}
+.mdr{display:flex;gap:6px;align-items:center}
+.mdr .tinp{text-align:left;flex:1;min-width:0}
+.mdr .cnt{font-size:12px;color:var(--muted);min-width:52px;text-align:right;white-space:nowrap}
+.mv{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:6px;cursor:pointer;padding:2px 6px;font-size:10px}
+.mv:hover{color:var(--text)}
+.mdadd{display:flex;gap:8px;margin-top:10px}
+.mdadd .tinp{text-align:left}
+/* Kalender */
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tool{border:1px solid var(--line2);background:var(--panel);border-radius:9px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
+.tool:hover{color:var(--text)}
+.tool.tF{color:var(--f)}.tool.tS{color:var(--s)}.tool.tX{color:var(--x)}
+.tool.on{color:var(--text);border-color:var(--f);box-shadow:inset 0 0 0 1px var(--f);background:var(--f-bg)}
+.cal{border-collapse:separate;border-spacing:0}
+.cal th{position:sticky;top:0;background:var(--panel2);z-index:2;text-align:center;white-space:nowrap;padding:7px 4px;font-size:10.5px;letter-spacing:0;text-transform:none}
+.cal th .wk{display:block;font:700 13px "Space Grotesk";color:var(--text)}
+.cal th.cur .wk{color:var(--f)}
+.cal th .wc{display:block;font-weight:600;margin-top:1px}
+.cal td,.cal th{border-bottom:1px solid var(--line)}
+.cal td:first-child,.cal th:first-child{position:sticky;left:0;z-index:1;background:var(--panel);text-align:left;min-width:220px;padding:4px 12px}
+.cal th:first-child{z-index:3;background:var(--panel2)}
+.cal td{padding:3px}
+.cal tr.grp td{background:var(--panel2);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;padding:7px 12px}
+.cc{width:62px;height:30px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;border:1.5px solid transparent}
+.cc.F{color:var(--f);background:var(--f-bg)}.cc.S{color:var(--s);background:var(--s-bg)}.cc.X{color:var(--x);background:var(--x-bg)}
+.cc.sw{border-style:dashed;border-color:var(--warn)}
+.cc.ab{background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 4px,transparent 4px 8px);color:var(--text)}
+.cc:hover{filter:brightness(1.35)}
+.cal.paint .cc{cursor:crosshair;touch-action:none}
+.cnm{font-weight:500;white-space:nowrap}
+.cnm small{display:block;color:var(--dim);font-size:11px;font-weight:400}
+.drop{border:1.5px dashed var(--line2);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.drop.over{border-color:var(--f);background:var(--f-bg)}
+
 /* ---------- Druck ---------- */
 #printArea{display:none}
 @media print{
@@ -392,6 +434,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 
   <nav class="tabs" id="tabs" role="tablist">
     <button class="tab on" data-view="Board" role="tab">Schicht-Board</button>
+    <button class="tab" data-view="Cal" role="tab">Kalender</button>
     <button class="tab" data-view="Team" role="tab">Mitarbeiter <span class="n" id="teamN" style="background:rgba(255,255,255,.07);color:var(--muted)"></span></button>
     <button class="tab" data-view="Stats" role="tab">Kennzahlen</button>
     <button class="tab" data-view="Cap" role="tab">Forecast &amp; Bedarf</button>
@@ -427,12 +470,46 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   </div>
   </div>
 
+  <!-- Kalender -->
+  <div id="viewCal" class="view hide">
+    <div class="vhead">
+      <div><h2>Schichtkalender</h2><div class="note">Pinsel wählen und mit gedrückter Maus über die Felder ziehen – gilt nur für die jeweilige Woche. Mit „Info“ ein Feld anklicken für alle Optionen. Strg+Z macht rückgängig.</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select class="inp" id="calWeeks" style="width:auto" aria-label="Zeitraum"><option value="6">6 Wochen</option><option value="8" selected>8 Wochen</option><option value="12">12 Wochen</option><option value="16">16 Wochen</option></select>
+        <select class="inp" id="calGroup" style="width:auto" aria-label="Gruppierung"><option value="z">nach Gruppe</option><option value="area">nach Bereich</option><option value="role">nach Rolle</option><option value="name">alphabetisch</option></select>
+        <input class="inp" id="calQ" type="search" placeholder="Suchen …" style="width:180px">
+      </div>
+    </div>
+    <div class="tools" id="calTools">
+      <button class="tool on" data-tool="info">👆 Info</button>
+      <button class="tool tF" data-tool="F">Früh</button>
+      <button class="tool tS" data-tool="S">Spät</button>
+      <button class="tool tX" data-tool="X">Unabhängig</button>
+      <button class="tool" data-tool="aU">Urlaub</button>
+      <button class="tool" data-tool="aK">Krank</button>
+      <button class="tool" data-tool="aS">Schulung</button>
+      <button class="tool" data-tool="aF">Frei</button>
+      <button class="tool" data-tool="reset">↺ Zurücksetzen</button>
+    </div>
+    <section class="panel" style="margin-top:0;padding:0;overflow:hidden"><div class="qwrap" style="border:0;border-radius:0;max-height:72vh"><table class="cal" id="calTable"></table></div></section>
+    <div class="legend" style="margin-top:10px"><span><i style="background:var(--f)"></i>F = Früh</span><span><i style="background:var(--s)"></i>S = Spät</span><span><i style="background:var(--x)"></i>– = Schichtunabhängig</span><span><i style="background:var(--warn)"></i>gestrichelt = Tausch nur diese Woche</span><span>U Urlaub · K Krank · Sch Schulung · Fr Frei</span></div>
+  </div>
+
   <!-- Mitarbeiter -->
   <div id="viewTeam" class="view hide">
     <div class="vhead">
       <div><h2>Mitarbeiter</h2><div class="note">Alle Felder direkt bearbeitbar · wird sofort gespeichert · Strg+Z macht rückgängig · Spaltenkopf anklicken zum Sortieren</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="tmAdd">+ Mitarbeiter</button><button class="btn" id="tmBulkAdd">Liste einfügen</button><button class="btn" id="tmCsv">Liste exportieren (Excel)</button></div>
     </div>
+    <details class="panel md" id="mdBox" style="margin-top:0;margin-bottom:14px">
+      <summary><b>Bereiche &amp; Rollen verwalten</b><span class="note" id="mdSum"></span></summary>
+      <div class="md2">
+        <div><div class="phead"><h2>Bereiche</h2><span>umbenennen · sortieren · löschen</span></div><div class="mdl" id="mdAreas"></div>
+          <div class="mdadd"><input class="tinp" id="mdAreaNew" placeholder="Neuer Bereich …"><button class="btn sm" id="mdAreaAdd">+ Hinzufügen</button></div></div>
+        <div><div class="phead"><h2>Rollen / Funktionen</h2><span>umbenennen · sortieren · löschen</span></div><div class="mdl" id="mdRoles"></div>
+          <div class="mdadd"><input class="tinp" id="mdRoleNew" placeholder="Neue Rolle …"><button class="btn sm" id="mdRoleAdd">+ Hinzufügen</button></div></div>
+      </div>
+    </details>
     <div class="toolbar" style="margin-top:0">
       <input class="inp search" id="tmQ" type="search" placeholder="Name, Bereich, Rolle, Notiz …">
       <select class="inp" id="tmFArea" aria-label="Bereich filtern"></select>
@@ -512,12 +589,12 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <div style="overflow-x:auto"><table id="qReq"></table></div>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input class="tinp l" id="qNewName" placeholder="Neue Qualifikation, z. B. Gefahrgut" style="max-width:280px;text-align:left"><button class="btn sm" id="qAdd">+ Hinzufügen</button></div>
       </section>
-      <section class="panel"><div class="phead"><h2>Fristen</h2><span>abgelaufen &amp; nächste 60 Tage</span></div><div class="list" id="qExp"></div></section>
+      <section class="panel"><div class="phead"><h2>Wer kann was?</h2><select class="inp" id="qWho" style="width:auto;padding:6px 30px 6px 10px" aria-label="Qualifikation wählen"></select></div><div class="list" id="qWhoList" style="max-height:420px"></div></section>
     </div>
     <section class="panel">
       <div class="phead"><h2>Qualifikationsmatrix</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="qSearch" type="search" placeholder="Name oder Rolle …" style="width:220px;padding:6px 10px"><button class="btn sm" id="qImport">Liste einfügen</button></div></div>
-      <div class="note" style="margin-bottom:10px">Klick auf ein Feld: Nachweis setzen, Ablaufdatum eintragen oder entfernen.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="qSearch" type="search" placeholder="Name oder Rolle …" style="width:220px;padding:6px 10px"><button class="btn sm primary" id="qImport">Quali-Matrix importieren</button></div></div>
+      <div class="note" style="margin-bottom:10px">Klick auf ein Feld schaltet zwischen <b>Ja</b> und <b>Nein</b> um.</div>
       <div class="qwrap"><table class="qm" id="qMatrix"></table></div>
     </section>
   </div>
@@ -558,11 +635,18 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <div class="dhead"><h3>Forecast einfügen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
     <div class="dbody">
       <div class="note">Tabelle in Excel markieren, kopieren (Strg+C) und hier einfügen (Strg+V). Erkannt werden: Zeilen = Wochen oder Tage und Spalten = Kunden (oder umgekehrt) · Wochen als „KW 43“, „43/2026“, „2026-W43“ oder Datum · Langformat „Woche; Kunde; Menge“. Spalten wie „Summe“ werden ignoriert, neue Kunden angelegt.</div>
+      <div class="drop" id="fcDrop">
+        <button type="button" class="btn sm primary" id="fcFileBtn">📄 Excel-Datei wählen …</button>
+        <select class="inp hide" id="fcSheet" style="width:auto;padding:5px 30px 5px 10px" aria-label="Tabellenblatt"></select>
+        <span class="note" id="fcFileName">oder Datei hierher ziehen (.xlsx oder .csv) – oder unten einfügen</span>
+        <input type="file" id="fcFile" class="hide" accept=".xlsx,.xlsm,.csv,.txt">
+      </div>
       <textarea class="inp" id="fcText" placeholder="KW&#9;Rollei&#9;GotBag&#9;Alaiko&#10;KW 43&#9;3.200&#9;1.400&#9;800&#10;KW 44&#9;3.500&#9;1.250&#9;950"></textarea>
       <div class="grid2">
         <div class="field"><label for="fcMode">Werte sind</label><select class="inp" id="fcMode"><option value="day">pro Arbeitstag</option><option value="week">pro Woche (÷ Arbeitstage)</option></select></div>
         <div class="field"><label>Nach dem Übernehmen</label><label class="toggle" style="padding-top:8px"><input type="checkbox" id="fcActivate" checked> Soll aus Forecast berechnen</label></div>
       </div>
+      <label class="check"><input type="checkbox" id="fcReplaceClients"> Kundenliste durch die Kunden aus der Datei ersetzen (andere Kunden entfernen)</label>
       <div id="fcPreview"></div>
     </div>
     <div class="dfoot"><button class="btn ghost" value="cancel">Abbrechen</button><button class="btn primary" value="ok" id="fcApply" disabled>Übernehmen</button></div>
@@ -598,14 +682,23 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   </form>
 </dialog>
 
-<dialog id="dlgQImport">
+<dialog id="dlgQImport" style="width:min(780px,calc(100vw - 24px))">
   <form method="dialog">
-    <div class="dhead"><h3>Qualifikationen einfügen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
+    <div class="dhead"><h3>Quali-Matrix importieren</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
     <div class="dbody">
-      <div class="note">Eine Zeile pro Nachweis: <b>Name; Qualifikation; gültig bis</b> (Datum optional, z. B. 31.03.2027 oder 03/2027). Funktioniert mit Kopieren aus Excel oder aus der Quali-Matrix. Neue Qualifikationen werden angelegt, unbekannte Namen übersprungen.</div>
-      <textarea class="inp" id="qiText" placeholder="Max Mustermann; Staplerschein; 31.03.2027&#10;Erika Muster; Ersthelfer; 11/2026&#10;Ali Yilmaz; Brandschutzhelfer"></textarea>
+      <div class="drop" id="qiDrop">
+        <button type="button" class="btn sm" id="qiFileBtn">📄 Datei wählen …</button>
+        <button type="button" class="btn sm" id="qiScan">🔎 Quali-Matrix im Browser suchen</button>
+        <select class="inp hide" id="qiSheet" style="width:auto;padding:5px 30px 5px 10px" aria-label="Tabellenblatt"></select>
+        <span class="note" id="qiFileName">oder Datei hierher ziehen (Excel .xlsx, CSV, JSON-Export)</span>
+        <input type="file" id="qiFile" class="hide" accept=".xlsx,.xlsm,.csv,.txt,.json">
+      </div>
+      <div class="note">Oder die Tabelle aus Excel bzw. aus der Quali-Matrix im Browser markieren, kopieren und hier einfügen. Erkannt werden: Namen in einer Spalte, Qualifikationen als Spalten, ein Haken, „x“, „ja“ oder eine Zahl größer 0 bedeutet <b>kann es</b>. Auch eine Liste „Name; Qualifikation“ funktioniert.</div>
+      <textarea class="inp" id="qiText" placeholder="Name&#9;Stapler&#9;Ersthelfer&#9;Kommissionierung&#10;Rout, Evgeniya&#9;x&#9;&#9;x&#10;Khan, Emal&#9;&#9;x&#9;x"></textarea>
+      <label class="check"><input type="checkbox" id="qiReplace"> Bisherige Qualifikationen der erkannten Mitarbeiter vorher entfernen</label>
+      <div id="qiPreview"></div>
     </div>
-    <div class="dfoot"><button class="btn ghost" value="cancel">Abbrechen</button><button class="btn primary" value="ok">Übernehmen</button></div>
+    <div class="dfoot"><button class="btn ghost" value="cancel">Abbrechen</button><button class="btn primary" value="ok" id="qiApply" disabled>Übernehmen</button></div>
   </form>
 </dialog>
 
@@ -666,12 +759,8 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
         <button class="btn sm" type="button" id="btnAnchorSwap">Rotation umdrehen</button>
       </div>
 
-      <div class="sect">Rollen (Reihenfolge im Board &amp; Rollen-Check)</div>
-      <textarea class="inp" id="sRoles" style="min-height:130px"></textarea>
-      <div class="note">Die Mindestbesetzung je Rolle stellst du direkt in der Tabelle „Rollen-Check“ ein.</div>
-
-      <div class="sect">Bereiche (Auswahlliste für Mitarbeiter)</div>
-      <textarea class="inp" id="sAreas" style="min-height:120px"></textarea>
+      <div class="sect">Bereiche &amp; Rollen</div>
+      <div class="note">Verwaltest du im Reiter „Mitarbeiter“ unter „Bereiche &amp; Rollen verwalten“. Die Mindestbesetzung je Rolle stellst du im Rollen-Check ein.</div>
 
       <div class="sect">Cloud-Sync (jsonbin.io, optional)</div>
       <div class="note">Am besten eine <b>neue, eigene Bin</b> anlegen, damit die alte App nicht überschrieben wird. Der Key bleibt nur auf diesem Gerät.</div>
@@ -779,7 +868,7 @@ let viewMonday = mondayOf(new Date());
 
 /* ---------- Mitarbeiterliste Bischofsheim (einmalig laden) ---------- */
 const SEED_ID = 'bischofsheim-2026-10-12';
-const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb002", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": ""}, {"id": "mb003", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb004", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb005", "name": "Khan, Emal", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb006", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb007", "name": "Ngoc Thanh Tuyen, Pham", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb008", "name": "Philippi, Rene", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb009", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb010", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb011", "name": "Malah, Khalid", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb012", "name": "Müller, Heike", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb013", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb014", "name": "Valter, Julia", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb015", "name": "Schuller, Milica", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb016", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb017", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb018", "name": "Jung, Jaqueline", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb019", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb020", "name": "Kimmer, Timo", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb021", "name": "Huduq, Osumani", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb022", "name": "Franjo, Denis", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb023", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb024", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb025", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb026", "name": "Khan, Zarmina", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb027", "name": "Heck, Inka", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb028", "name": "Medlin, Birgit", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb029", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb030", "name": "Dortmann, Marcel", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb031", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb032", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb033", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb034", "name": "Rout, Aleksej", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb035", "name": "Schäfer, Denis", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb036", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb037", "name": "Schäfer, Valeria", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb038", "name": "Walter, Oleg", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb039", "name": "Geißler, Martina", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb040", "name": "Harff, Rita", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb041", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb042", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb043", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb044", "name": "Khan, Fatima", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb045", "name": "Ponomareva, Alena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb046", "name": "Brooks, Brigitte", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb047", "name": "Schäfer, Elena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb048", "name": "Schäfer, Victor", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb049", "name": "Dortmann, Alexander", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb050", "name": "Schatz, Oksana", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb051", "name": "Bajko, Alpar", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb052", "name": "Schuster, Iris", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb053", "name": "Fronia, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb054", "name": "Hebling, Jennifer", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb055", "name": "Farfar, Nadia", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb056", "name": "Gundlach, Sandra", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb057", "name": "Lendle, Susanne", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb058", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb059", "name": "Assakali, Nassim", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb060", "name": "Khalifi, Mariya", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb061", "name": "Munschauer, Mandy", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb062", "name": "Zouhair, Jamal Eddi", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb063", "name": "Boulbahaiem, Anis", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb064", "name": "Hummel, Petra", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb065", "name": "Benjrid, Hicham", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb066", "name": "Kaygusuz, Devrim", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb067", "name": "Bouzayen, Iyad", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb068", "name": "Diring, Milen", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}], "settings": {"sollF": 40, "sollS": 27}};
+const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb002", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": ""}, {"id": "mb003", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb004", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb005", "name": "Khan, Emal", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb006", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb007", "name": "Ngoc Thanh Tuyen, Pham", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb008", "name": "Philippi, Rene", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb009", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb010", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb011", "name": "Malah, Khalid", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb012", "name": "Müller, Heike", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb013", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb014", "name": "Valter, Julia", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb015", "name": "Schuller, Milica", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb016", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb017", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb018", "name": "Jung, Jaqueline", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb019", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb020", "name": "Kimmer, Timo", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb021", "name": "Huduq, Osumani", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb022", "name": "Franjo, Denis", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb023", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb024", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb025", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb026", "name": "Khan, Zarmina", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb027", "name": "Heck, Inka", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb028", "name": "Medlin, Birgit", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb029", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb030", "name": "Dortmann, Marcel", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb031", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb032", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb033", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb034", "name": "Rout, Aleksej", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb035", "name": "Schäfer, Denis", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": ""}, {"id": "mb036", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb037", "name": "Schäfer, Valeria", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb038", "name": "Walter, Oleg", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb039", "name": "Geißler, Martina", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb040", "name": "Harff, Rita", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb041", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb042", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb043", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb044", "name": "Khan, Fatima", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb045", "name": "Ponomareva, Alena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb046", "name": "Brooks, Brigitte", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb047", "name": "Schäfer, Elena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb048", "name": "Schäfer, Victor", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb049", "name": "Dortmann, Alexander", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb050", "name": "Schatz, Oksana", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb051", "name": "Bajko, Alpar", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb052", "name": "Schuster, Iris", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb053", "name": "Fronia, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb054", "name": "Hebling, Jennifer", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb055", "name": "Farfar, Nadia", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb056", "name": "Gundlach, Sandra", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb057", "name": "Lendle, Susanne", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb058", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb059", "name": "Assakali, Nassim", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb060", "name": "Khalifi, Mariya", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb061", "name": "Munschauer, Mandy", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb062", "name": "Zouhair, Jamal Eddi", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb063", "name": "Boulbahaiem, Anis", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb064", "name": "Hummel, Petra", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb065", "name": "Benjrid, Hicham", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb066", "name": "Kaygusuz, Devrim", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}, {"id": "mb067", "name": "Bouzayen, Iyad", "art": "Minijob", "z": "A", "role": "", "area": "", "note": ""}, {"id": "mb068", "name": "Diring, Milen", "art": "Minijob", "z": "B", "role": "", "area": "", "note": ""}], "settings": {"sollF": 40, "sollS": 27, "quals": []}};
 (function applySeed(){
   if (S.seed === SEED_ID) return;
   const n = SEED.employees.length;
@@ -970,7 +1059,7 @@ function warnings(m = viewMonday){
 
 /* ---------- Render ---------- */
 let view = (() => { try { return localStorage.getItem('leitstand-view') || 'Board'; } catch (e) { return 'Board'; } })();
-const VIEWS = ['Board','Team','Stats','Cap','Qual'];
+const VIEWS = ['Board','Cal','Team','Stats','Cap','Qual'];
 let groupBy = (() => { try { return localStorage.getItem('leitstand-group') || 'role'; } catch (e) { return 'role'; } })();
 if (!VIEWS.includes(view)) view = 'Board';
 function setView(v){
@@ -985,6 +1074,7 @@ function render(){
   $('#qBadge').textContent = nb; $('#qBadge').classList.toggle('hide', !nb);
   if (view === 'Board') { renderBoard(); renderRoles(); renderLog(); }
   else if (view === 'Team') renderTeam();
+  else if (view === 'Cal') renderCal();
   else if (view === 'Stats') renderStats();
   else if (view === 'Cap') renderCap();
   else if (view === 'Qual') renderQual();
@@ -1150,12 +1240,21 @@ function closeMenu(){ if (menuId === null) return; menu.classList.add('hide'); d
 menu.addEventListener('click', ev => {
   const b = ev.target.closest('button'); if (!b || menuId === null) return;
   const id = menuId; closeMenu();
+  if (b.dataset.cs || 'ca' in b.dataset) {
+    const tool = b.dataset.cs || (b.dataset.ca ? 'a' + b.dataset.ca : null), e = byId(id), m = calMenuM;
+    snap();
+    const changed = tool ? calApply(id, m, tool) : (absOf(id, m) ? (setWeekVal(S.absences, id, '', m), true) : false);
+    if (!changed) { hist.pop(); return; }
+    return commit(`${e.name} KW ${kw(m)}: ${tool ? TOOL_LBL[tool] : 'anwesend'}`);
+  }
+  if (b.dataset.cz) return setZ(id, b.dataset.cz);
+  if (b.dataset.cedit) return openEmp(id);
   if ('abs' in b.dataset) setAbs(id, b.dataset.abs);
   else if (b.dataset.swap) setSwap(id, b.dataset.swap);
   else if (b.dataset.mact === 'edit') openEmp(id);
   else if (b.dataset.mact === 'del') removeEmp(id);
 });
-document.addEventListener('pointerdown', ev => { if (menuId !== null && !ev.target.closest('#menu,[data-menu]')) closeMenu(); });
+document.addEventListener('pointerdown', ev => { if (menuId !== null && !ev.target.closest('#menu,[data-menu],[data-cc]')) closeMenu(); });
 window.addEventListener('resize', closeMenu);
 window.addEventListener('scroll', () => { if (!drag && performance.now() - menuAt > 400) closeMenu(); }, { passive: true });
 
@@ -1584,6 +1683,7 @@ function parsePeriod(t){
     if (!m[3] && d < addDays(now, -180)) d = new Date(d.getFullYear() + 1, d.getMonth(), d.getDate());
     return { monday: mondayOf(d), date: isoDate(d) };
   }
+  if (/^\d{5}$/.test(t) && +t > 30000 && +t < 80000) { const d = new Date(Math.round((+t - 25569) * 864e5)); const dd = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); return { monday: mondayOf(dd), date: isoDate(dd) }; }
   if ((m = t.match(/^(\d{4})-?W(\d{1,2})$/i))) return { monday: mondayOfIsoWeek(+m[1], +m[2]) };
   if ((m = t.match(/^(?:KW|Woche|Wo\.?|W)\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?$/i)) || (m = t.match(/^(\d{1,2})\s*\/\s*(\d{2,4})$/)) || (m = t.match(/^(\d{1,2})$/))) {
     const w = +m[1]; if (w < 1 || w > 53) return null;
@@ -1628,7 +1728,7 @@ let fcParsed = null;
 function fcPreview(){
   const txt = $('#fcText').value;
   if (!txt.trim()) { fcParsed = null; $('#fcPreview').innerHTML = ''; $('#fcApply').disabled = true; return; }
-  const r = parseForecast(txt, $('#fcMode').value); fcParsed = r.err ? null : r; $('#fcApply').disabled = !fcParsed;
+  const r = parseForecastAuto(txt, $('#fcMode').value); fcParsed = r.err ? null : r; $('#fcApply').disabled = !fcParsed;
   if (r.err) { $('#fcPreview').innerHTML = `<div class="alert bad">${esc(r.err)}</div>`; return; }
   const names = r.map.map(m => m.name), wks = r.weeks.slice(0, 8);
   const val = (wk, n) => { const e = r.entries.find(x => x.wk === wk && x.client === n); return e ? fmtN(e.perDay) : '–'; };
@@ -1637,7 +1737,7 @@ function fcPreview(){
     `<div style="overflow-x:auto"><table><thead><tr><th>Woche</th>${names.map(n => `<th class="num">${esc(n)}</th>`).join('')}</tr></thead><tbody>${wks.map(wk => `<tr><td>KW ${kw(parseIso(wk))}</td>${names.map(n => `<td class="num">${val(wk, n)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` +
     (r.weeks.length > 8 ? `<div class="note" style="margin-top:6px">… und ${r.weeks.length - 8} weitere Wochen. Werte = ${S.settings.cap.unit} pro Arbeitstag.</div>` : `<div class="note" style="margin-top:6px">Werte = ${esc(S.settings.cap.unit)} pro Arbeitstag.</div>`);
 }
-$('#btnFcPaste').onclick = () => { $('#fcText').value = ''; fcPreview(); dlgFc.showModal(); setTimeout(() => $('#fcText').focus(), 30); };
+$('#btnFcPaste').onclick = () => { $('#fcText').value = ''; $('#fcSheet').classList.add('hide'); $('#fcFileName').textContent = 'oder Datei hierher ziehen (.xlsx oder .csv) – oder unten einfügen'; fcPreview(); dlgFc.showModal(); setTimeout(() => $('#fcText').focus(), 30); };
 $('#fcText').addEventListener('input', fcPreview);
 $('#fcMode').addEventListener('change', fcPreview);
 dlgFc.addEventListener('close', () => {
@@ -1648,6 +1748,12 @@ dlgFc.addEventListener('close', () => {
   const idOf = {};
   r.map.forEach(m => { if (m.match) idOf[m.name] = m.match.id; else { const id = uid(); c.clients.push({ id, name: m.name, vol: 0, rate: 25, shareF: 60 }); idOf[m.name] = id; added++; } });
   r.entries.forEach(e => { (S.volumes[e.wk] = S.volumes[e.wk] || {})[idOf[e.client]] = e.perDay; });
+  if ($('#fcReplaceClients').checked) {
+    const keep = new Set(Object.values(idOf));
+    const gone = c.clients.filter(x => !keep.has(x.id));
+    c.clients = c.clients.filter(x => keep.has(x.id));
+    Object.values(S.volumes).forEach(w => gone.forEach(g => delete w[g.id]));
+  }
   if ($('#fcActivate').checked) c.on = true;
   commit(`Forecast übernommen: ${r.weeks.length} Wochen, ${r.map.length} Kunden${added ? ` (${added} neu – Leistung prüfen!)` : ''}`);
 });
@@ -1766,19 +1872,18 @@ function renderQual(){
   const Q = S.settings.quals;
   const chip = (n, min) => `<span class="chip ${min ? (n >= min ? 'ok' : 'no') : (n ? 'ok' : 'na')}">${n}${min ? '/' + min : ''}</span>`;
   const mi = (i, f, v, q) => `<input class="mininp" type="number" min="0" max="99" value="${v}" data-qmin="${i}:${f}" data-k="qmin:${i}:${f}" aria-label="Minimum ${f === 'minF' ? 'Früh' : 'Spät'} ${esc(q)}">`;
-  $('#qReq').innerHTML = `<thead><tr><th>Qualifikation</th><th class="c">Min. Früh</th><th class="c">Min. Spät</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Gültig</th><th></th></tr></thead><tbody>` +
+  $('#qReq').innerHTML = `<thead><tr><th>Qualifikation</th><th class="c">Min. Früh</th><th class="c">Min. Spät</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Gesamt</th><th></th></tr></thead><tbody>` +
     (Q.map((q, i) => `<tr><td>${esc(q.name)}</td><td class="c">${mi(i, 'minF', q.minF, q.name)}</td><td class="c">${mi(i, 'minS', q.minS, q.name)}</td>
       <td class="c">${chip(presentQual(q.name, 'F'), q.minF)}</td><td class="c">${chip(presentQual(q.name, 'S'), q.minS)}</td><td class="c">${S.employees.filter(e => qualValid(e, q.name)).length}</td>
       <td><button class="x-del" data-qdel="${i}" aria-label="${esc(q.name)} entfernen">×</button></td></tr>`).join('') || '<tr><td colspan="7" style="color:var(--dim)">Noch keine Qualifikationen angelegt.</td></tr>') + '</tbody>';
-  const ex = expiries();
-  $('#qExp').innerHTML = ex.items.length ? ex.items.map(i => `<div><span>${esc(i.e.name)} · ${esc(i.q)}</span><span style="color:${i.expired ? 'var(--bad)' : 'var(--warn)'};white-space:nowrap">${i.expired ? '⚠ abgelaufen ' : 'bis '}${fmtY(parseIso(i.u))}</span></div>`).join('') : '<div class="none">✓ Keine Fristen in den nächsten 60 Tagen.</div>';
+  renderWho();
   const qs = $('#qSearch').value.trim().toLowerCase(), order = roleOrder(), today = isoDate(new Date()), lim = isoDate(addDays(new Date(), 60));
   const list = S.employees.filter(e => !qs || (e.name + ' ' + e.role).toLowerCase().includes(qs))
     .sort((x, y) => ((x.role ? order.indexOf(x.role) : 1e9) - (y.role ? order.indexOf(y.role) : 1e9)) || x.name.localeCompare(y.name, 'de'));
   const cell = (e, q, i) => {
     const has = hasQ(e, q.name), u = has ? e.quals[q.name] : '';
-    const cls = !has ? '' : (u && u < today) ? 'exp' : (u && u <= lim) ? 'soon' : 'has';
-    const txt = !has ? '—' : u ? (u < today ? '⚠ ' : '') + 'bis ' + fmtD(u) : '✓ unbefristet';
+    const cls = has ? 'has' : '';
+    const txt = has ? '✓ Ja' : '—';
     return `<td><button type="button" class="qc ${cls}" data-qc="${e.id}|${i}" aria-label="${esc(q.name)} für ${esc(e.name)}">${txt}</button></td>`;
   };
   $('#qMatrix').innerHTML = `<thead><tr><th>Mitarbeiter</th>${Q.map(q => `<th class="c">${esc(q.name)}</th>`).join('')}</tr></thead><tbody>` +
@@ -1800,17 +1905,15 @@ $('#viewQual').addEventListener('click', ev => {
     if (S.settings.quals.some(q => q.name.toLowerCase() === name.toLowerCase())) return toast(`${name} gibt es schon`, false);
     snap(); S.settings.quals.push({ name, minF: 0, minS: 0 }); $('#qNewName').value = ''; return commit(`Qualifikation ${name} angelegt`);
   }
-  if (ev.target.id === 'qImport') { $('#qiText').value = ''; $('#dlgQImport').showModal(); return; }
+  if (ev.target.id === 'qImport') return openQImport();
   const d = ev.target.closest('[data-qdel]');
   if (d) { const q = S.settings.quals[+d.dataset.qdel]; if (!q) return; snap(); S.settings.quals.splice(+d.dataset.qdel, 1); S.employees.forEach(e => { if (e.quals) delete e.quals[q.name]; }); return commit(`Qualifikation ${q.name} entfernt`); }
   const c = ev.target.closest('[data-qc]');
   if (c) {
     const [id, i] = c.dataset.qc.split('|'), e = byId(id), q = S.settings.quals[+i]; if (!e || !q) return;
-    qEdit = { id, q: q.name };
-    $('#dqTitle').textContent = `${q.name} – ${e.name}`;
-    $('#dqHas').checked = true;
-    $('#dqUntil').value = hasQ(e, q.name) ? e.quals[q.name] : '';
-    dlgQual.showModal();
+    snap(); e.quals = e.quals || {};
+    if (hasQ(e, q.name)) { delete e.quals[q.name]; commit(`${e.name}: ${q.name} – Nein`); }
+    else { e.quals[q.name] = ''; commit(`${e.name}: ${q.name} – Ja`); }
   }
 });
 $('#dqUntil').addEventListener('input', () => { if ($('#dqUntil').value) $('#dqHas').checked = true; });
@@ -1823,24 +1926,6 @@ dlgQual.addEventListener('close', () => {
   snap(); e.quals = e.quals || {};
   if (has) e.quals[q] = u; else delete e.quals[q];
   commit(has ? `${e.name}: ${q}${u ? ' gültig bis ' + fmtY(parseIso(u)) : ' (unbefristet)'}` : `${e.name}: ${q} entfernt`);
-});
-$('#dlgQImport').addEventListener('close', () => {
-  if ($('#dlgQImport').returnValue !== 'ok') return;
-  const rows = $('#qiText').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-  const byName = new Map(S.employees.map(e => [e.name.toLowerCase(), e]));
-  let n = 0, newQ = 0; const missing = [], badDate = [];
-  snap();
-  rows.forEach(l => {
-    const [name, qn, d] = l.split(/\t|;/).map(x => (x || '').trim());
-    if (!name || !qn) return;
-    const e = byName.get(name.toLowerCase()); if (!e) { missing.push(name); return; }
-    let q = S.settings.quals.find(x => x.name.toLowerCase() === qn.toLowerCase());
-    if (!q) { q = { name: qn, minF: 0, minS: 0 }; S.settings.quals.push(q); newQ++; }
-    let u = parseDateLoose(d); if (u === null) { badDate.push(name); u = ''; }
-    e.quals = e.quals || {}; e.quals[q.name] = u; n++;
-  });
-  if (!n) { hist.pop(); toast(missing.length ? `Keine Treffer – unbekannt: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ' …' : ''}` : 'Keine gültigen Zeilen erkannt', false); return; }
-  commit(`${n} Nachweise übernommen${newQ ? ` · ${newQ} neue Qualifikation(en)` : ''}${missing.length ? ` · ${missing.length} Namen unbekannt` : ''}${badDate.length ? ` · ${badDate.length} Datum unlesbar (unbefristet gesetzt)` : ''}`);
 });
 
 /* ---------- Mitarbeiter-Liste ---------- */
@@ -1862,6 +1947,7 @@ function tmList(){
 }
 function tmBulkBar(){ const n = tmSel.size; $('#tmBulk').classList.toggle('hide', !n); $('#tmSelN').textContent = `${n} ausgewählt`; }
 function renderTeam(){
+  renderMd();
   fillSel('#tmFArea', [['', 'Alle Bereiche'], ...areaOrder().map(a => [a, a]), ['__none', 'Ohne Bereich']]);
   fillSel('#tmFArt', [['', 'Alle Beschäftigungsarten'], ...ARTEN.map(a => [a, a])]);
   fillSel('#tmFZ', [['', 'Alle Zuordnungen'], ...Object.entries(Z_LONG)]);
@@ -1939,6 +2025,404 @@ $('#viewTeam').addEventListener('click', ev => {
   }
 });
 
+/* ---------- Wer kann was? ---------- */
+$('#qWho').addEventListener('change', renderWho);
+function renderWho(){
+  const sel = $('#qWho'), Q = S.settings.quals, cur = sel.value;
+  sel.innerHTML = Q.map(q => `<option>${esc(q.name)}</option>`).join('');
+  if (Q.some(q => q.name === cur)) sel.value = cur;
+  const q = sel.value;
+  if (!q) { $('#qWhoList').innerHTML = '<div class="none">Noch keine Qualifikationen angelegt.</div>'; return; }
+  const l = S.employees.filter(e => hasQ(e, q)), by = { F: [], S: [], X: [] };
+  l.forEach(e => by[effShift(e)].push(e));
+  $('#qWhoList').innerHTML = `<div class="none" style="color:var(--muted)">${l.length} von ${S.employees.length} Mitarbeitern · Schichten in KW ${kw()}</div>` +
+    ['F', 'S', 'X'].map(c => by[c].length ? `<div style="border:0;padding:10px 2px 3px"><span class="shtag ${c}">${COL_NAME[c]} · ${by[c].filter(e => !absOf(e.id)).length} anwesend</span></div>` +
+      by[c].sort((a, b) => a.name.localeCompare(b.name, 'de')).map(e => `<div><span>${esc(e.name)}</span><span class="qsub">${absOf(e.id) ? '⚠ ' + ABS[absOf(e.id)] : esc(e.area || e.role || '')}</span></div>`).join('') : '').join('') +
+    (l.length ? '' : '<div class="none">Niemand – in der Matrix auf „—“ klicken, um es zu setzen.</div>');
+}
+
+/* ---------- Excel lesen (xlsx, ohne Zusatzbibliothek) ---------- */
+async function unzipXlsx(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error('Keine gültige Excel-Datei (.xlsx).');
+  const cnt = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
+  const files = new Map(), td = new TextDecoder();
+  for (let k = 0; k < cnt && dv.getUint32(p, true) === 0x02014b50; k++) {
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    files.set(td.decode(u8.subarray(p + 46, p + 46 + nl)), { method, csize, off });
+    p += 46 + nl + el + cl;
+  }
+  return async name => {
+    const f = files.get(name); if (!f) return null;
+    const start = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true), data = u8.subarray(start, start + f.csize);
+    if (f.method === 0) return td.decode(data);
+    if (f.method !== 8 || typeof DecompressionStream === 'undefined') throw new Error('Dieser Browser kann die Excel-Datei nicht entpacken – bitte als CSV speichern oder Inhalt kopieren.');
+    const out = await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+    return td.decode(out);
+  };
+}
+const colIdx = ref => { let n = 0; for (const ch of ref.replace(/\d+$/, '')) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+async function readXlsx(buf){
+  const get = await unzipXlsx(buf), P = x => new DOMParser().parseFromString(x, 'application/xml');
+  const wbXml = await get('xl/workbook.xml'); if (!wbXml) throw new Error('Keine Excel-Arbeitsmappe gefunden.');
+  const wb = P(wbXml), rels = P((await get('xl/_rels/workbook.xml.rels')) || '<r/>'), relMap = {};
+  [...rels.getElementsByTagName('Relationship')].forEach(r => { relMap[r.getAttribute('Id')] = r.getAttribute('Target'); });
+  const ssXml = await get('xl/sharedStrings.xml');
+  const ss = ssXml ? [...P(ssXml).getElementsByTagName('si')].map(si => [...si.getElementsByTagName('t')].map(t => t.textContent).join('')) : [];
+  const dateStyle = new Set(), stXml = await get('xl/styles.xml');
+  if (stXml) {
+    const st = P(stXml), custom = {};
+    [...st.getElementsByTagName('numFmt')].forEach(n => { custom[n.getAttribute('numFmtId')] = n.getAttribute('formatCode') || ''; });
+    const xfs = st.getElementsByTagName('cellXfs')[0];
+    if (xfs) [...xfs.getElementsByTagName('xf')].forEach((xf, i) => {
+      const id = +xf.getAttribute('numFmtId'), code = (custom[id] || '').replace(/"[^"]*"/g, '').replace(/\[[^\]]*\]/g, '');
+      if ((id >= 14 && id <= 22) || (id >= 45 && id <= 47) || /[dy]/i.test(code)) dateStyle.add(i);
+    });
+  }
+  const sheets = [];
+  for (const sh of wb.getElementsByTagName('sheet')) {
+    const rid = sh.getAttribute('r:id') || sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+    let target = relMap[rid] || ''; target = target.startsWith('/') ? target.slice(1) : 'xl/' + target.replace(/^\.\//, '');
+    const xml = await get(target); if (!xml) continue;
+    const rows = [];
+    for (const r of P(xml).getElementsByTagName('row')) {
+      const row = [], ri = +r.getAttribute('r') - 1;
+      for (const c of r.getElementsByTagName('c')) {
+        const t = c.getAttribute('t'), sAttr = +c.getAttribute('s') || 0, vEl = c.getElementsByTagName('v')[0];
+        let v = vEl ? vEl.textContent : '';
+        if (t === 's') v = ss[+v] ?? '';
+        else if (t === 'inlineStr') v = [...c.getElementsByTagName('t')].map(x => x.textContent).join('');
+        else if (t === 'b') v = v === '1' ? 'ja' : 'nein';
+        else if (t === 'str' || t === 'e') { /* Text */ }
+        else if (v !== '' && dateStyle.has(sAttr)) { const d = new Date(Math.round((+v - 25569) * 864e5)); v = `${String(d.getUTCDate()).padStart(2, '0')}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${d.getUTCFullYear()}`; }
+        else if (v !== '' && isFinite(+v)) v = (+v).toLocaleString('de-DE', { useGrouping: false, maximumFractionDigits: 6 });
+        row[c.getAttribute('r') ? colIdx(c.getAttribute('r')) : row.length] = v;
+      }
+      rows[isFinite(ri) && ri >= 0 ? ri : rows.length] = row;
+    }
+    sheets.push({ name: sh.getAttribute('name') || 'Blatt', rows: Array.from(rows, r => Array.from(r || [], x => x == null ? '' : String(x))) });
+  }
+  return sheets;
+}
+async function readTableFile(file){
+  const n = file.name.toLowerCase();
+  if (/\.(xlsx|xlsm)$/.test(n)) return readXlsx(await file.arrayBuffer());
+  if (/\.xls$/.test(n)) throw new Error('Altes Excel-Format (.xls) – bitte in Excel „Speichern unter“ → .xlsx.');
+  const text = await file.text();
+  return [{ name: file.name, rows: text.split(/\r?\n/).map(l => l.split(l.includes('\t') ? '\t' : ';').map(c => c.replace(/^"|"$/g, ''))) }];
+}
+const gridToTsv = rows => rows.filter(r => r && r.some(c => String(c).trim())).map(r => Array.from(r, c => String(c ?? '').replace(/[\t\r\n]+/g, ' ').trim()).join('\t')).join('\n');
+function bindDrop(zone, onFile){
+  zone.addEventListener('dragover', ev => { ev.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+  zone.addEventListener('drop', ev => { ev.preventDefault(); zone.classList.remove('over'); const f = ev.dataTransfer.files[0]; if (f) onFile(f); });
+}
+
+/* ---------- Forecast aus Datei ---------- */
+function parseForecastAuto(text, mode){
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  let first = null;
+  for (let s0 = 0; s0 < Math.min(12, Math.max(1, lines.length - 1)); s0++) {
+    const r = parseForecast(lines.slice(s0).join('\n'), mode);
+    if (!r.err && r.weeks.length) return r;
+    if (!first) first = r;
+  }
+  return first || { err: 'Keine Daten erkannt.' };
+}
+let fcSheets = null;
+function fcUseSheet(i){
+  const sh = fcSheets[i]; $('#fcText').value = gridToTsv(sh.rows); fcPreview();
+}
+async function fcLoadFile(file){
+  try {
+    fcSheets = await readTableFile(file);
+    if (!fcSheets.length) throw new Error('Die Datei enthält keine Tabellenblätter.');
+    const sel = $('#fcSheet');
+    sel.innerHTML = fcSheets.map((sh, i) => `<option value="${i}">${esc(sh.name)}</option>`).join('');
+    sel.classList.toggle('hide', fcSheets.length < 2);
+    let pick = fcSheets.findIndex(sh => !parseForecastAuto(gridToTsv(sh.rows), $('#fcMode').value).err);
+    if (pick < 0) pick = 0;
+    sel.value = pick; $('#fcFileName').textContent = `📄 ${file.name}${fcSheets.length > 1 ? ` · Blatt „${fcSheets[pick].name}“` : ''}`;
+    fcUseSheet(pick);
+  } catch (e) { $('#fcFileName').textContent = '⚠ ' + e.message; }
+}
+$('#fcFileBtn').onclick = () => $('#fcFile').click();
+$('#fcFile').onchange = ev => { const f = ev.target.files[0]; if (f) fcLoadFile(f); ev.target.value = ''; };
+$('#fcSheet').onchange = () => { fcUseSheet(+$('#fcSheet').value); $('#fcFileName').textContent = `Blatt „${fcSheets[+$('#fcSheet').value].name}“`; };
+bindDrop($('#fcDrop'), fcLoadFile);
+
+/* ---------- Quali-Matrix importieren ---------- */
+const FALSY = new Set(['nein', 'no', 'n', '0', '-', '–', '—', 'falsch', 'false', 'f', '✗', '✘', 'nicht', 'kein', 'keine', 'offen', '×']);
+const MARKS = new Set(['x', '✓', '✔', '☑', 'ja', 'j', 'yes', 'y', '1', 'true', 'wahr', 'ok', '●', '•', '+']);
+const truthyCell = v => { v = String(v ?? '').trim().toLowerCase(); if (!v || FALSY.has(v)) return false; const n = parseNum(v); return n != null ? n > 0 : true; };
+const normName = x => String(x || '').toLowerCase().replace(/[^a-zäöüßéèáàçñ0-9]+/g, ' ').trim().split(' ').filter(Boolean).sort().join(' ');
+const empIndex = () => { const m = new Map(); S.employees.forEach(e => m.set(normName(e.name), e)); return m; };
+const SKIP_RX = /^(nr\.?|#|id|pers.*nr.*|personalnummer|bereich|abteilung|rolle|funktion|position|schicht|team|status|bemerkung(en)?|notiz(en)?|kommentar|summe|gesamt|anzahl|kunde|vorname|nachname|name|mitarbeiter(in)?|ma|beschäftigung|art|typ|eintritt.*|austritt.*)$/i;
+function parseQualGrid(g){
+  const idx = empIndex(); let best = null;
+  for (let h = 0; h < Math.min(10, g.length - 1); h++) {
+    const head = (g[h] || []).map(c => String(c || '').trim()), width = Math.max(1, ...g.slice(h, h + 40).map(r => r.length));
+    const cands = [];
+    for (let j = 0; j < Math.min(width, 4); j++) cands.push([j]);
+    const vn = head.findIndex(c => /^vorname$/i.test(c)), nn = head.findIndex(c => /^(nach)?name$/i.test(c));
+    if (vn >= 0 && nn >= 0 && vn !== nn) cands.push([nn, vn]);
+    cands.forEach(cols => {
+      const nameOf = r => cols.map(k => String(r[k] || '').trim()).filter(Boolean).join(' ');
+      const hit = g.slice(h + 1).filter(r => idx.has(normName(nameOf(r)))).length;
+      const filled = head.filter((c, k) => c && !cols.includes(k)).length, score = hit * 1000 + filled;
+      if (!best || score > best.score) best = { h, cols, hit, nameOf, score };
+    });
+  }
+  if (!best || !best.hit) return { err: 'Keine Namen aus deiner Mitarbeiterliste gefunden. Eine Spalte muss die Namen enthalten (z. B. „Nachname, Vorname“).' };
+  const head = g[best.h].map(x => String(x || '').trim()), rows = g.slice(best.h + 1);
+  const qcols = head.map((t, j) => ({ t, j })).filter(({ t, j }) => t && !best.cols.includes(j) && !SKIP_RX.test(t));
+  if (!qcols.length) return { err: 'Keine Qualifikations-Spalten gefunden.' };
+  const markish = v => { v = String(v || '').trim().toLowerCase(); return !v || FALSY.has(v) || MARKS.has(v) || parseNum(v) != null; };
+  const long = qcols.length <= 2 && rows.filter(r => !markish(r[qcols[0].j])).length > rows.length * 0.5;
+  const map = new Map(), unmatched = new Set(), quals = new Set(long ? [] : qcols.map(q => q.t));
+  rows.forEach(r => {
+    const n = best.nameOf(r); if (!n) return;
+    const e = idx.get(normName(n)); if (!e) { unmatched.add(n); return; }
+    const set = map.get(e) || new Set();
+    if (long) { const q = String(r[qcols[0].j] || '').trim(); if (q) { set.add(q); quals.add(q); } }
+    else qcols.forEach(({ t, j }) => { if (truthyCell(r[j])) set.add(t); });
+    map.set(e, set);
+  });
+  return { matched: [...map].map(([e, st]) => ({ e, quals: [...st] })), unmatched: [...unmatched], quals: [...quals] };
+}
+function qualsFromJson(data){
+  const arrays = [], objs = [];
+  (function walk(x, d){
+    if (d > 7 || !x || typeof x !== 'object') return;
+    if (Array.isArray(x)) { if (x.length && x.every(o => o && typeof o === 'object' && !Array.isArray(o))) arrays.push(x); x.forEach(y => walk(y, d + 1)); }
+    else { objs.push(x); Object.values(x).forEach(y => walk(y, d + 1)); }
+  })(data, 0);
+  const nameOf = o => String(o.name || o.Name || o.mitarbeiter || o.fullName || o.anzeigename || [o.nachname || o.lastName, o.vorname || o.firstName].filter(Boolean).join(', ') || '').trim();
+  const idx = empIndex();
+  let emp = null, bestHit = 0;
+  arrays.forEach(a => { const hit = a.filter(o => idx.has(normName(nameOf(o)))).length; if (hit > bestHit) { bestHit = hit; emp = a; } });
+  if (!emp) return { err: 'In der Datei wurden keine Mitarbeiter aus deiner Liste gefunden.' };
+  const idMap = {};
+  arrays.filter(a => a !== emp).forEach(a => a.forEach(o => { const id = o.id ?? o.key ?? o.code, nm = o.name || o.title || o.label || o.bezeichnung; if (id != null && nm) idMap[String(id)] = String(nm); }));
+  const qn = k => idMap[k] || k;
+  const IGN = /^(id|uid|name|vorname|nachname|firstname|lastname|fullname|anzeigename|mitarbeiter|bereich|abteilung|rolle|funktion|position|schicht|team|note|notiz|bemerkung|art|typ|type|status|color|colour|farbe|created.*|updated.*|order|sort|index|key|code|avatar|email|telefon|phone)$/i;
+  const QK = /qual|skill|kann|kompet|f[aä]hig|matrix|schein|cert|zert|kenntnis/i;
+  const yes = v => v === true || (typeof v === 'number' && v > 0) || (typeof v === 'string' && v.length <= 12 && MARKS.has(v.trim().toLowerCase())) || (typeof v === 'string' && v.length <= 12 && parseNum(v) > 0);
+  const out = new Map();
+  emp.forEach(o => {
+    const qs = new Set();
+    Object.entries(o).forEach(([k, v]) => {
+      if (IGN.test(k)) return;
+      if (Array.isArray(v)) { if (QK.test(k)) v.forEach(x => { if (typeof x === 'string' || typeof x === 'number') qs.add(qn(String(x))); else if (x && typeof x === 'object') { const nm = x.name || x.title || x.label || qn(String(x.id ?? '')); if (nm && (x.value === undefined || yes(x.value)) && (x.level === undefined || +x.level > 0)) qs.add(nm); } }); }
+      else if (v && typeof v === 'object') { if (QK.test(k)) Object.entries(v).forEach(([k2, v2]) => { if (yes(v2) || (v2 && typeof v2 === 'object' && (v2.value === undefined ? true : yes(v2.value)))) qs.add(qn(k2)); }); }
+      else if (yes(v) && typeof v !== 'number') qs.add(qn(k));
+      else if (typeof v === 'number' && v > 0 && QK.test(k)) qs.add(qn(k));
+    });
+    out.set(o, qs);
+  });
+  // Matrix separat gespeichert: { mitarbeiterId: { qualiId: wert } }
+  const byId = new Map(emp.filter(o => o.id != null).map(o => [String(o.id), o]));
+  objs.forEach(m => {
+    const keys = Object.keys(m).filter(k => byId.has(k));
+    if (keys.length < 3) return;
+    keys.forEach(k => { const v = m[k]; if (v && typeof v === 'object') Object.entries(v).forEach(([k2, v2]) => { if (yes(v2) || (v2 && typeof v2 === 'object' && yes(v2.value ?? v2.level))) out.get(byId.get(k)).add(qn(k2)); }); });
+  });
+  const res = { matched: [], unmatched: [], quals: [] }, all = new Set();
+  out.forEach((qs, o) => { const e = idx.get(normName(nameOf(o))); if (!e) { if (nameOf(o)) res.unmatched.push(nameOf(o)); return; } res.matched.push({ e, quals: [...qs] }); qs.forEach(q => all.add(q)); });
+  res.quals = [...all];
+  if (!res.quals.length) return { err: 'Mitarbeiter gefunden, aber keine Qualifikationen erkannt. Schick mir gern einen Export, dann passe ich den Import an.' };
+  return res;
+}
+let qiRes = null, qiSheets = null;
+const dlgQI = $('#dlgQImport');
+function openQImport(){ qiRes = null; qiSheets = null; $('#qiText').value = ''; $('#qiSheet').classList.add('hide'); $('#qiFileName').textContent = 'oder Datei hierher ziehen (Excel .xlsx, CSV, JSON-Export)'; qiShow(null); dlgQI.showModal(); }
+function qiShow(r, src){
+  qiRes = r && !r.err ? r : null; $('#qiApply').disabled = !qiRes;
+  if (!r) { $('#qiPreview').innerHTML = ''; return; }
+  if (r.err) { $('#qiPreview').innerHTML = `<div class="alert bad">${esc(r.err)}</div>`; return; }
+  const Q = S.settings.quals.map(q => q.name.toLowerCase()), ticks = r.matched.reduce((a, m) => a + m.quals.length, 0);
+  $('#qiPreview').innerHTML = `<div class="note" style="margin-bottom:6px">${src ? esc(src) + ' · ' : ''}<b>${r.matched.length} Mitarbeiter</b> erkannt · <b>${r.quals.length} Qualifikationen</b> · ${ticks} × „Ja“</div>
+    <div class="note" style="margin-bottom:6px">Qualifikationen: ${r.quals.map(q => Q.includes(q.toLowerCase()) ? esc(q) : `<span style="color:var(--warn)">${esc(q)} (neu)</span>`).join(', ')}</div>
+    ${r.unmatched.length ? `<div class="note" style="color:var(--warn)">Nicht in deiner Mitarbeiterliste (${r.unmatched.length}): ${r.unmatched.slice(0, 8).map(esc).join(', ')}${r.unmatched.length > 8 ? ' …' : ''}</div>` : ''}
+    <div style="overflow-x:auto;margin-top:8px"><table><thead><tr><th>Mitarbeiter</th><th>kann</th></tr></thead><tbody>${r.matched.slice(0, 6).map(m => `<tr><td>${esc(m.e.name)}</td><td>${m.quals.map(esc).join(', ') || '–'}</td></tr>`).join('')}</tbody></table>${r.matched.length > 6 ? `<div class="note">… und ${r.matched.length - 6} weitere</div>` : ''}</div>`;
+}
+function qiFromText(){
+  const txt = $('#qiText').value.trim(); if (!txt) return qiShow(null);
+  const sep = txt.includes('\t') ? '\t' : ';';
+  qiShow(parseQualGrid(txt.split(/\r?\n/).map(l => l.split(sep))));
+}
+$('#qiText').addEventListener('input', qiFromText);
+async function qiLoadFile(file){
+  try {
+    if (/\.json$/i.test(file.name)) { $('#qiSheet').classList.add('hide'); $('#qiFileName').textContent = '📄 ' + file.name; $('#qiText').value = ''; return qiShow(qualsFromJson(JSON.parse(await file.text())), file.name); }
+    qiSheets = await readTableFile(file);
+    const sel = $('#qiSheet'); sel.innerHTML = qiSheets.map((sh, i) => `<option value="${i}">${esc(sh.name)}</option>`).join(''); sel.classList.toggle('hide', qiSheets.length < 2);
+    let pick = qiSheets.findIndex(sh => !parseQualGrid(sh.rows).err); if (pick < 0) pick = 0;
+    sel.value = pick; $('#qiFileName').textContent = '📄 ' + file.name;
+    $('#qiText').value = gridToTsv(qiSheets[pick].rows); qiFromText();
+  } catch (e) { $('#qiFileName').textContent = '⚠ ' + e.message; qiShow(null); }
+}
+$('#qiFileBtn').onclick = () => $('#qiFile').click();
+$('#qiFile').onchange = ev => { const f = ev.target.files[0]; if (f) qiLoadFile(f); ev.target.value = ''; };
+$('#qiSheet').onchange = () => { $('#qiText').value = gridToTsv(qiSheets[+$('#qiSheet').value].rows); qiFromText(); };
+bindDrop($('#qiDrop'), qiLoadFile);
+$('#qiScan').onclick = () => {
+  const found = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i); if (!k || /^leitstand-/.test(k)) continue;
+      let d; try { d = JSON.parse(localStorage.getItem(k)); } catch (e) { continue; }
+      if (!d || typeof d !== 'object') continue;
+      const r = qualsFromJson(d); if (!r.err && r.matched.length >= 2) found.push({ k, r });
+    }
+  } catch (e) {}
+  if (!found.length) { qiShow({ err: 'Im Browser wurde keine Quali-Matrix mit deinen Mitarbeitern gefunden. Das klappt nur, wenn beide Apps auf derselben Website laufen (z. B. beide auf GitHub Pages). Sonst: in der Quali-Matrix exportieren oder die Tabelle kopieren und hier einfügen.' }); return; }
+  found.sort((a, b) => b.r.matched.length - a.r.matched.length);
+  qiShow(found[0].r, `Gefunden im Browser („${found[0].k}“)`);
+};
+dlgQI.addEventListener('close', () => {
+  if (dlgQI.returnValue !== 'ok' || !qiRes) return;
+  const r = qiRes, Q = S.settings.quals; qiRes = null;
+  snap();
+  const newQ = [];
+  r.quals.forEach(q => { if (!Q.some(x => x.name.toLowerCase() === q.toLowerCase())) { Q.push({ name: q, minF: 0, minS: 0 }); newQ.push(q); } });
+  const canon = q => (Q.find(x => x.name.toLowerCase() === q.toLowerCase()) || { name: q }).name;
+  let ticks = 0;
+  r.matched.forEach(({ e, quals }) => { if ($('#qiReplace').checked) e.quals = {}; e.quals = e.quals || {}; quals.forEach(q => { e.quals[canon(q)] = ''; ticks++; }); });
+  commit(`Quali-Matrix importiert: ${r.matched.length} Mitarbeiter, ${ticks} × Ja${newQ.length ? ` · ${newQ.length} neue Qualifikationen` : ''}`);
+});
+
+/* ---------- Bereiche & Rollen verwalten ---------- */
+const MD = { area: { list: () => areaOrder(), set: L => { S.settings.areas = L; }, field: 'area', lbl: 'Bereich' }, role: { list: () => roleOrder(), set: L => { S.settings.roles = L; }, field: 'role', lbl: 'Rolle' } };
+function renderMd(){
+  const row = (kind, name, i, n, last) => `<div class="mdr"><input class="tinp" value="${esc(name)}" data-md="${kind}:${i}" data-k="md:${kind}:${i}" aria-label="${MD[kind].lbl} ${esc(name)}"><span class="cnt">${n} MA</span>` +
+    `<button class="mv" data-mdmv="${kind}:${i}:-1" ${i ? '' : 'disabled'} title="nach oben" aria-label="nach oben">▲</button><button class="mv" data-mdmv="${kind}:${i}:1" ${last ? 'disabled' : ''} title="nach unten" aria-label="nach unten">▼</button>` +
+    `<button class="x-del" data-mddel="${kind}:${i}" title="löschen" aria-label="${esc(name)} löschen">×</button></div>`;
+  ['area', 'role'].forEach(kind => {
+    const L = MD[kind].list(), f = MD[kind].field;
+    $(kind === 'area' ? '#mdAreas' : '#mdRoles').innerHTML = L.map((x, i) => row(kind, x, i, S.employees.filter(e => e[f] === x).length, i === L.length - 1)).join('') || '<div class="note">Noch keine Einträge.</div>';
+  });
+  $('#mdSum').textContent = `${areaOrder().length} Bereiche · ${roleOrder().length} Rollen`;
+}
+function mdRename(kind, i, val){
+  const m = MD[kind], L = m.list(), old = L[i], nv = val.trim();
+  if (!nv || nv === old) return renderMd();
+  snap();
+  const merge = L.includes(nv);
+  const NL = merge ? L.filter((x, k) => k !== i) : L.map((x, k) => k === i ? nv : x);
+  m.set(NL);
+  S.employees.forEach(e => { if (e[m.field] === old) e[m.field] = nv; });
+  if (kind === 'role' && S.settings.minRoles[old] != null) { if (S.settings.minRoles[nv] == null) S.settings.minRoles[nv] = S.settings.minRoles[old]; delete S.settings.minRoles[old]; }
+  commit(merge ? `${m.lbl} „${old}“ mit „${nv}“ zusammengeführt` : `${m.lbl} „${old}“ umbenannt in „${nv}“`);
+}
+$('#mdBox').addEventListener('change', ev => { const t = ev.target.closest('[data-md]'); if (!t) return; const [kind, i] = t.dataset.md.split(':'); mdRename(kind, +i, t.value); });
+$('#mdBox').addEventListener('click', ev => {
+  const mv = ev.target.closest('[data-mdmv]'), del = ev.target.closest('[data-mddel]');
+  if (mv) { const [kind, i, d] = mv.dataset.mdmv.split(':'), m = MD[kind], L = m.list(), a = +i, b = a + +d; if (b < 0 || b >= L.length) return; snap(); [L[a], L[b]] = [L[b], L[a]]; m.set(L); commit(null); return; }
+  if (del) {
+    const [kind, i] = del.dataset.mddel.split(':'), m = MD[kind], L = m.list(), name = L[+i], n = S.employees.filter(e => e[m.field] === name).length;
+    if (n && !confirm(`„${name}“ ist ${n} Mitarbeiter${n > 1 ? 'n' : ''} zugeordnet.\nTrotzdem löschen? Die Zuordnung wird bei diesen Mitarbeitern entfernt.`)) return;
+    snap(); m.set(L.filter((x, k) => k !== +i)); S.employees.forEach(e => { if (e[m.field] === name) e[m.field] = ''; });
+    if (kind === 'role') delete S.settings.minRoles[name];
+    return commit(`${m.lbl} „${name}“ gelöscht`);
+  }
+  const add = ev.target.closest('#mdAreaAdd,#mdRoleAdd');
+  if (add) {
+    const kind = add.id === 'mdAreaAdd' ? 'area' : 'role', inp = $(kind === 'area' ? '#mdAreaNew' : '#mdRoleNew'), v = inp.value.trim(), m = MD[kind], L = m.list();
+    if (!v) return inp.focus();
+    if (L.some(x => x.toLowerCase() === v.toLowerCase())) return toast(`„${v}“ gibt es schon`, false);
+    snap(); m.set([...L, v]); inp.value = ''; commit(`${m.lbl} „${v}“ angelegt`); inp.focus();
+  }
+});
+['#mdAreaNew', '#mdRoleNew'].forEach(sel => $(sel).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $(sel === '#mdAreaNew' ? '#mdAreaAdd' : '#mdRoleAdd').click(); } }));
+
+/* ---------- Schichtkalender ---------- */
+let calTool = 'info', calPaint = null, calMenuM = null;
+const ABS_SHORT = { U: 'U', K: 'K', S: 'Sch', F: 'Fr' }, SH_SHORT = { F: 'F', S: 'S', X: '–' };
+const TOOL_LBL = { F: 'Früh', S: 'Spät', X: 'Schichtunabhängig', aU: 'Urlaub', aK: 'Krank', aS: 'Schulung', aF: 'Frei', reset: 'Standard' };
+const calWeekList = () => Array.from({ length: +$('#calWeeks').value || 8 }, (_, i) => addDays(viewMonday, 7 * i));
+function calCell(e, m){
+  const sh = effShift(e, m), ab = absOf(e.id, m), sw = swapOf(e.id, m);
+  const tip = `${e.name} · KW ${kw(m)}: ${COL_NAME[sh]}${sw ? ` (nur diese Woche, regulär ${COL_NAME[shiftOf(e, m)]})` : ''}${ab ? ' · ' + ABS[ab] : ''}`;
+  return `<div class="cc ${sh}${sw ? ' sw' : ''}${ab ? ' ab' : ''}" data-cc="${e.id}|${isoDate(m)}" title="${esc(tip)}">${ab ? ABS_SHORT[ab] : SH_SHORT[sh]}</div>`;
+}
+function renderCal(){
+  const weeks = calWeekList(), g = $('#calGroup').value, q = $('#calQ').value.trim().toLowerCase(), today = isoDate(mondayOf(new Date()));
+  const zOrd = ['A', 'B', 'FF', 'FS', 'X'], ord = g === 'z' ? zOrd : g === 'area' ? areaOrder() : roleOrder();
+  const gk = e => g === 'z' ? e.z : g === 'area' ? (e.area || '') : g === 'role' ? (e.role || '') : '';
+  const gl = k => g === 'z' ? Z_LONG[k] : (k || (g === 'area' ? 'Ohne Bereich' : 'Ohne Rolle'));
+  const pos = k => k === '' ? 1e9 : ord.indexOf(k);
+  const list = S.employees.filter(e => !q || [e.name, e.area, e.role].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => (g === 'name' ? 0 : pos(gk(a)) - pos(gk(b))) || a.name.localeCompare(b.name, 'de'));
+  const head = `<thead><tr><th>Mitarbeiter (${list.length})</th>${weeks.map(m => { const c = counts(m), sF = sollFor('F', m), sS = sollFor('S', m);
+    return `<th class="${isoDate(m) === today ? 'cur' : ''}"><span class="wk">KW ${kw(m)}</span><span class="wc" style="color:var(--muted)">${fmt(m)}</span><span class="wc" style="color:${c.F >= sF ? 'var(--ok)' : 'var(--bad)'}">F ${c.F}/${sF}</span><span class="wc" style="color:${c.S >= sS ? 'var(--ok)' : 'var(--bad)'}">S ${c.S}/${sS}</span></th>`; }).join('')}</tr></thead>`;
+  let body = '', last = null;
+  list.forEach(e => {
+    if (g !== 'name') { const k = gk(e); if (k !== last) { body += `<tr class="grp"><td colspan="${weeks.length + 1}">${esc(gl(k))}</td></tr>`; last = k; } }
+    body += `<tr><td><div class="cnm">${esc(e.name)}<small>${esc([e.area, e.role].filter(Boolean).join(' · ') || Z_LONG[e.z])}</small></div></td>${weeks.map(m => `<td>${calCell(e, m)}</td>`).join('')}</tr>`;
+  });
+  $('#calTable').innerHTML = head + `<tbody>${body || `<tr><td colspan="${weeks.length + 1}" style="color:var(--dim);padding:16px">Keine Mitarbeiter gefunden.</td></tr>`}</tbody>`;
+  $('#calTable').classList.toggle('paint', calTool !== 'info');
+}
+function calApply(id, m, tool){
+  const e = byId(id); if (!e) return false;
+  const before = swapOf(id, m) + '|' + absOf(id, m);
+  if (tool === 'F' || tool === 'S' || tool === 'X') setWeekVal(S.swaps, id, tool === shiftOf(e, m) ? '' : tool, m);
+  else if (tool[0] === 'a') setWeekVal(S.absences, id, tool.slice(1), m);
+  else if (tool === 'reset') { setWeekVal(S.swaps, id, '', m); setWeekVal(S.absences, id, '', m); }
+  return before !== swapOf(id, m) + '|' + absOf(id, m);
+}
+['#calWeeks', '#calGroup'].forEach(sel => $(sel).addEventListener('change', renderCal));
+$('#calQ').addEventListener('input', renderCal);
+$('#calTools').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-tool]'); if (!b) return;
+  calTool = b.dataset.tool;
+  document.querySelectorAll('#calTools .tool').forEach(x => x.classList.toggle('on', x === b));
+  $('#calTable').classList.toggle('paint', calTool !== 'info');
+});
+function calPaintCell(c){
+  const k = c.dataset.cc; if (!calPaint || calPaint.seen.has(k)) return; calPaint.seen.add(k);
+  const [id, wk] = k.split('|'), m = parseIso(wk);
+  if (calApply(id, m, calTool)) { calPaint.n++; c.outerHTML = calCell(byId(id), m); }
+}
+$('#calTable').addEventListener('pointerdown', ev => {
+  const c = ev.target.closest('[data-cc]'); if (!c || ev.button > 0) return;
+  const [id, wk] = c.dataset.cc.split('|');
+  if (calTool === 'info') return openCalMenu(id, parseIso(wk), c);
+  ev.preventDefault(); snap(); calPaint = { n: 0, seen: new Set() }; calPaintCell(c);
+});
+window.addEventListener('pointermove', ev => {
+  if (!calPaint) return;
+  const el = document.elementFromPoint(ev.clientX, ev.clientY), c = el && el.closest('[data-cc]');
+  if (c) calPaintCell(c);
+});
+window.addEventListener('pointerup', () => {
+  if (!calPaint) return;
+  const n = calPaint.n; calPaint = null;
+  if (!n) { hist.pop(); return; }
+  commit(`Kalender: ${n} ${n === 1 ? 'Feld' : 'Felder'} auf „${TOOL_LBL[calTool]}“ gesetzt`);
+});
+function placeMenu(el){
+  menu.classList.remove('hide');
+  const r = el.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
+  const x = Math.max(8, Math.min(r.left, innerWidth - mw - 8));
+  let y = r.bottom + 6; if (y + mh > innerHeight - 8) y = Math.max(8, r.top - mh - 6);
+  menu.style.left = x + 'px'; menu.style.top = y + 'px';
+}
+function openCalMenu(id, m, el){
+  const e = byId(id); if (!e) return;
+  closeMenu(); menuId = id; menuAt = performance.now(); calMenuM = m;
+  const base = shiftOf(e, m), cur = effShift(e, m), ab = absOf(id, m);
+  menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw(m)} · regulär ${COL_NAME[base]}</small></div>
+    <div class="ml">Schicht – nur KW ${kw(m)}</div><div class="mrow">${['F', 'S', 'X'].map(c => `<button class="opt${cur === c ? ' on' : ''}" data-cs="${c}">${c === 'X' ? 'Unabhängig' : COL_NAME[c]}</button>`).join('')}</div>
+    <div class="ml">Abwesenheit – nur KW ${kw(m)}</div><div class="mrow"><button class="opt${!ab ? ' on' : ''}" data-ca="">Anwesend</button>${Object.entries(ABS).map(([k, v]) => `<button class="opt${ab === k ? ' on' : ''}" data-ca="${k}">${v}</button>`).join('')}</div>
+    <div class="ml">Dauerhafte Zuordnung</div><div class="mrow">${Object.keys(Z_SHORT).map(z => `<button class="opt${e.z === z ? ' on' : ''}" data-cz="${z}">${Z_SHORT[z]}</button>`).join('')}</div>
+    <hr><button class="mi" data-cedit="1">Mitarbeiter bearbeiten …</button>`;
+  placeMenu(el);
+}
+
 /* ---------- Einstellungen ---------- */
 const dlgSet = $('#dlgSet');
 function rotNote(){
@@ -1951,8 +2435,7 @@ function openSet(){
   $('#sSollF').disabled = $('#sSollS').disabled = !!st.cap.on;
   $('#sSollF').title = $('#sSollS').title = st.cap.on ? 'Wird unter „Forecast & Bedarf“ aus dem Forecast berechnet' : '';
   $('#sTimeF').value = st.timesF; $('#sTimeS').value = st.timesS;
-  $('#sRoles').value = st.roles.join('\n');
-  $('#sAreas').value = st.areas.join('\n');
+
   $('#sBin').value = SY.id || ''; $('#sKey').value = SY.key || ''; $('#sAuto').checked = !!SY.auto;
   rotNote(); dlgSet.showModal();
 }
@@ -1965,8 +2448,7 @@ dlgSet.addEventListener('close', () => {
   st.sollF = Math.max(0, parseInt($('#sSollF').value, 10) || 0);
   st.sollS = Math.max(0, parseInt($('#sSollS').value, 10) || 0);
   st.timesF = $('#sTimeF').value.trim(); st.timesS = $('#sTimeS').value.trim();
-  st.roles = [...new Set($('#sRoles').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean))];
-  st.areas = [...new Set($('#sAreas').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean))];
+
   saveSyncCfg();
   commit('Einstellungen geändert');
 });
