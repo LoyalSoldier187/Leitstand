@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Leitstand – Schichtplanung</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0a1020;--panel:#121b31;--panel2:#17223d;--line:#222e4c;--line2:#31406a;
@@ -111,6 +111,12 @@ h1{font-size:32px;margin:0;letter-spacing:-.01em}
 .col[data-col=F] h3 i{background:var(--f);box-shadow:0 0 10px var(--f)}
 .col[data-col=S] h3 i{background:var(--s);box-shadow:0 0 10px var(--s)}
 .col[data-col=X] h3 i{background:var(--x);box-shadow:0 0 10px var(--x)}
+.col[data-col=N] h3 i{background:var(--dim)}
+.col[data-col=N]{grid-column:1 / -1;min-height:0;border-style:dashed}
+.col[data-col=N] .chead{position:static}
+.col[data-col=N] .cbody{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:6px;align-content:start}
+.col[data-col=N] .cbody .rhead{grid-column:1 / -1}
+.col[data-col=N].over{border-color:var(--muted);box-shadow:inset 0 0 0 1px var(--muted)}
 .col .count{font:700 15px "Space Grotesk"}
 .col .csub{font-size:12px;color:var(--muted);margin-top:4px}
 .bar{height:4px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
@@ -143,7 +149,7 @@ h1{font-size:32px;margin:0;letter-spacing:-.01em}
 .badge.absF{color:var(--muted);background:rgba(255,255,255,.07)}
 .badge.swap{color:var(--warn);background:rgba(251,191,36,.13)}
 .zsel{background:#0c1428;border:1px solid var(--line2);border-radius:7px;font-size:11.5px;padding:3px 4px;max-width:112px;cursor:pointer;outline:none}
-.zsel.zA{color:#7dd3fc}.zsel.zB{color:#fcd34d}.zsel.zFF{color:var(--f)}.zsel.zFS{color:var(--s)}.zsel.zX{color:var(--x)}
+.zsel.zN{color:var(--muted)}.zsel.zA{color:#7dd3fc}.zsel.zB{color:#fcd34d}.zsel.zFF{color:var(--f)}.zsel.zFS{color:var(--s)}.zsel.zX{color:var(--x)}
 .cmenu{background:none;border:1px solid transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;padding:3px 7px;border-radius:7px}
 .cmenu:hover,.cmenu.on{color:var(--text);border-color:var(--line2);background:var(--panel)}
 .dragghost{position:fixed;left:0;top:0;z-index:100;pointer-events:none;box-shadow:0 18px 40px -10px rgba(0,0,0,.7);border-color:var(--f)!important;opacity:.95}
@@ -290,7 +296,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tsel:focus{border-color:var(--f)}
 .tm input[type=checkbox]{width:16px;height:16px;accent-color:#22d3ee;cursor:pointer}
 .shtag{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
-.shtag.F{color:var(--f);background:var(--f-bg)}.shtag.S{color:var(--s);background:var(--s-bg)}.shtag.X{color:var(--x);background:var(--x-bg)}
+.shtag.F{color:var(--f);background:var(--f-bg)}.shtag.S{color:var(--s);background:var(--s-bg)}.shtag.X{color:var(--x);background:var(--x-bg)}.shtag.N{color:var(--muted);background:rgba(255,255,255,.06)}
 .qn{font-size:11.5px;color:var(--muted);white-space:normal;line-height:1.3;min-width:120px}
 .bulkbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--f-line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .bulkbar .inp{width:auto;padding:6px 30px 6px 10px}
@@ -328,7 +334,7 @@ details.md[open] summary{margin-bottom:14px}
 .cal td{padding:3px}
 .cal tr.grp td{background:var(--panel2);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;padding:7px 12px}
 .cc{width:62px;height:30px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;border:1.5px solid transparent}
-.cc.F{color:var(--f);background:var(--f-bg)}.cc.S{color:var(--s);background:var(--s-bg)}.cc.X{color:var(--x);background:var(--x-bg)}
+.cc.F{color:var(--f);background:var(--f-bg)}.cc.S{color:var(--s);background:var(--s-bg)}.cc.X{color:var(--x);background:var(--x-bg)}.cc.N{color:var(--dim);background:transparent;border:1px dashed var(--line2)}
 .cc.sw{border-style:dashed;border-color:var(--warn)}
 .cc.ab{background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 4px,transparent 4px 8px);color:var(--text)}
 .cc:hover{filter:brightness(1.35)}
@@ -387,62 +393,125 @@ details.md[open] summary{margin-bottom:14px}
 /* ---------- Druck ---------- */
 #printArea{display:none}
 @media print{
-  @page{size:A4 landscape;margin:11mm 12mm}
-  html,body{background:#fff!important;color:#111;padding:0}
+  @page{size:A4 landscape;margin:10mm 11mm}
+  html,body{background:#fff!important;color:#1D2329;padding:0;min-height:0}
   body>*:not(#printArea){display:none!important}
-  #printArea{display:block;font:9.5pt/1.35 Inter,Arial,sans-serif;color:#111}
-  .ppage{page-break-after:always;break-after:page}
+  #printArea{display:block}
+  .ppage{--pe:#0B4F5C;--pe2:#00819B;--am:#C2621F;--ink:#1D2329;--gr:#5E6A73;--ru:#CFD6DB;--mi:#EEF3F5;font:9pt/1.4 Barlow,"Segoe UI",Arial,sans-serif;color:var(--ink);page-break-after:always;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .ppage:last-child{page-break-after:auto;break-after:auto}
-  .ph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:3mm;margin-bottom:4mm}
-  .ph .pco{font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#555;font-weight:600}
-  .ph h1{font:700 19pt "Space Grotesk",Arial,sans-serif;margin:1mm 0 0;color:#111}
-  .ph .psub{font-size:9.5pt;color:#333;margin-top:1mm}
-  .ph .pbadge{width:12mm;height:12mm;border:1.5px solid #111;border-radius:2.5mm;display:grid;place-items:center;font:700 10pt "Space Grotesk",Arial}
-  .pkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-bottom:4mm}
-  .pkpis div{border:1px solid #bbb;border-radius:2mm;padding:2mm 3mm}
-  .pkpis b{display:block;font:700 13pt "Space Grotesk",Arial}
-  .pkpis span{font-size:7.5pt;text-transform:uppercase;letter-spacing:.1em;color:#555}
-  .pgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:start}
-  .pcol{border:1px solid #bbb;border-radius:2mm;padding:2.5mm 3mm;break-inside:auto}
-  .pcol h2{font:700 11pt "Space Grotesk",Arial;margin:0 0 1mm;padding-left:2.5mm;border-left:3px solid #111;display:flex;justify-content:space-between}
-  .pcol h2 span{font:500 8.5pt Inter,Arial;color:#444}
-  .pcol h2.pF{border-color:#0e7490}.pcol h2.pS{border-color:#c2410c}.pcol h2.pX{border-color:#6d28d9}
-  .pcol .pcount{font-size:8.5pt;color:#444;margin-bottom:1.5mm}
-  .prole{font-size:7.5pt;text-transform:uppercase;letter-spacing:.1em;color:#666;font-weight:700;margin:2mm 0 .5mm;border-bottom:.5pt solid #ccc;display:flex;justify-content:space-between}
-  .prole .u{color:#b91c1c}
-  .pcol ul{list-style:none;margin:0;padding:0}
-  .pcol li{display:flex;justify-content:space-between;gap:2mm;padding:.35mm 0;font-size:9pt}
-  .pcol li.pabs span:first-child{text-decoration:line-through;color:#888}
-  .pcol li em{font-style:normal;font-size:7.5pt;color:#555}
-  .pwarn{margin-top:3mm;border:1px solid #b91c1c;border-radius:2mm;padding:2mm 3mm;font-size:8.5pt;color:#7f1d1d}
-  .plegend{margin-top:2.5mm;font-size:7.5pt;color:#555}
-  .pf{break-before:avoid;margin-top:3mm;padding-top:2mm;border-top:.5pt solid #999;display:flex;justify-content:space-between;font-size:8pt;color:#555}
-  .ptable{width:100%;border-collapse:collapse;margin-bottom:5mm}
-  .ptable th{font-size:7.5pt;letter-spacing:.08em;text-transform:uppercase;color:#444;border-bottom:1.2pt solid #111;padding:1.5mm 2mm;text-align:left}
-  .ptable td{border-bottom:.5pt solid #ccc;padding:1.6mm 2mm;font-size:9pt;color:#111}
-  .ptable td.bad{color:#b91c1c;font-weight:700}
-  .ptable td.ok{color:#047857;font-weight:600}
-  .ptable td.warn{color:#b45309;font-weight:700}
-  .pfc{margin-bottom:2.5mm}
+  .ppage h1,.ppage h2,.ppage h3{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:0}
+  .ph{display:grid;grid-template-columns:1fr auto;align-items:end;gap:8mm;padding-bottom:3mm;border-bottom:.8mm solid var(--pe);margin-bottom:4.5mm}
+  .pbrand{display:flex;align-items:center;gap:2.5mm;font-size:8pt;color:var(--gr);margin-bottom:2mm}
+  .pbrand b{color:var(--ink);font-weight:600}
+  .pmark{width:7mm;height:7mm;border-radius:1.2mm;background:var(--pe);color:#fff;display:grid;place-items:center;font:700 8.5pt "Barlow Condensed",Arial,sans-serif;flex:none}
+  .ph h1{font-size:25pt;font-weight:700;line-height:1;margin:0;color:var(--ink)}
+  .ph .psub{font-size:9pt;color:var(--gr);margin-top:1.6mm}
+  .ph .pdoc{text-align:right;font-size:8pt;color:var(--gr);line-height:1.4}
+  .ph .pdoc b{display:block;font:600 11.5pt "Barlow Condensed",Arial,sans-serif;color:var(--pe)}
+  .pkpis{display:grid;grid-template-columns:repeat(4,1fr);margin:0 0 5mm;border-top:.3mm solid var(--ru);border-bottom:.3mm solid var(--ru)}
+  .pkpis.pk6{grid-template-columns:repeat(6,1fr)}
+  .pkpis div{padding:2.4mm 3mm;border-left:.3mm solid var(--ru)}
+  .pkpis div:first-child{border-left:0;padding-left:0}
+  .pkpis b{display:block;font:600 17pt/1.05 "Barlow Condensed",Arial,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+  .pkpis span{font-size:7.8pt;color:var(--gr)}
+  .pbox{margin-bottom:4mm}
+  .pbox h3{font-size:11.5pt;font-weight:600;margin:0 0 1.5mm;color:var(--ink)}
+  .pbox svg{display:block;width:100%;height:auto;max-height:62mm}
   .pbox.pfc svg{max-height:none}
-  .ptable.sm.xs td,.ptable.sm.xs th{padding:.45mm 1.6mm;font-size:7.6pt}
-  .pgroups{display:grid;grid-template-columns:2fr 2fr 1.2fr 1fr 1fr;gap:3mm;align-items:start}
-  .pgroups .pcol:nth-child(-n+2) ul{columns:2;column-gap:4mm}
-  .pgroups li{break-inside:avoid}
-  .pgroups .pcol li{font-size:7.4pt;padding:.15mm 0}
-  .pgroups .pcol li span{white-space:nowrap}
-  .pgroups .pcol li em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;text-align:right}
-  .pgroups h2{font-size:10pt}
-  .pk6{grid-template-columns:repeat(6,1fr)}
-  .pk6 b{font-size:12pt}
-  .pstat{display:grid;grid-template-columns:3fr 2fr;gap:5mm;align-items:start;margin-bottom:4mm}
-  .pbox{border:1px solid #bbb;border-radius:2mm;padding:2.5mm 3mm}
-  .pbox h3{font:700 10pt "Space Grotesk",Arial;margin:0 0 1.5mm}
-  .pbox svg{display:block;width:100%;height:auto;max-height:58mm}
-  .plg{display:flex;gap:4mm;font-size:8pt;color:#333;margin-bottom:1mm}
-  .plg i{display:inline-block;width:2.6mm;height:2.6mm;border-radius:.6mm;margin-right:1.2mm;vertical-align:-.3mm}
-  .ptable.sm td,.ptable.sm th{padding:.9mm 1.6mm;font-size:8pt}
+  .pfc{margin-bottom:3mm}
+  .plg{display:flex;gap:5mm;font-size:8pt;color:var(--gr);margin-bottom:1.5mm}
+  .plg i{display:inline-block;width:2.6mm;height:2.6mm;border-radius:.6mm;margin-right:1.4mm;vertical-align:-.3mm}
+  .pstat{display:grid;grid-template-columns:3fr 2fr;gap:7mm;align-items:start;margin-bottom:3mm}
+  .ptable{width:100%;border-collapse:collapse;margin-bottom:4mm;font-variant-numeric:tabular-nums}
+  .ptable th{font:600 7.8pt Barlow,Arial,sans-serif;color:var(--gr);text-align:left;padding:1.4mm 2mm;border-bottom:.45mm solid var(--ink);vertical-align:bottom}
+  .ptable td{padding:1.5mm 2mm;border-bottom:.25mm solid var(--ru);font-size:8.8pt}
   .ptable td.r,.ptable th.r{text-align:right}
+  .ptable td.bad{color:#B42318;font-weight:600}
+  .ptable td.ok{color:#0B6B4F;font-weight:600}
+  .ptable td.warn{color:#9A5B00;font-weight:600}
+  .ptable.sm td,.ptable.sm th{padding:1mm 1.6mm;font-size:8pt}
+  .ptable.sm.xs td,.ptable.sm.xs th{padding:.5mm 1.6mm;font-size:7.6pt}
+  .pwarn{border-left:1.2mm solid var(--am);background:#FBF1EA;padding:2.2mm 3.5mm;font-size:8.8pt;color:var(--ink);margin:0 0 3mm}
+  .pwarn.good{border-left-color:var(--pe2);background:var(--mi)}
+  .plegend{font-size:7.6pt;color:var(--gr);margin-top:1.5mm}
+  .pf{display:grid;grid-template-columns:1fr auto 1fr;gap:4mm;align-items:end;margin-top:4mm;padding-top:2mm;border-top:.3mm solid var(--ru);font-size:7.6pt;color:var(--gr)}
+  .pf .pg{font:600 9pt "Barlow Condensed",Arial,sans-serif;color:var(--ink);text-align:center}
+  .pf .sig{text-align:right}
+  .pf .sig i{display:inline-block;width:42mm;border-bottom:.3mm solid var(--gr);margin-left:2mm;height:3.5mm}
+  .pgroups{display:grid;grid-template-columns:2fr 2fr 2fr .9fr .9fr;gap:4mm;align-items:start}
+  .pcol{border-top:.9mm solid var(--gr);padding-top:1.8mm}
+  .pcol.pF{border-top-color:var(--pe)}.pcol.pS{border-top-color:var(--am)}
+  .pcol h2{font-size:12pt;font-weight:700;margin:0 0 1.5mm;display:flex;justify-content:space-between;align-items:baseline}
+  .pcol h2 span{font:500 9pt Barlow,Arial,sans-serif;color:var(--gr)}
+  .pcol ul{list-style:none;margin:0;padding:0}
+  .pcol li{display:flex;justify-content:space-between;gap:2mm;padding:.25mm 0;font-size:7.8pt;break-inside:avoid}
+  .pcol li em{font-style:normal;color:var(--gr);font-size:7pt}
+  .pgroups .pcol.many ul{columns:2;column-gap:5mm}
+
+  /* Aushang */
+  .ax{display:flex;flex-direction:column;height:188mm;overflow:hidden}
+  .ax-top{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:8mm;padding-bottom:3.5mm;border-bottom:.3mm solid var(--ru)}
+  .ax-kw{font:800 62pt/.8 "Barlow Condensed","Arial Narrow",Arial,sans-serif;color:var(--ink);letter-spacing:-.015em}
+  .ax-kw small{display:block;font:600 9pt Barlow,Arial,sans-serif;color:var(--gr);letter-spacing:0;margin-bottom:2.2mm}
+  .ax-when{padding-bottom:1mm}
+  .ax-when b{display:block;font:600 17pt/1.1 "Barlow Condensed",Arial,sans-serif}
+  .ax-when span{display:block;font-size:9pt;color:var(--gr);margin-top:1mm}
+  .ax-count{display:flex;gap:2.5mm}
+  .ax-count div{min-width:27mm;padding:2.2mm 3.5mm 2mm;border-radius:1.6mm;color:#fff}
+  .ax-count .F{background:var(--pe)}
+  .ax-count .S{background:var(--am)}
+  .ax-count .X{background:#fff;color:var(--ink);border:.3mm solid var(--ru)}
+  .ax-count b{display:block;font:700 24pt/1 "Barlow Condensed",Arial,sans-serif;font-variant-numeric:tabular-nums}
+  .ax-count span{font-size:8pt;opacity:.92}
+  .ax-body{flex:1;display:flex;gap:4mm;margin-top:4mm;min-height:0}
+  .ax-sh{display:flex;flex-direction:column;min-width:0;border:.3mm solid var(--ru);border-radius:2mm;overflow:hidden}
+  .ax-sh header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:1mm 4mm;padding:2.6mm 4mm 2.4mm;color:#fff}
+  .ax-sh.F header{background:var(--pe)}
+  .ax-sh.S header{background:var(--am)}
+  .ax-sh h2{font:700 21pt/1 "Barlow Condensed",Arial,sans-serif;margin:0;color:#fff}
+  .ax-sh header span{font:600 12pt "Barlow Condensed",Arial,sans-serif;white-space:nowrap}
+  .ax-sh header small{font:500 8.5pt Barlow,Arial,sans-serif;opacity:.9;margin-left:2mm;white-space:nowrap}
+  .ax-band{height:2.4mm}
+  .ax-sh.F .ax-band{background:linear-gradient(var(--pe2),var(--pe2))}
+  .ax-sh.S .ax-band{background:repeating-linear-gradient(-45deg,var(--ink) 0 2.2mm,#F2B23A 2.2mm 4.4mm)}
+  .ax-list{flex:1;padding:3mm 4mm 2mm;column-gap:6mm;column-rule:.25mm solid var(--ru);column-fill:balance}
+  .ax-g{font:600 8pt Barlow,Arial,sans-serif;color:var(--gr);margin:1.8mm 0 .6mm;break-after:avoid;display:flex;justify-content:space-between}
+  .ax-g:first-child{margin-top:0}
+  .ax-n{display:flex;justify-content:space-between;align-items:center;gap:2mm;padding:var(--pd,.6mm) 0;border-bottom:.2mm solid var(--mi);break-inside:avoid;font-size:var(--fs,10pt);line-height:1.25}
+  .ax-n .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ax-n.abs .n{text-decoration:line-through;color:var(--gr)}
+  .ax-n .why{font-size:7.5pt;color:var(--am);font-weight:600;white-space:nowrap}
+  .ax-q{display:inline-flex;gap:.7mm;flex:none}
+  .ax-q i{font:600 6.4pt/1.35 Barlow,Arial,sans-serif;font-style:normal;border:.25mm solid var(--gr);border-radius:.7mm;padding:0 .7mm;color:var(--gr)}
+  .ax-q i.eh{border-color:#0B6B4F;color:#0B6B4F}.ax-q i.bs{border-color:#B42318;color:#B42318}
+  .ax-sw{color:var(--am);font-weight:700}
+  .ax-empty{color:var(--gr);font-style:italic;padding:2mm 0}
+  .ax-foot{display:grid;grid-template-columns:1.5fr 1fr auto;gap:6mm;align-items:end;margin-top:3mm;font-size:7.6pt;color:var(--gr)}
+  .ax-foot b{color:var(--ink);font-weight:600}
+  .ax-foot .sig{text-align:right;white-space:nowrap}
+  .ax-foot .sig i{display:inline-block;width:42mm;border-bottom:.3mm solid var(--gr);margin-left:2mm;height:3.5mm}
+
+  /* Deckblatt */
+  .cv{display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto 1fr auto;gap:0 12mm;height:188mm}
+  .cv-brand{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;padding-bottom:3mm;border-bottom:.3mm solid var(--ru);font-size:8.5pt;color:var(--gr)}
+  .cv-main{align-self:center;border-left:2.2mm solid var(--pe);padding-left:8mm}
+  .cv-main .k{font:600 11pt Barlow,Arial,sans-serif;color:var(--pe);margin-bottom:3mm}
+  .cv-main h1{font:800 70pt/.9 "Barlow Condensed","Arial Narrow",Arial,sans-serif;margin:0;color:var(--ink);letter-spacing:-.02em;white-space:nowrap}
+  .cv-main h1 span{color:var(--gr);font-weight:500}
+  .cv-main .d{font:500 13pt/1.3 Barlow,Arial,sans-serif;margin-top:5mm;color:var(--ink)}
+  .cv-main .d small{display:block;font-size:9.5pt;color:var(--gr);margin-top:1mm}
+  .cv-side{align-self:center}
+  .cv-side h2{font-size:14pt;font-weight:700;margin:0 0 3mm}
+  .cv-pt{display:grid;grid-template-columns:30mm 1fr;gap:4mm;align-items:baseline;padding:2.6mm 0;border-top:.3mm solid var(--ru)}
+  .cv-pt:last-child{border-bottom:.3mm solid var(--ru)}
+  .cv-pt b{font:700 19pt/1 "Barlow Condensed",Arial,sans-serif;font-variant-numeric:tabular-nums}
+  .cv-pt b.bad{color:#B42318}.cv-pt b.ok{color:#0B6B4F}
+  .cv-pt span{font-size:9pt;line-height:1.35}
+  .cv-bottom{grid-column:1 / -1;display:grid;grid-template-columns:1.25fr 1fr;gap:12mm;align-items:end;padding-top:3mm;border-top:.8mm solid var(--pe)}
+  .cv-toc{display:flex;flex-wrap:wrap;gap:1.2mm 7mm;font-size:8.5pt}
+  .cv-toc span b{font:600 9pt "Barlow Condensed",Arial,sans-serif;color:var(--pe);margin-right:1.5mm}
+  .cv-by{text-align:right;font-size:8.5pt;color:var(--gr)}
+  .cv-by b{display:block;font:600 12pt "Barlow Condensed",Arial,sans-serif;color:var(--ink)}
 }
 </style>
 </head>
@@ -504,6 +573,7 @@ details.md[open] summary{margin-bottom:14px}
     <div class="col" data-col="F"></div>
     <div class="col" data-col="S"></div>
     <div class="col" data-col="X"></div>
+    <div class="col" data-col="N"></div>
   </section>
 
   <div class="twocol">
@@ -533,6 +603,7 @@ details.md[open] summary{margin-bottom:14px}
       <button class="tool tF" data-tool="F">Früh</button>
       <button class="tool tS" data-tool="S">Spät</button>
       <button class="tool tX" data-tool="X">Unabhängig</button>
+      <button class="tool" data-tool="N">Nicht eingeplant</button>
       <button class="tool" data-tool="aU">Urlaub</button>
       <button class="tool" data-tool="aK">Krank</button>
       <button class="tool" data-tool="aS">Schulung</button>
@@ -540,7 +611,7 @@ details.md[open] summary{margin-bottom:14px}
       <button class="tool" data-tool="reset">↺ Zurücksetzen</button>
     </div>
     <section class="panel" style="margin-top:0;padding:0;overflow:hidden"><div class="qwrap" style="border:0;border-radius:0;max-height:72vh"><table class="cal" id="calTable"></table></div></section>
-    <div class="legend" style="margin-top:10px"><span><i style="background:var(--f)"></i>F = Früh</span><span><i style="background:var(--s)"></i>S = Spät</span><span><i style="background:var(--x)"></i>– = Schichtunabhängig</span><span><i style="background:var(--warn)"></i>gestrichelt = Tausch nur diese Woche</span><span>U Urlaub · K Krank · Sch Schulung · Fr Frei</span></div>
+    <div class="legend" style="margin-top:10px"><span><i style="background:var(--f)"></i>F = Früh</span><span><i style="background:var(--s)"></i>S = Spät</span><span><i style="background:var(--x)"></i>– = Schichtunabhängig</span><span>· = nicht eingeplant</span><span><i style="background:var(--warn)"></i>gestrichelt = Tausch nur diese Woche</span><span>U Urlaub · K Krank · Sch Schulung · Fr Frei</span></div>
   </div>
 
   <!-- Mitarbeiter -->
@@ -595,7 +666,7 @@ details.md[open] summary{margin-bottom:14px}
       <div class="toolbar" style="margin:4px 0 12px">
         <input class="inp search" id="kpiQ" type="search" placeholder="Name suchen …">
         <select class="inp" id="kpiFArt" aria-label="Beschäftigung"></select>
-        <select class="inp" id="kpiFSh" aria-label="Schicht"><option value="">Alle Schichten</option><option value="F">Frühschicht</option><option value="S">Spätschicht</option><option value="X">Schichtunabhängig</option></select>
+        <select class="inp" id="kpiFSh" aria-label="Schicht"><option value="">Alle Schichten</option><option value="F">Frühschicht</option><option value="S">Spätschicht</option><option value="X">Schichtunabhängig</option><option value="N">Nicht eingeplant</option></select>
         <select class="inp" id="kpiSort" aria-label="Sortierung"><option value="miss">Fehlende zuerst</option><option value="name">Name A–Z</option><option value="hi">KPI absteigend</option><option value="lo">KPI aufsteigend</option><option value="chg">Zuletzt geändert</option></select>
         <label class="toggle" style="font-size:13px"><input type="checkbox" id="kpiOnlyMiss"> nur ohne KPI</label>
       </div>
@@ -756,6 +827,7 @@ details.md[open] summary{margin-bottom:14px}
     <div class="dhead"><h3>Export für die Geschäftsleitung</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
     <div class="dbody">
       <div class="note">Bericht im A4-Querformat ab der angezeigten <b id="bossKw"></b>. Wähle die Teile aus:</div>
+      <label class="check"><input type="checkbox" id="bxCover" checked> Deckblatt mit Kernaussagen</label>
       <label class="check"><input type="checkbox" id="bxFc" checked> Forecast &amp; Personalbedarf (mit Empfehlungen)</label>
       <label class="check"><input type="checkbox" id="bxKpi" checked> Kapazität laut KPI vs. Forecast</label>
       <label class="check"><input type="checkbox" id="bxVol" checked> Volumen je Kunde (Monatsübersicht, Forecast vs. Ist)</label>
@@ -845,6 +917,7 @@ details.md[open] summary{margin-bottom:14px}
       <div class="grid2">
         <div class="field"><label for="sCompany">Firma</label><input class="inp" id="sCompany"></div>
         <div class="field"><label for="sSite">Standort</label><input class="inp" id="sSite"></div>
+        <div class="field" style="grid-column:1 / -1"><label for="sAuthor">Erstellt von (erscheint auf Aushang &amp; Bericht)</label><input class="inp" id="sAuthor" placeholder="z. B. Marc Bahn, Lagerleitung"></div>
         <div class="field"><label for="sSollF">Soll Frühschicht</label><input class="inp" id="sSollF" type="number" min="0"></div>
         <div class="field"><label for="sSollS">Soll Spätschicht</label><input class="inp" id="sSollS" type="number" min="0"></div>
         <div class="field"><label for="sTimeF">Zeiten Früh</label><input class="inp" id="sTimeF"></div>
@@ -897,11 +970,11 @@ details.md[open] summary{margin-bottom:14px}
 'use strict';
 const LS_KEY = 'leitstand-schicht-v2', LS_SYNC = 'leitstand-sync-v2';
 const DAY = 864e5;
-const Z_LONG = {A:'Rotation – Gruppe A', B:'Rotation – Gruppe B', FF:'Fest Frühschicht', FS:'Fest Spätschicht', X:'Schichtunabhängig'};
-const Z_SHORT = {A:'Rotation A', B:'Rotation B', FF:'Fest Früh', FS:'Fest Spät', X:'Schichtunabh.'};
+const Z_LONG = {A:'Rotation – Gruppe A', B:'Rotation – Gruppe B', FF:'Fest Frühschicht', FS:'Fest Spätschicht', X:'Schichtunabhängig', N:'Nicht eingeplant'};
+const Z_SHORT = {A:'Rotation A', B:'Rotation B', FF:'Fest Früh', FS:'Fest Spät', X:'Schichtunabh.', N:'Nicht eingepl.'};
 const ARTEN = ['Festangestellt','Teilzeit','Minijob','Litauer','Aushilfe','Leiharbeit','Azubi'];
 const ART_SHORT = {Festangestellt:'', Teilzeit:'TZ', Minijob:'MJ', Litauer:'LT', Aushilfe:'AH', Leiharbeit:'LA', Azubi:'AZ'};
-const COL_NAME = {F:'Frühschicht', S:'Spätschicht', X:'Schichtunabhängig'};
+const COL_NAME = {F:'Frühschicht', S:'Spätschicht', X:'Schichtunabhängig', N:'Nicht eingeplant'};
 const ABS = {U:'Urlaub', K:'Krank', S:'Schulung', F:'Frei'};
 const DEFAULT_ROLES = ['Teamleitung Wareneingang','Teamleitung Frachten','Teamleitung Versand','Inhouse-TL (Zwischenschicht)','Staplerfahrer','Wareneingang','Kommissionierung','Packen / Versand','Retouren','Lagermitarbeiter'];
 
@@ -923,6 +996,7 @@ function shiftOf(e, monday){
     case 'FF': return 'F';
     case 'FS': return 'S';
     case 'X':  return 'X';
+    case 'N':  return 'N';
     case 'A':  return aIsFrueh(monday) ? 'F' : 'S';
     case 'B':  return aIsFrueh(monday) ? 'S' : 'F';
   }
@@ -936,7 +1010,7 @@ const stamp = t => new Date(t).toLocaleString('de-DE', {day:'2-digit', month:'2-
 /* ---------- State ---------- */
 function defaults(){
   return { v:2, employees:[], absences:{}, swaps:{}, volumes:{}, fcDaily:{}, log:[], updated:0,
-    settings:{ sollF:45, sollS:35, anchor:isoDate(mondayOf(new Date())), roles:DEFAULT_ROLES.slice(), areas:['Rollei','GotBag','Alaiko','Deutsche Börse AG','Wareneingang','Versand','Retouren','Lager allgemein'], minRoles:{}, timesF:'06:00 – 14:30', timesS:'14:00 – 22:30', company:'atrikom fulfillment', site:'Bischofsheim',
+    settings:{ sollF:45, sollS:35, anchor:isoDate(mondayOf(new Date())), roles:DEFAULT_ROLES.slice(), areas:['Rollei','GotBag','Alaiko','Deutsche Börse AG','Wareneingang','Versand','Retouren','Lager allgemein'], minRoles:{}, timesF:'06:00 – 14:30', timesS:'14:00 – 22:30', company:'atrikom fulfillment', site:'Bischofsheim', author:'Lagerleitung',
       quals:[{name:'Staplerschein', minF:2, minS:2}, {name:'Ersthelfer', minF:1, minS:1}, {name:'Brandschutzhelfer', minF:1, minS:1}],
       cap:{ on:false, unit:'Aufträge', hours:7, days:5, sunToMon:true, kpiEst:false, baseF:6, baseS:4, factors:Object.fromEntries(ARTEN.map(a => [a, 1])), clients:['Rollei','GotBag','Alaiko','Deutsche Börse AG'].map((n, i) => ({ id:'c' + (i + 1), name:n, vol:0, rate:25, shareF:60 })) } } };
 }
@@ -967,7 +1041,7 @@ let viewMonday = mondayOf(new Date());
 
 /* ---------- Mitarbeiterliste Bischofsheim komplett (einmalig einpflegen) ---------- */
 const SEED_ID = 'bischofsheim-komplett-2026-10-12';
-const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasios", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb002", "name": "Evangelinos, Triantafyllos", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb003", "name": "Liers, Jason", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb004", "name": "Yahia, Oualid", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb005", "name": "Bouyoumad, Younes", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb006", "name": "Schuff, Patrick", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb007", "name": "Gacioppo, Dario", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb008", "name": "Twumasi, Julia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb009", "name": "Munteanu, Daniela", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb010", "name": "Osumani, Huduq", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb011", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb012", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb013", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb014", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb015", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb016", "name": "Shefer, Viktor", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb017", "name": "Tschilingarjan, Galina", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb018", "name": "Schuller, Milica", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb019", "name": "Walter, Julia", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb020", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb021", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb022", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb023", "name": "Philippi, Rene", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 200, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb024", "name": "Pham, Ngoc Thanh Tuyen", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb025", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb026", "name": "Khan, Emal", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb027", "name": "Franjo, Denis", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb028", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb029", "name": "Messerschmidt, Vasyl", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb030", "name": "Vidziunaite, Edita", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb031", "name": "Benjrid, Hicham", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb032", "name": "Assakali, Nassim", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb033", "name": "Ulrich, Noyan", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb034", "name": "Rullik, Simon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb035", "name": "Weilbächer, Jon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb036", "name": "Hebling, Jennifer", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb037", "name": "Hünniger, Christoph", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb038", "name": "Bajko, Alpar", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb039", "name": "Dortmann, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb040", "name": "Florea, Eugenia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb041", "name": "Khan, Fatima", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb042", "name": "Wegner, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb043", "name": "Walter, Eduard", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb044", "name": "Rout, Aleksej", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb045", "name": "Khan, Zarmina", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb046", "name": "Rahimi, Emran", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb047", "name": "Maregrande, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb048", "name": "Döner, Ali Berkay", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb049", "name": "Tenenbaum, Arthur", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb050", "name": "Maregrande, Desiree", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb051", "name": "Gundlach, Sophie", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb052", "name": "Diring, Milen", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb053", "name": "Hummel, Petra", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb054", "name": "Zouhair, Jamal Eddin", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb055", "name": "Munschauer, Mandy", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb056", "name": "Jung, Jacqueline", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb057", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb058", "name": "Lendle, Susanne", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb059", "name": "Farfar, Nadia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb060", "name": "Fronia, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb061", "name": "Schuster, Iris", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb062", "name": "Diring, Jelena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb063", "name": "Schäfer, Elena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb064", "name": "Brooks, Brigitte", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb065", "name": "Ponomareva, Alena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb066", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb067", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb068", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 0, "quals": {"Staplerschein": ""}}, {"id": "mb069", "name": "Müller, Heike", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb070", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb071", "name": "Malah, Khalid", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb072", "name": "Harff, Rita", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {"Staplerschein": ""}}, {"id": "mb073", "name": "Geißler, Martina", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 125, "quals": {}}, {"id": "mb074", "name": "Walter, Oleg", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb075", "name": "Shefer, Valeria", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 70, "quals": {"Staplerschein": ""}}, {"id": "mb076", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb077", "name": "Schäfer, Denis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb078", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb079", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb080", "name": "Dortmann, Marcel", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb081", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 50, "quals": {"Staplerschein": ""}}, {"id": "mb082", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb083", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb084", "name": "Medlin, Birgit", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb085", "name": "Heck, Inka", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb086", "name": "Grizfeld, Natalia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb087", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Sicherheitsbeauftragter": "", "Staplerschein": ""}}, {"id": "mb088", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb089", "name": "Antulis, Edgaras", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Staplerschein": ""}}, {"id": "mb090", "name": "Bagdziwnaite, Jurgita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb091", "name": "Baltusyte, Renata", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb092", "name": "Bubeniene, Laim", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb093", "name": "Dabravolskiene, Birute", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb094", "name": "Tverijonas, Domantas", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb095", "name": "Karlikauskas, Andrius", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb096", "name": "Rimkus, Karolis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb097", "name": "Katkevičienė, Renata", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": 350, "quals": {}}, {"id": "mb098", "name": "Kirdeikyte, Era", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb099", "name": "Liaukowiene, Ale", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb100", "name": "Miller, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb101", "name": "Petkeviciute, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb102", "name": "Platanoviciene, Brigita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb103", "name": "Pleska, Gytis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb104", "name": "Smilgiene, Lina", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb105", "name": "Stankeviciene, Jolanta", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb106", "name": "Vilkoncius, Ignas", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}], "settings": {"sollF": 63, "sollS": 42, "quals": [{"name": "Ersthelfer", "minF": 0, "minS": 0}, {"name": "Brandschutzhelfer", "minF": 0, "minS": 0}, {"name": "Sicherheitsbeauftragter", "minF": 0, "minS": 0}, {"name": "Staplerschein", "minF": 0, "minS": 0}]}};
+const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasios", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb002", "name": "Evangelinos, Triantafyllos", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb003", "name": "Liers, Jason", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb004", "name": "Yahia, Oualid", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb005", "name": "Bouyoumad, Younes", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb006", "name": "Schuff, Patrick", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb007", "name": "Gacioppo, Dario", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb008", "name": "Twumasi, Julia", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb009", "name": "Munteanu, Daniela", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb010", "name": "Osumani, Huduq", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb011", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb012", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "N", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb013", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb014", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb015", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb016", "name": "Shefer, Viktor", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb017", "name": "Tschilingarjan, Galina", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb018", "name": "Schuller, Milica", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb019", "name": "Walter, Julia", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb020", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb021", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb022", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb023", "name": "Philippi, Rene", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": 200, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb024", "name": "Pham, Ngoc Thanh Tuyen", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb025", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb026", "name": "Khan, Emal", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb027", "name": "Franjo, Denis", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb028", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb029", "name": "Messerschmidt, Vasyl", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb030", "name": "Vidziunaite, Edita", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb031", "name": "Benjrid, Hicham", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb032", "name": "Assakali, Nassim", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb033", "name": "Ulrich, Noyan", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb034", "name": "Rullik, Simon", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb035", "name": "Weilbächer, Jon", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb036", "name": "Hebling, Jennifer", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb037", "name": "Hünniger, Christoph", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb038", "name": "Bajko, Alpar", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb039", "name": "Dortmann, Alexander", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb040", "name": "Florea, Eugenia", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb041", "name": "Khan, Fatima", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb042", "name": "Wegner, Alexander", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb043", "name": "Walter, Eduard", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb044", "name": "Rout, Aleksej", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb045", "name": "Khan, Zarmina", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb046", "name": "Rahimi, Emran", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb047", "name": "Maregrande, Francesco", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb048", "name": "Döner, Ali Berkay", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb049", "name": "Tenenbaum, Arthur", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb050", "name": "Maregrande, Desiree", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb051", "name": "Gundlach, Sophie", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb052", "name": "Diring, Milen", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb053", "name": "Hummel, Petra", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb054", "name": "Zouhair, Jamal Eddin", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb055", "name": "Munschauer, Mandy", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb056", "name": "Jung, Jacqueline", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb057", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb058", "name": "Lendle, Susanne", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb059", "name": "Farfar, Nadia", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb060", "name": "Fronia, Christine", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb061", "name": "Schuster, Iris", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb062", "name": "Diring, Jelena", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb063", "name": "Schäfer, Elena", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb064", "name": "Brooks, Brigitte", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb065", "name": "Ponomareva, Alena", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb066", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb067", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb068", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": 0, "quals": {"Staplerschein": ""}}, {"id": "mb069", "name": "Müller, Heike", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb070", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb071", "name": "Malah, Khalid", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb072", "name": "Harff, Rita", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 150, "quals": {"Staplerschein": ""}}, {"id": "mb073", "name": "Geißler, Martina", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 125, "quals": {}}, {"id": "mb074", "name": "Walter, Oleg", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb075", "name": "Shefer, Valeria", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 70, "quals": {"Staplerschein": ""}}, {"id": "mb076", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb077", "name": "Schäfer, Denis", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb078", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb079", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb080", "name": "Dortmann, Marcel", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb081", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": 50, "quals": {"Staplerschein": ""}}, {"id": "mb082", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb083", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb084", "name": "Medlin, Birgit", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb085", "name": "Heck, Inka", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb086", "name": "Grizfeld, Natalia", "art": "Minijob", "z": "N", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb087", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Sicherheitsbeauftragter": "", "Staplerschein": ""}}, {"id": "mb088", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb089", "name": "Antulis, Edgaras", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Staplerschein": ""}}, {"id": "mb090", "name": "Bagdziwnaite, Jurgita", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb091", "name": "Baltusyte, Renata", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb092", "name": "Bubeniene, Laim", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb093", "name": "Dabravolskiene, Birute", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb094", "name": "Tverijonas, Domantas", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb095", "name": "Karlikauskas, Andrius", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb096", "name": "Rimkus, Karolis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb097", "name": "Katkevičienė, Renata", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 350, "quals": {}}, {"id": "mb098", "name": "Kirdeikyte, Era", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb099", "name": "Liaukowiene, Ale", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb100", "name": "Miller, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb101", "name": "Petkeviciute, Daiva", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb102", "name": "Platanoviciene, Brigita", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb103", "name": "Pleska, Gytis", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb104", "name": "Smilgiene, Lina", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb105", "name": "Stankeviciene, Jolanta", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb106", "name": "Vilkoncius, Ignas", "art": "Litauer", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}], "settings": {"sollF": 36, "sollS": 9, "quals": [{"name": "Ersthelfer", "minF": 0, "minS": 0}, {"name": "Brandschutzhelfer", "minF": 0, "minS": 0}, {"name": "Sicherheitsbeauftragter", "minF": 0, "minS": 0}, {"name": "Staplerschein", "minF": 0, "minS": 0}]}};
 (function applySeed(){
   if (S.seed === SEED_ID) return;
   const n = SEED.employees.length, had = S.employees.length;
@@ -1002,6 +1076,28 @@ const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasio
   S.employees.forEach(e => { if (K[e.name] != null) { e.kpi = K[e.name]; n++; } });
   S.patches.push(ID);
   if (n) S.log.push({ t: Date.now(), m: `Ø KPI für ${n} Mitarbeiter übernommen` });
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+})();
+
+/* ---------- Verfasser (einmalig) ---------- */
+(function applyAuthor(){
+  const ID = 'author-2026-10-13'; S.patches = Array.isArray(S.patches) ? S.patches : [];
+  if (S.patches.includes(ID)) return;
+  if (!S.settings.author || S.settings.author === 'Lagerleitung') S.settings.author = 'Marc Bahn, Lagerleitung';
+  S.patches.push(ID); try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+})();
+
+/* ---------- Neuplanung 80/20 (einmalig) ---------- */
+(function applyPlan(){
+  const ID = 'plan-80-20-2026-10-13', P = {"Christou, Athanasios": "B", "Evangelinos, Triantafyllos": "A", "Liers, Jason": "A", "Yahia, Oualid": "N", "Bouyoumad, Younes": "N", "Schuff, Patrick": "A", "Gacioppo, Dario": "B", "Twumasi, Julia": "N", "Munteanu, Daniela": "N", "Osumani, Huduq": "FF", "Gacioppo, Fabio": "FF", "Kuhlemann, Brian": "N", "Barschtipan, Dustin": "A", "Kunicke, Asta": "A", "Scholz-Zhang, Zhenfang": "FF", "Shefer, Viktor": "N", "Tschilingarjan, Galina": "N", "Schuller, Milica": "FF", "Walter, Julia": "B", "Dortmann, Irina": "FF", "Zerrou, Ayoub": "A", "Ponamarev, Alexander": "N", "Philippi, Rene": "B", "Pham, Ngoc Thanh Tuyen": "FF", "Munteanu, Tatiana": "FF", "Khan, Emal": "FF", "Franjo, Denis": "B", "Degirmenci, Abdullah": "FF", "Messerschmidt, Vasyl": "N", "Vidziunaite, Edita": "N", "Benjrid, Hicham": "N", "Assakali, Nassim": "N", "Ulrich, Noyan": "N", "Rullik, Simon": "N", "Weilbächer, Jon": "N", "Hebling, Jennifer": "N", "Hünniger, Christoph": "N", "Bajko, Alpar": "N", "Dortmann, Alexander": "N", "Florea, Eugenia": "N", "Khan, Fatima": "N", "Wegner, Alexander": "N", "Walter, Eduard": "N", "Rout, Aleksej": "N", "Khan, Zarmina": "N", "Rahimi, Emran": "N", "Maregrande, Francesco": "N", "Döner, Ali Berkay": "N", "Tenenbaum, Arthur": "N", "Maregrande, Desiree": "N", "Gundlach, Sophie": "N", "Diring, Milen": "N", "Hummel, Petra": "N", "Zouhair, Jamal Eddin": "N", "Munschauer, Mandy": "N", "Jung, Jacqueline": "FF", "Gaudin-Hix, Patricia": "N", "Lendle, Susanne": "N", "Farfar, Nadia": "N", "Fronia, Christine": "N", "Schuster, Iris": "N", "Diring, Jelena": "N", "Schäfer, Elena": "N", "Brooks, Brigitte": "N", "Ponomareva, Alena": "N", "Spegt-Sieben, Christine": "N", "Haselsteiner, Gabriele": "N", "Tewelde, Amanuel": "FF", "Müller, Heike": "FF", "Mangiapane, Francesco": "N", "Malah, Khalid": "B", "Harff, Rita": "N", "Geißler, Martina": "N", "Walter, Oleg": "N", "Shefer, Valeria": "N", "Schneidmüller, Svetlana": "N", "Schäfer, Denis": "N", "Roßtäuscher, Dennis": "N", "Pirschle, Benjamin": "N", "Dortmann, Marcel": "N", "Di Vincenzo, Quirino": "N", "Da Silva Antonio, Jose": "FF", "Semm, Yvonne": "FF", "Medlin, Birgit": "N", "Heck, Inka": "N", "Grizfeld, Natalia": "N", "Bahn, Marc": "X", "Rout, Evgeniya": "FF", "Antulis, Edgaras": "A", "Bagdziwnaite, Jurgita": "FF", "Baltusyte, Renata": "FF", "Bubeniene, Laim": "FF", "Dabravolskiene, Birute": "FF", "Tverijonas, Domantas": "A", "Karlikauskas, Andrius": "B", "Rimkus, Karolis": "A", "Katkevičienė, Renata": "FF", "Kirdeikyte, Era": "FF", "Liaukowiene, Ale": "FF", "Miller, Daiva": "B", "Petkeviciute, Daiva": "FF", "Platanoviciene, Brigita": "FF", "Pleska, Gytis": "B", "Smilgiene, Lina": "FF", "Stankeviciene, Jolanta": "FF", "Vilkoncius, Ignas": "FF"};
+  S.patches = Array.isArray(S.patches) ? S.patches : [];
+  if (S.patches.includes(ID)) return;
+  let n = 0;
+  S.employees.forEach(e => { e.z = P[e.name] || 'N'; n++; });
+  S.swaps = {};
+  S.settings.sollF = 36; S.settings.sollS = 9;
+  S.patches.push(ID);
+  S.log.push({ t: Date.now(), m: 'Neuplanung 80/20: 36 Früh / 9 Spät (Festangestellte, Litauer, Teilzeit) · Minijobber und Azubi nicht eingeplant · Einmal-Tausche zurückgesetzt' });
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
 })();
 
@@ -1112,7 +1208,7 @@ function moveTo(id, col, once){
   const e = byId(id); if (!e) return;
   if (once) return setSwap(id, col);
   let nz;
-  if (col === 'X') nz = 'X';
+  if (col === 'X' || col === 'N') nz = col;
   else if (e.z === 'FF' || e.z === 'FS') nz = col === 'F' ? 'FF' : 'FS';
   else nz = groupIn(col, viewMonday);
   const hadSwap = !!swapOf(id);
@@ -1176,7 +1272,7 @@ function setKpi(id, v){
   commit(`${e.name}: Ø KPI ${old == null ? '–' : fmtN(old)} → ${v == null ? '–' : fmtN(v)}`);
 }
 function counts(m = viewMonday){
-  const c = {F:0, S:0, X:0, aF:0, aS:0, aX:0};
+  const c = {F:0, S:0, X:0, N:0, aF:0, aS:0, aX:0, aN:0};
   S.employees.forEach(e => { const sh = effShift(e, m); if (absOf(e.id, m)) c['a' + sh]++; else c[sh]++; });
   return c;
 }
@@ -1241,6 +1337,7 @@ function renderWeek(){
     `<span class="tag">Gruppe A: ${cnt('A')}</span><span class="tag">Gruppe B: ${cnt('B')}</span>` +
     `<span class="tag">Fest Früh: ${cnt('FF')}</span><span class="tag">Fest Spät: ${cnt('FS')}</span>` +
     `<span class="tag x">Schichtunabhängig: ${cnt('X')}</span>` +
+    (cnt('N') ? `<span class="tag">Nicht eingeplant: ${cnt('N')}</span>` : '') +
     (absN ? `<span class="tag">Abwesend KW ${kw()}: ${absN}</span>` : '') +
     (swN ? `<span class="tag w">Einmal-Tausch: ${swN}</span>` : '');
 }
@@ -1294,9 +1391,9 @@ function cardHtml(e){
 function renderBoard(){
   const q = $('#q').value.trim().toLowerCase(), rf = $('#roleFilter').value;
   const grp = groupBy, order = grp === 'area' ? areaOrder() : ARTEN, st = S.settings, a = aIsFrueh(viewMonday);
-  const sub = { F: `${esc(st.timesF)} · Gruppe ${a ? 'A' : 'B'} + Fest Früh`, S: `${esc(st.timesS)} · Gruppe ${a ? 'B' : 'A'} + Fest Spät`, X: 'Tagdienst / nicht in der Rotation' };
+  const sub = { F: `${esc(st.timesF)} · Gruppe ${a ? 'A' : 'B'} + Fest Früh`, S: `${esc(st.timesS)} · Gruppe ${a ? 'B' : 'A'} + Fest Spät`, X: 'Tagdienst / nicht in der Rotation', N: 'Pool – per Drag & Drop in Früh oder Spät ziehen (Shift = nur diese Woche)' };
   const soll = { F: sollFor('F'), S: sollFor('S') };
-  ['F','S','X'].forEach(col => {
+  ['F','S','X','N'].forEach(col => {
     const el = document.querySelector(`.col[data-col="${col}"]`);
     let list = S.employees.filter(e => effShift(e) === col);
     const present = list.filter(e => !absOf(e.id)).length, absent = list.length - present;
@@ -1314,11 +1411,11 @@ function renderBoard(){
       const cnt = min ? `<span class="${n < min ? 'under' : 'met'}">${n}/${min}</span>` : `<span>${n}${n !== g.length ? ' / ' + g.length : ''}</span>`;
       return `<div class="rhead"><span>${esc(k || (grp === 'area' ? 'Ohne Bereich' : '–'))}</span>${cnt}</div>` + g.map(cardHtml).join('');
     }).join('');
-    if (!body) body = `<div class="empty">${(q || rf) && present + absent ? 'Keine Treffer' : S.employees.length ? 'Hierher ziehen' : 'Noch keine Mitarbeiter angelegt.<br><br><button class="btn sm" data-act="add">+ Mitarbeiter</button> <button class="btn sm" data-act="bulk">Liste einfügen</button>'}</div>`;
-    const sc = col === 'X' ? '' : `/ ${soll[col]}`;
-    const p = col === 'X' ? 0 : (soll[col] ? present / soll[col] : 0);
+    if (!body) body = `<div class="empty">${(q || rf) && present + absent ? 'Keine Treffer' : col === 'N' && S.employees.length ? 'Alle Mitarbeiter sind eingeplant' : S.employees.length ? 'Hierher ziehen' : 'Noch keine Mitarbeiter angelegt.<br><br><button class="btn sm" data-act="add">+ Mitarbeiter</button> <button class="btn sm" data-act="bulk">Liste einfügen</button>'}</div>`;
+    const sc = (col === 'X' || col === 'N') ? '' : `/ ${soll[col]}`;
+    const p = (col === 'X' || col === 'N') ? 0 : (soll[col] ? present / soll[col] : 0);
     el.innerHTML = `<div class="chead"><div class="ctitle"><h3><i></i>${COL_NAME[col]}</h3><span class="count">${present} <span style="color:var(--muted);font-weight:500">${sc}</span></span></div>
-      <div class="csub">${sub[col]}${absent ? ` · ${absent} abwesend` : ''}${S.employees.some(e => e.kpi != null) ? (() => { const k = kpiCap(col); return ` · <span title="Kapazität: Summe Ø KPI der Anwesenden${k.est ? `, davon ${fmtN(k.est)} geschätzt` : ''}">Kapazität ${fmtN(k.v)}/Tag</span>`; })() : ''}</div>${col === 'X' ? '' : `<div class="bar"><span style="width:${Math.min(100, p * 100)}%;background:${covColor(p)}"></span></div>`}</div>
+      <div class="csub">${sub[col]}${absent ? ` · ${absent} abwesend` : ''}${col !== 'N' && S.employees.some(e => e.kpi != null) ? (() => { const k = kpiCap(col); return ` · <span title="Kapazität: Summe Ø KPI der Anwesenden${k.est ? `, davon ${fmtN(k.est)} geschätzt` : ''}">Kapazität ${fmtN(k.v)}/Tag</span>`; })() : ''}</div>${(col === 'X' || col === 'N') ? '' : `<div class="bar"><span style="width:${Math.min(100, p * 100)}%;background:${covColor(p)}"></span></div>`}</div>
       <div class="cbody">${body}</div>`;
   });
 }
@@ -1328,9 +1425,9 @@ function renderRoles(){
   const ab = a => S.employees.filter(e => e.art === a && absOf(e.id)).length;
   const used = ARTEN.filter(a => S.employees.some(e => e.art === a));
   const cell = v => `<td class="c"><span class="chip ${v ? 'ok' : 'na'}">${v || '–'}</span></td>`;
-  const rows = used.map(a => `<tr><td>${esc(a)}</td>${cell(n(a, 'F'))}${cell(n(a, 'S'))}${cell(n(a, 'X'))}<td class="c" style="color:var(--muted)">${ab(a) || '–'}</td><td class="c"><b>${S.employees.filter(e => e.art === a).length}</b></td></tr>`).join('');
+  const rows = used.map(a => `<tr><td>${esc(a)}</td>${cell(n(a, 'F'))}${cell(n(a, 'S'))}${cell(n(a, 'X'))}${cell(n(a, 'N'))}<td class="c" style="color:var(--muted)">${ab(a) || '–'}</td><td class="c"><b>${S.employees.filter(e => e.art === a).length}</b></td></tr>`).join('');
   const tot = col => S.employees.filter(e => effShift(e) === col && !absOf(e.id)).length;
-  $('#roleTable').innerHTML = `<thead><tr><th>Beschäftigung</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Unabh.</th><th class="c">Abwesend</th><th class="c">Gesamt</th></tr></thead><tbody>${rows}<tr><td><b>Gesamt</b></td><td class="c"><b>${tot('F')}</b></td><td class="c"><b>${tot('S')}</b></td><td class="c"><b>${tot('X')}</b></td><td class="c" style="color:var(--muted)">${S.employees.filter(e => absOf(e.id)).length || '–'}</td><td class="c"><b>${S.employees.length}</b></td></tr>${S.employees.some(e => e.kpi != null) ? `<tr><td style="color:var(--muted)">Kapazität / Tag (Σ Ø KPI)</td><td class="c">${fmtN(kpiSum('F'))}</td><td class="c">${fmtN(kpiSum('S'))}</td><td class="c">${fmtN(kpiSum('X'))}</td><td></td><td></td></tr>` : ''}</tbody>`;
+  $('#roleTable').innerHTML = `<thead><tr><th>Beschäftigung</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Unabh.</th><th class="c">Nicht eingepl.</th><th class="c">Abwesend</th><th class="c">Gesamt</th></tr></thead><tbody>${rows}<tr><td><b>Gesamt</b></td><td class="c"><b>${tot('F')}</b></td><td class="c"><b>${tot('S')}</b></td><td class="c"><b>${tot('X')}</b></td><td class="c"><b>${tot('N')}</b></td><td class="c" style="color:var(--muted)">${S.employees.filter(e => absOf(e.id)).length || '–'}</td><td class="c"><b>${S.employees.length}</b></td></tr>${S.employees.some(e => e.kpi != null) ? `<tr><td style="color:var(--muted)">Kapazität / Tag (Σ Ø KPI)</td><td class="c">${fmtN(kpiSum('F'))}</td><td class="c">${fmtN(kpiSum('S'))}</td><td class="c">${fmtN(kpiSum('X'))}</td><td></td><td></td><td></td></tr>` : ''}</tbody>`;
 }
 
 function renderFilters(){
@@ -1357,12 +1454,12 @@ function openMenu(id, btn){
   const e = byId(id); if (!e) return;
   closeMenu(); menuId = id; menuAt = performance.now(); btn.classList.add('on');
   const ab = absOf(id), sw = swapOf(id), base = shiftOf(e, viewMonday), cur = effShift(e);
-  const targets = ['F','S','X'].filter(c => c !== cur && !(sw && c === base));
+  const targets = ['F','S','X','N'].filter(c => c !== cur && !(sw && c === base));
   menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw()} · regulär ${COL_NAME[base]} · ${esc(e.art)}</small></div>
     <div class="ml">Abwesenheit – nur KW ${kw()}</div>
     <div class="mrow"><button class="opt${!ab ? ' on' : ''}" data-abs="">Anwesend</button>${Object.entries(ABS).map(([k, v]) => `<button class="opt${ab === k ? ' on' : ''}" data-abs="${k}">${v}</button>`).join('')}</div>
     <div class="ml">Einmal-Tausch – nur KW ${kw()}</div>
-    <div class="mrow">${targets.map(c => `<button class="opt sw" data-swap="${c}">→ ${c === 'X' ? 'Schichtunabh.' : COL_NAME[c]}</button>`).join('')}${sw ? `<button class="opt" data-swap="${base}">Tausch aufheben</button>` : ''}</div>
+    <div class="mrow">${targets.map(c => `<button class="opt sw" data-swap="${c}">→ ${c === 'X' ? 'Schichtunabh.' : c === 'N' ? 'Nicht eingepl.' : COL_NAME[c]}</button>`).join('')}${sw ? `<button class="opt" data-swap="${base}">Tausch aufheben</button>` : ''}</div>
     <hr><button class="mi" data-mact="edit">Bearbeiten …</button><button class="mi danger" data-mact="del">Mitarbeiter löschen</button>`;
   menu.classList.remove('hide');
   const r = btn.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
@@ -1463,7 +1560,7 @@ const zOptions = Object.keys(Z_LONG).map(z => `<option value="${z}">${Z_LONG[z]}
 $('#fZ').innerHTML = zOptions; $('#bulkZ').innerHTML = zOptions;
 function zHint(){
   const z = $('#fZ').value, a = aIsFrueh(viewMonday);
-  const t = { A: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Früh' : 'Spät'}.`, B: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Spät' : 'Früh'}.`, FF: 'Immer Frühschicht, keine Rotation.', FS: 'Immer Spätschicht, keine Rotation.', X: 'Nicht vom Schichtsystem betroffen (z. B. Tagdienst, Büro, Leitung).' };
+  const t = { A: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Früh' : 'Spät'}.`, B: `Wechselt wöchentlich. In KW ${kw()}: ${a ? 'Spät' : 'Früh'}.`, FF: 'Immer Frühschicht, keine Rotation.', FS: 'Immer Spätschicht, keine Rotation.', X: 'Nicht vom Schichtsystem betroffen (z. B. Tagdienst, Büro, Leitung).', N: 'Steht im Pool und zählt in keiner Schicht. Einzelne Wochen planst du im Kalender oder per Shift + Ziehen im Board ein.' };
   $('#fZHint').textContent = t[z];
 }
 $('#fZ').onchange = zHint;
@@ -1524,70 +1621,111 @@ $('#btnPrint').onclick = () => { $('#pWeekTxt').textContent = `KW ${kw()} (${fmt
 dlgPrint.addEventListener('close', () => {
   if (dlgPrint.returnValue !== 'ok') return;
   const type = dlgPrint.querySelector('input[name=ptype]:checked').value, n = +$('#pWeeks').value || 4;
-  const html = type === 'stats' ? printStats() : (type !== 'rot' ? printWeek() : '') + (type !== 'week' ? printRotation(n) : '');
-  $('#printArea').innerHTML = html;
-  setTimeout(() => window.print(), 60);
+  doPrint(type === 'stats' ? printStats() : (type !== 'rot' ? printWeek() : '') + (type !== 'week' ? printRotation(n) : ''));
 });
-function printHeader(title, sub){
+const MONL = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+function dateSpan(a, b){
+  if (a.getFullYear() !== b.getFullYear()) return `${a.getDate()}. ${MONL[a.getMonth()]} ${a.getFullYear()} – ${b.getDate()}. ${MONL[b.getMonth()]} ${b.getFullYear()}`;
+  if (a.getMonth() !== b.getMonth()) return `${a.getDate()}. ${MONL[a.getMonth()]} – ${b.getDate()}. ${MONL[b.getMonth()]} ${b.getFullYear()}`;
+  return `${a.getDate()}. – ${b.getDate()}. ${MONL[a.getMonth()]} ${a.getFullYear()}`;
+}
+const stampLong = () => new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+function printHeader(title, sub, doc = 'Personalplanung'){
   const st = S.settings;
-  return `<header class="ph"><div><div class="pco">${esc(st.company)} · Standort ${esc(st.site)}</div><h1>${title}</h1><div class="psub">${sub}</div></div><div class="pbadge">MB</div></header>`;
+  return `<header class="ph"><div><div class="pbrand"><span class="pmark">MB</span><span><b>${esc(st.company)}</b> · Standort ${esc(st.site)}</span></div><h1>${title}</h1><div class="psub">${sub}</div></div>
+    <div class="pdoc"><b>${esc(doc)}</b>${esc(st.author || '')}${st.author ? '<br>' : ''}Stand ${stampLong()}</div></header>`;
 }
 function printFooter(){
-  const now = new Date();
-  return `<footer class="pf"><span>Stand: ${now.toLocaleString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})} · Leitstand Schichtplanung</span><span>Freigabe Lagerleitung: ____________________________</span></footer>`;
+  const st = S.settings;
+  return `<footer class="pf"><span>${esc(st.company)} · ${esc(st.site)} · erstellt mit Leitstand Schichtplanung</span><span class="pg">Seite {{P}} von {{N}}</span><span class="sig">Freigabe Lagerleitung<i></i></span></footer>`;
+}
+function finalizePages(html){ const parts = html.split('<section class="ppage'); const n = parts.length - 1; return parts.map((p, i) => i ? p.replace(/\{\{P\}\}/g, i) : p).join('<section class="ppage').replace(/\{\{N\}\}/g, n); }
+async function doPrint(html){
+  $('#printArea').innerHTML = finalizePages(html);
+  try { await Promise.race([Promise.all(['800 40px "Barlow Condensed"', '700 20px "Barlow Condensed"', '600 12px "Barlow Condensed"', '400 10px Barlow', '600 10px Barlow'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
+  setTimeout(() => window.print(), 60);
 }
 function sortForList(list, m){
   return list.slice().sort((x, y) => (ARTEN.indexOf(x.art) - ARTEN.indexOf(y.art)) || x.name.localeCompare(y.name, 'de'));
 }
+const QABBR = { ersthelfer: ['EH', 'eh'], brandschutzhelfer: ['BS', 'bs'], staplerschein: ['ST', ''], sicherheitsbeauftragter: ['SB', ''] };
+const qAbbr = q => QABBR[q.toLowerCase()] || [q.replace(/[^A-Za-zÄÖÜäöü]/g, '').slice(0, 2).toUpperCase(), ''];
 function printWeek(){
-  const m = viewMonday, st = S.settings, c = counts(m), a = aIsFrueh(m), soll = { F: sollFor('F', m), S: sollFor('S', m) };
-  const col = k => {
-    const list = sortForList(S.employees.filter(e => effShift(e, m) === k), m);
-    let html = '', lastRole = null;
-    list.forEach(e => {
-      const r = e.art;
-      if (r !== lastRole) {
-        if (lastRole !== null) html += '</ul>';
-        const n = list.filter(x => x.art === r && !absOf(x.id, m)).length;
-        html += `<div class="prole"><span>${esc(r)}</span><span>${n}</span></div><ul>`;
-        lastRole = r;
-      }
-      const ab = absOf(e.id, m), sw = swapOf(e.id, m);
-      html += `<li class="${ab ? 'pabs' : ''}"><span>${esc(e.name)}${sw ? ' *' : ''}</span><em>${ab ? ABS[ab] : esc(e.area || '')}</em></li>`;
-    });
-    if (lastRole !== null) html += '</ul>';
-    const head = k === 'X' ? `${c.X} anwesend${c.aX ? ` · ${c.aX} abwesend` : ''}` : `${c[k]} / ${soll[k]} anwesend${c['a' + k] ? ` · ${c['a' + k]} abwesend` : ''}`;
-    return `<div class="pcol"><h2 class="p${k}">${COL_NAME[k]}<span>${k === 'X' ? 'Tagdienst' : esc(k === 'F' ? st.timesF : st.timesS)}</span></h2><div class="pcount">${head}${k !== 'X' ? ` · Gruppe ${(k === 'F') === a ? 'A' : 'B'}` : ''}</div>${html || '<div class="pcount">—</div>'}</div>`;
+  const m = viewMonday, st = S.settings, c = counts(m), a = aIsFrueh(m), end = addDays(m, 6);
+  const hasArea = S.employees.some(e => e.area);
+  const list = k => S.employees.filter(e => effShift(e, m) === k).sort((x, y) => (hasArea ? ((x.area ? areaOrder().indexOf(x.area) : 1e9) - (y.area ? areaOrder().indexOf(y.area) : 1e9)) : 0) || x.name.localeCompare(y.name, 'de'));
+  const LF = list('F'), LS = list('S'), LX = list('X');
+  const tot = LF.length + LS.length || 1;
+  let shF = Math.min(.72, Math.max(.32, LF.length / tot)); if (!LS.length) shF = 1; if (!LF.length) shF = 0;
+  const usable = 275 - 4, wmm = { F: usable * shF, S: usable * (1 - shF) };
+  const nameRow = e => {
+    const ab = absOf(e.id, m), sw = swapOf(e.id, m);
+    const qs = Object.keys(e.quals || {}).map(q => { const [t, cls] = qAbbr(q); return `<i class="${cls}">${esc(t)}</i>`; }).join('');
+    return `<div class="ax-n${ab ? ' abs' : ''}"><span class="n">${esc(e.name)}${sw ? ' <span class="ax-sw">*</span>' : ''}</span>${ab ? `<span class="why">${ABS[ab]}</span>` : qs ? `<span class="ax-q">${qs}</span>` : ''}</div>`;
   };
-  const w = warnings(m);
-  return `<section class="ppage">${printHeader(`Schichtplan KW ${kw(m)}`, `${fmtY(m)} – ${fmtY(addDays(m, 6))} · Frühschicht: Gruppe ${a ? 'A' : 'B'} · Spätschicht: Gruppe ${a ? 'B' : 'A'}`)}
-    <div class="pkpis">
-      <div><b>${c.F} / ${soll.F}</b><span>Frühschicht anwesend</span></div>
-      <div><b>${c.S} / ${soll.S}</b><span>Spätschicht anwesend</span></div>
-      <div><b>${c.X}</b><span>Schichtunabhängig</span></div>
-      <div><b>${c.aF + c.aS + c.aX}</b><span>Abwesend (Urlaub, Krank, …)</span></div>
+  const block = k => {
+    const L = k === 'F' ? LF : LS; if (!L.length && k === 'S' && !LF.length) return '';
+    if ((k === 'F' ? shF : 1 - shF) <= 0) return '';
+    const cols = Math.max(1, Math.min(5, Math.floor(wmm[k] / 52) || 1));
+    let html = '', lastG = null, groups = 0;
+    L.forEach(e => { if (hasArea) { const g = e.area || 'Ohne Bereich'; if (g !== lastG) { html += `<div class="ax-g"><span>${esc(g)}</span><span>${L.filter(x => (x.area || 'Ohne Bereich') === g).length}</span></div>`; lastG = g; groups++; } } html += nameRow(e); });
+    const rows = Math.ceil((L.length + groups * 1.7) / cols) || 1;
+    const fs = Math.max(7.2, Math.min(13, (128 / rows - 1.5) / 0.48)), pad = Math.max(.5, Math.min(2.4, (124 / rows - fs * .48) / 2));
+    const present = L.filter(e => !absOf(e.id, m)).length, absN = L.length - present;
+    const grp = (k === 'F') === a ? 'A' : 'B';
+    return `<section class="ax-sh ${k}" style="flex:${(k === 'F' ? shF : 1 - shF).toFixed(3)} 1 0"><header><h2>${COL_NAME[k]}</h2><span>${esc(k === 'F' ? st.timesF : st.timesS)}<small>Gruppe ${grp}${absN ? ` · ${absN} abwesend` : ''}</small></span></header><div class="ax-band"></div>
+      <div class="ax-list" style="column-count:${cols};--fs:${fs.toFixed(1)}pt;--pd:${pad.toFixed(2)}mm">${html || '<div class="ax-empty">Niemand eingeteilt</div>'}</div></section>`;
+  };
+  const qUsed = [...new Set(S.employees.flatMap(e => Object.keys(e.quals || {})))].map(q => `${qAbbr(q)[0]} ${esc(q)}`);
+  return `<section class="ppage ax">
+    <div class="ax-top">
+      <div class="ax-kw"><small>Kalenderwoche</small>KW ${kw(m)}</div>
+      <div class="ax-when"><b>${dateSpan(m, end)}</b><span>Schichtplan · ${esc(st.company)} · Standort ${esc(st.site)}</span></div>
+      <div class="ax-count"><div class="F"><b>${c.F}</b><span>Frühschicht</span></div><div class="S"><b>${c.S}</b><span>Spätschicht</span></div>${LX.length ? `<div class="X"><b>${c.X}</b><span>Tagdienst</span></div>` : ''}</div>
     </div>
-    <div class="pgrid">${col('F')}${col('S')}${col('X')}</div>
-    ${w.length ? `<div class="pwarn"><b>Offene Punkte (${w.length}):</b> ${w.slice(0, 8).map(esc).join(' · ')}${w.length > 8 ? ` · … ${w.length - 8} weitere` : ''}</div>` : ''}
-    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · Zahl = anwesend je Beschäftigungsart · LA = Leiharbeit, TZ = Teilzeit, MJ = Minijob, LT = Litauer, AH = Aushilfe, AZ = Azubi</div>
-    ${printFooter()}</section>`;
+    <div class="ax-body">${block('F')}${block('S')}</div>
+    <div class="ax-foot">
+      <div>${LX.length ? `<b>Tagdienst:</b> ${LX.map(e => esc(e.name)).join(', ')}<br>` : ''}${qUsed.length ? `<b>Qualifikationen:</b> ${qUsed.join(' · ')}` : ''}${S.employees.some(e => swapOf(e.id, m)) ? ' · <span class="ax-sw">*</span> nur diese Woche getauscht' : ''}</div>
+      <div>Stand ${stampLong()}${st.author ? `<br>${esc(st.author)}` : ''}<br>Kurzfristige Änderungen vorbehalten.</div>
+      <div class="sig">Freigabe Lagerleitung<i></i></div>
+    </div></section>`;
 }
 function printRotation(n){
   const st = S.settings;
   const rows = Array.from({ length: n }, (_, i) => {
     const m = addDays(viewMonday, 7 * i), a = aIsFrueh(m), c = counts(m), w = warnings(m).length, soll = { F: sollFor('F', m), S: sollFor('S', m) };
-    const cell = (k) => `<td class="${c[k] >= soll[k] ? 'ok' : 'bad'}">${c[k]} / ${soll[k]}</td>`;
-    return `<tr><td><b>KW ${kw(m)}</b></td><td>${fmt(m)} – ${fmtY(addDays(m, 6))}</td><td>Gruppe ${a ? 'A' : 'B'}</td><td>Gruppe ${a ? 'B' : 'A'}</td>${cell('F')}${cell('S')}<td>${c.aF + c.aS + c.aX}</td><td class="${w ? 'bad' : 'ok'}">${w ? w + ' offen' : 'erfüllt'}</td></tr>`;
+    const cell = (k) => `<td class="r ${c[k] >= soll[k] ? 'ok' : 'bad'}">${c[k]} / ${soll[k]}</td>`;
+    return `<tr><td><b>KW ${kw(m)}</b></td><td>${fmt(m)} – ${fmtY(addDays(m, 6))}</td><td>Gruppe ${a ? 'A' : 'B'}</td><td>Gruppe ${a ? 'B' : 'A'}</td>${cell('F')}${cell('S')}<td class="r">${c.aF + c.aS + c.aX}</td><td class="${w ? 'bad' : 'ok'}">${w ? w + ' offen' : 'erfüllt'}</td></tr>`;
   }).join('');
   const grp = (title, z, k) => {
     const list = sortForList(S.employees.filter(e => e.z === z));
-    return `<div class="pcol"><h2 class="p${k}">${title}<span>${list.length}</span></h2><ul>${list.map(e => `<li><span>${esc(e.name)}</span><em>${ART_SHORT[e.art] || ''}</em></li>`).join('') || '<li><span>—</span></li>'}</ul></div>`;
+    return `<div class="pcol p${k}${list.length > 10 ? ' many' : ''}"><h2>${title}<span>${list.length}</span></h2><ul>${list.map(e => `<li><span>${esc(e.name)}</span><em>${ART_SHORT[e.art] || ''}</em></li>`).join('') || '<li><span>—</span></li>'}</ul></div>`;
   };
   const last = addDays(viewMonday, 7 * (n - 1));
-  return `<section class="ppage">${printHeader(`Rotationsplan KW ${kw()} – KW ${kw(last)}`, `${fmtY(viewMonday)} – ${fmtY(addDays(last, 6))} · Wechsel jeweils montags · Früh ${esc(st.timesF)} · Spät ${esc(st.timesS)}`)}
-    <table class="ptable"><thead><tr><th>Woche</th><th>Zeitraum</th><th>Frühschicht</th><th>Spätschicht</th><th>Besetzung Früh</th><th>Besetzung Spät</th><th>Abwesend</th><th>Vorgaben</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="pgroups">${grp('Gruppe A', 'A', 'F')}${grp('Gruppe B', 'B', 'S')}${grp('Fest Früh', 'FF', 'F')}${grp('Fest Spät', 'FS', 'S')}${grp('Schichtunabh.', 'X', 'X')}</div>
+  return `<section class="ppage">${printHeader(`Rotationsplan KW ${kw()} – KW ${kw(last)}`, `${dateSpan(viewMonday, addDays(last, 6))} · Wechsel jeweils montags · Früh ${esc(st.timesF)} · Spät ${esc(st.timesS)}`, 'Rotationsplan')}
+    <table class="ptable sm"><thead><tr><th>Woche</th><th>Zeitraum</th><th>Frühschicht</th><th>Spätschicht</th><th class="r">Besetzung Früh</th><th class="r">Besetzung Spät</th><th class="r">Abwesend</th><th>Vorgaben</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="pgroups">${grp('Gruppe A', 'A', 'F')}${grp('Gruppe B', 'B', 'S')}${grp('Fest Früh', 'FF', 'F')}${grp('Fest Spät', 'FS', 'S')}${grp('Tagdienst', 'X', 'X')}</div>
     ${printFooter()}</section>`;
+}
+function printCover(n, parts){
+  const st = S.settings, last = addDays(viewMonday, 7 * (n - 1)), pts = [];
+  const c = counts(), planned = c.F + c.S + c.aF + c.aS, pool = S.employees.filter(e => effShift(e) === 'N').length;
+  pts.push([`${planned}`, `Mitarbeiter fest im Schichtbetrieb eingeplant – ${c.F + c.aF} in der Früh, ${c.S + c.aS} in der Spät${pool ? `, weitere ${pool} im Pool für Spitzen` : ''}.`, '']);
+  const rows = fcRows(n), hasFc = rows.some(r => !r.x.manual);
+  if (hasFc) { const fr = rows.filter(r => !r.x.manual), avg = fr.reduce((x, r) => x + r.x.vol, 0) / fr.length, pk = fr.reduce((x, r) => r.x.vol > x.x.vol ? r : x, fr[0]);
+    pts.push([fmtN(avg), `${esc(st.cap.unit)} pro Tag im Schnitt laut Forecast, Spitze in KW ${kw(pk.m)} mit ${fmtN(pk.x.vol)} pro Tag.`, '']); }
+  if (S.employees.some(e => e.kpi != null) && hasFc) { const kr = rows.filter(r => !r.x.manual).map(r => kpiRow(r.m)), cur = kr[0], cp = cur.vol ? (cur.capF + cur.capS) / cur.vol : 0, under = kr.filter(r => r.vol && r.capF + r.capS < r.vol);
+    pts.push([pct(cp, 0), `Kapazität laut Mitarbeiter-KPI gegenüber dem Forecast in KW ${kw(cur.m)}${under.length ? ` – in ${under.length} von ${kr.length} Wochen reicht sie nicht aus` : ' – in allen Wochen ausreichend'}.`, cp >= 1 && !under.length ? 'ok' : 'bad']); }
+  else if (hasFc) { const { under } = fcSummary(rows); pts.push([`${under.length} / ${n}`, `Wochen, in denen die Besetzung den rechnerischen Personalbedarf nicht deckt.`, under.length ? 'bad' : 'ok']); }
+  const eh = S.settings.quals.find(q => /ersthelfer/i.test(q.name));
+  if (eh) { const mn = Math.min(presentQual(eh.name, 'F'), presentQual(eh.name, 'S')); pts.push([`${mn}`, `Ersthelfer mindestens in jeder Schicht anwesend (KW ${kw()}), gleichmäßig auf die Rotationsgruppen verteilt.`, mn ? 'ok' : 'bad']); }
+  const toc = parts.map((t, i) => `<span><b>${i + 2}</b>${esc(t)}</span>`).join('');
+  return `<section class="ppage cv">
+    <div class="cv-brand"><span class="pbrand" style="margin:0"><span class="pmark">MB</span><span><b>${esc(st.company)}</b> · Standort ${esc(st.site)}</span></span><span>Bericht an die Geschäftsleitung</span></div>
+    <div class="cv-main"><div class="k">Personalplanung ${esc(st.site)}</div><h1>KW ${kw()}<span>–</span>${kw(last)}</h1><div class="d">${dateSpan(viewMonday, addDays(last, 6))}<small>Schichtmodell Früh ${esc(st.timesF)} · Spät ${esc(st.timesS)} · wöchentliche Rotation</small></div></div>
+    <div class="cv-side"><h2>Auf einen Blick</h2>${pts.slice(0, 4).map(([v, t, cls]) => `<div class="cv-pt"><b class="${cls}">${v}</b><span>${t}</span></div>`).join('')}</div>
+    <div class="cv-bottom"><div><div style="font-size:8pt;color:var(--gr);margin-bottom:1.5mm">Inhalt</div><div class="cv-toc">${toc}</div></div><div class="cv-by"><b>${esc(st.author || 'Lagerleitung')}</b>Stand ${stampLong()}</div></div>
+  </section>`;
 }
 
 /* ---------- Kennzahlen ---------- */
@@ -1627,10 +1765,10 @@ function absChart(ws, theme){
 }
 const legendHtml = theme => ['U','K','S','F'].map(k => `<span><i style="background:${AB_COL[theme][k]}"></i>${ABS[k]}</span>`).join('');
 function compTable(){
-  const cols = ['F','S','X'], cnt = (art, col) => S.employees.filter(e => e.art === art && effShift(e) === col).length;
+  const cols = ['F','S','X','N'], cnt = (art, col) => S.employees.filter(e => e.art === art && effShift(e) === col).length;
   const tot = col => S.employees.filter(e => effShift(e) === col).length;
   const rows = ARTEN.map(a => { const v = cols.map(c => cnt(a, c)); const sum = v.reduce((x, y) => x + y, 0); return sum ? `<tr><td>${a}</td>${v.map(n => `<td class="num">${n}</td>`).join('')}<td class="num"><b>${sum}</b></td></tr>` : ''; }).join('');
-  return `<thead><tr><th>Art</th><th class="num">Früh</th><th class="num">Spät</th><th class="num">Unabh.</th><th class="num">Gesamt</th></tr></thead><tbody>${rows}
+  return `<thead><tr><th>Art</th><th class="num">Früh</th><th class="num">Spät</th><th class="num">Unabh.</th><th class="num">Nicht eingepl.</th><th class="num">Gesamt</th></tr></thead><tbody>${rows}
     <tr><td><b>Gesamt</b></td>${cols.map(c => `<td class="num"><b>${tot(c)}</b></td>`).join('')}<td class="num"><b>${S.employees.length}</b></td></tr>
     <tr><td style="color:var(--muted)">Leiharbeit-Anteil</td>${cols.map(c => `<td class="num" style="color:var(--muted)">${pct(laQuote(c), 0)}</td>`).join('')}<td class="num" style="color:var(--muted)">${pct(S.employees.length ? S.employees.filter(e => e.art === 'Leiharbeit').length / S.employees.length : 0, 0)}</td></tr></tbody>`;
 }
@@ -1674,7 +1812,7 @@ $('#stChart').addEventListener('mousemove', ev => {
   tipEl.style.top = Math.max(8, ev.clientY - h - 12) + 'px';
 });
 $('#stChart').addEventListener('mouseleave', () => tipEl.classList.add('hide'));
-$('#btnStatsPrint').onclick = () => { $('#printArea').innerHTML = printStats(); setTimeout(() => window.print(), 60); };
+$('#btnStatsPrint').onclick = () => doPrint(printStats());
 function printStats(){
   const ws = statWeeks(+$('#stWeeks').value || 12), first = ws[0].m, ex = expiries();
   const tiles = statTiles(ws).map(([l, v, sub]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
@@ -1692,7 +1830,7 @@ function printStats(){
 }
 
 /* ---------- Forecast & Personalbedarf ---------- */
-const FC_COL = { dark: { b:'#3987e5', a:'#199e70', surf:'#121b31' }, light: { b:'#2a78d6', a:'#1baf7a', surf:'#ffffff' } };
+const FC_COL = { dark: { b:'#3987e5', a:'#199e70', surf:'#121b31' }, light: { b:'#00819B', a:'#C2621F', surf:'#ffffff' } };
 const facOf = art => { const f = S.settings.cap.factors[art]; return f == null ? 1 : +f; };
 const fte = (col, m = viewMonday) => S.employees.filter(e => effShift(e, m) === col && !absOf(e.id, m)).reduce((a, e) => a + facOf(e.art), 0);
 const usesFte = () => ARTEN.some(a => facOf(a) !== 1);
@@ -1938,10 +2076,10 @@ function printForecast(n){
   const ass = c.clients.map(cl => `<tr><td>${esc(cl.name)}</td><td class="r">${fmtN(+cl.vol || 0)}</td><td class="r">${String(cl.rate).replace('.', ',')}</td><td class="r">${cl.shareF} %</td></tr>`).join('');
   const facs = ARTEN.filter(a => facOf(a) !== 1).map(a => `${a} ${String(facOf(a)).replace('.', ',')}`).join(' · ');
   const wr = rows.slice(0, 12).map(r => { const rec = recInfo(r); return `<tr><td><b>KW ${kw(r.m)}</b></td><td>${fmt(r.m)} – ${fmt(addDays(r.m, 6))}</td><td class="r">${r.x.manual ? '–*' : fmtN(r.x.vol)}</td><td class="r">${r.x.sollF}</td><td class="r ${r.dF < 0 ? 'bad' : ''}">${dec(r.aF)}</td><td class="r">${r.x.sollS}</td><td class="r ${r.dS < 0 ? 'bad' : ''}">${dec(r.aS)}</td><td class="${rec.ok ? 'ok' : rec.move ? 'warn' : 'bad'}">${esc(rec.t)}</td></tr>`; }).join('');
-  return `<section class="ppage">${printHeader(`Forecast &amp; Personalbedarf KW ${kw()} – KW ${kw(last)}`, `${fmtY(viewMonday)} – ${fmtY(addDays(last, 6))} · ${S.employees.length} Mitarbeiter · Früh ${esc(S.settings.timesF)} · Spät ${esc(S.settings.timesS)}`)}
+  return `<section class="ppage">${printHeader(`Forecast und Personalbedarf`, `${fmtY(viewMonday)} – ${fmtY(addDays(last, 6))} · ${S.employees.length} Mitarbeiter · Früh ${esc(S.settings.timesF)} · Spät ${esc(S.settings.timesS)}`)}
     <div class="pkpis pk6">${tiles}</div>
-    <div class="pbox pfc"><h3>Bedarf laut Forecast vs. verfügbare Mitarbeiter</h3><div class="plg">${fcLegend('light')}</div>${fcChart(rows, 'light', 1200, 125)}</div>
-    <div class="pwarn" style="${under.length ? '' : 'border-color:#047857;color:#065f46'};margin:0 0 2mm">${fazit}</div>
+    <div class="pbox pfc"><h3>Bedarf laut Forecast vs. verfügbare Mitarbeiter</h3><div class="plg">${fcLegend('light')}</div>${fcChart(rows, 'light', 1200, 100)}</div>
+    <div class="pwarn${under.length ? '' : ' good'}">${fazit}</div>
     <div class="plegend" style="margin:0 0 2.5mm"><b>Annahmen:</b> ${(() => { const same = c.clients.every(cl => cl.rate === c.clients[0].rate && cl.shareF === c.clients[0].shareF); return same && c.clients.length ? `alle ${c.clients.length} Kunden ${String(c.clients[0].rate).replace('.', ',')} ${unit}/MA-Std., ${c.clients[0].shareF} % Früh` : c.clients.map(cl => `${esc(cl.name)} ${String(cl.rate).replace('.', ',')}/${cl.shareF} %`).join(' · ') + ` (${unit}/MA-Std. / Anteil Früh)`; })()} · produktive Std./Schicht ${String(c.hours).replace('.', ',')} · ${String(c.days).replace('.', ',')} Arbeitstage · Grundbesetzung ${c.baseF} / ${c.baseS}${facs ? ' · Einsatzfaktoren: ' + esc(facs) : ''}. Bedarf = Volumen/Tag × Schichtanteil ÷ (Leistung × Std.) + Grundbesetzung, aufgerundet; verfügbar = eingeplante MA abzüglich Abwesenheiten. * = kein Forecast, manuelles Soll (${S.settings.sollF} / ${S.settings.sollS})${n > 12 ? ` · Tabelle: erste 12 von ${n} Wochen` : ''}.</div>
     <table class="ptable sm xs"><thead><tr><th>Woche</th><th>Zeitraum</th><th class="r">${unit}/Tag</th><th class="r">Bedarf Früh</th><th class="r">Verfügb. Früh</th><th class="r">Bedarf Spät</th><th class="r">Verfügb. Spät</th><th>Empfehlung</th></tr></thead><tbody>${wr}</tbody></table>
     ${printFooter()}</section>`;
@@ -1959,16 +2097,16 @@ function reportCss(){
 }
 function reportHtml(pages, title){
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-@page{size:A4 landscape;margin:11mm 12mm}
+@page{size:A4 landscape;margin:10mm 11mm}
 html,body{margin:0}
-body{background:#e8ebf0;color:#111;font:9.5pt/1.35 Inter,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.topbar{position:sticky;top:0;z-index:5;background:#0f172a;color:#e8edf7;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;font:500 13px Inter,Arial,sans-serif}
-.topbar button{background:#22d3ee;color:#03141c;border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
-.ppage{background:#fff;width:297mm;min-height:210mm;margin:10mm auto;padding:11mm 12mm;box-sizing:border-box;box-shadow:0 6px 30px rgba(0,0,0,.12)}
+body{background:#DDE3E7;color:#1D2329;font:9pt/1.4 Barlow,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.topbar{position:sticky;top:0;z-index:5;background:#0B4F5C;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;font:500 14px Barlow,Arial,sans-serif}
+.topbar button{background:#fff;color:#0B4F5C;border:0;border-radius:6px;padding:8px 14px;font:600 14px Barlow,Arial,sans-serif;cursor:pointer}
+.ppage{background:#fff;width:297mm;min-height:210mm;margin:10mm auto;padding:10mm 11mm;box-sizing:border-box;box-shadow:0 2px 14px rgba(11,79,92,.14)}
 @media screen and (max-width:1160px){.ppage{width:auto;min-height:0;margin:10px}}
-${reportCss()}
+${reportCss().replace(/@page[^}]*\}/g, '')}
 @media print{body{background:#fff}.topbar{display:none}.ppage{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}}
 </style></head><body><div class="topbar"><span>${esc(title)}</span><button onclick="window.print()">Drucken / als PDF speichern</button></div>${pages}</body></html>`;
 }
@@ -1988,10 +2126,13 @@ dlgBoss.addEventListener('close', () => {
   const n = +$('#bxWeeks').value || 12, st = S.settings, last = addDays(viewMonday, 7 * (n - 1));
   const base = `Personalplanung_${String(st.site || 'Standort').replace(/[^\wäöüÄÖÜß-]+/g, '_')}_KW${kw()}-KW${kw(last)}`;
   if (v === 'csv') { download(base + '.csv', fcCsv(n), 'text/csv'); return toast('Excel-Datei (CSV) heruntergeladen', false); }
-  const pages = ($('#bxFc').checked ? printForecast(n) : '') + ($('#bxKpi').checked ? printKpi(n) : '') + ($('#bxVol').checked ? printVolume() : '') + ($('#bxSt').checked ? printStats() : '') + ($('#bxRot').checked ? printRotation(Math.min(n, 8)) : '') + ($('#bxWk').checked ? printWeek() : '');
+  const parts = [], add = (cond, title, fn) => { if (!cond) return ''; const h = fn(); if (h) parts.push(title); return h; };
+  let pages = add($('#bxFc').checked, 'Forecast und Personalbedarf', () => printForecast(n)) + add($('#bxKpi').checked, 'Kapazität laut KPI', () => printKpi(n)) + add($('#bxVol').checked, 'Volumen je Kunde', () => printVolume()) +
+    add($('#bxSt').checked, 'Personal-Kennzahlen', () => printStats()) + add($('#bxRot').checked, 'Rotationsplan', () => printRotation(Math.min(n, 8))) + add($('#bxWk').checked, 'Schichtplan der Woche', () => printWeek());
   if (!pages) return toast('Bitte mindestens einen Teil auswählen', false);
-  if (v === 'pdf') { $('#printArea').innerHTML = pages; setTimeout(() => window.print(), 60); return; }
-  download(base + '.html', reportHtml(pages, `Personalplanung ${st.company} · ${st.site} · KW ${kw()} – KW ${kw(last)}`), 'text/html');
+  if ($('#bxCover').checked) pages = printCover(n, parts) + pages;
+  if (v === 'pdf') return doPrint(pages);
+  download(base + '.html', reportHtml(finalizePages(pages), `Personalplanung ${st.company} · ${st.site} · KW ${kw()} – KW ${kw(last)}`), 'text/html');
   toast('Bericht als HTML-Datei heruntergeladen', false);
 });
 
@@ -2102,7 +2243,7 @@ function tmList(){
   const q = $('#tmQ').value.trim().toLowerCase(), fa = $('#tmFArea').value, fr = $('#tmFArt').value, fz = $('#tmFZ').value;
   const l = S.employees.filter(e => (!q || [e.name, e.area, e.note, e.art].join(' ').toLowerCase().includes(q)) &&
     (!fa || (fa === '__none' ? !e.area : e.area === fa)) && (!fr || e.art === fr) && (!fz || e.z === fz));
-  const key = { name: e => e.name, area: e => e.area || '￿', role: e => e.role || '￿', art: e => ARTEN.indexOf(e.art), z: e => Object.keys(Z_LONG).indexOf(e.z), kpi: e => e.kpi == null ? -1 : e.kpi, sh: e => 'FSX'.indexOf(effShift(e)) }[tmSort.k];
+  const key = { name: e => e.name, area: e => e.area || '￿', role: e => e.role || '￿', art: e => ARTEN.indexOf(e.art), z: e => Object.keys(Z_LONG).indexOf(e.z), kpi: e => e.kpi == null ? -1 : e.kpi, sh: e => 'FSXN'.indexOf(effShift(e)) }[tmSort.k];
   return l.sort((a, b) => { const x = key(a), y = key(b); return ((typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'de')) * tmSort.dir) || a.name.localeCompare(b.name, 'de'); });
 }
 function tmBulkBar(){ const n = tmSel.size; $('#tmBulk').classList.toggle('hide', !n); $('#tmSelN').textContent = `${n} ausgewählt`; }
@@ -2195,10 +2336,10 @@ function renderWho(){
   if (Q.some(q => q.name === cur)) sel.value = cur;
   const q = sel.value;
   if (!q) { $('#qWhoList').innerHTML = '<div class="none">Noch keine Qualifikationen angelegt.</div>'; return; }
-  const l = S.employees.filter(e => hasQ(e, q)), by = { F: [], S: [], X: [] };
+  const l = S.employees.filter(e => hasQ(e, q)), by = { F: [], S: [], X: [], N: [] };
   l.forEach(e => by[effShift(e)].push(e));
   $('#qWhoList').innerHTML = `<div class="none" style="color:var(--muted)">${l.length} von ${S.employees.length} Mitarbeitern · Schichten in KW ${kw()}</div>` +
-    ['F', 'S', 'X'].map(c => by[c].length ? `<div style="border:0;padding:10px 2px 3px"><span class="shtag ${c}">${COL_NAME[c]} · ${by[c].filter(e => !absOf(e.id)).length} anwesend</span></div>` +
+    ['F', 'S', 'X', 'N'].map(c => by[c].length ? `<div style="border:0;padding:10px 2px 3px"><span class="shtag ${c}">${COL_NAME[c]} · ${by[c].filter(e => !absOf(e.id)).length} anwesend</span></div>` +
       by[c].sort((a, b) => a.name.localeCompare(b.name, 'de')).map(e => `<div><span>${esc(e.name)}</span><span class="qsub">${absOf(e.id) ? '⚠ ' + ABS[absOf(e.id)] : esc(e.area || e.art || '')}</span></div>`).join('') : '').join('') +
     (l.length ? '' : '<div class="none">Niemand – in der Matrix auf „—“ klicken, um es zu setzen.</div>');
 }
@@ -2728,8 +2869,8 @@ $('#mdBox').addEventListener('click', ev => {
 
 /* ---------- Schichtkalender ---------- */
 let calTool = 'info', calPaint = null, calMenuM = null;
-const ABS_SHORT = { U: 'U', K: 'K', S: 'Sch', F: 'Fr' }, SH_SHORT = { F: 'F', S: 'S', X: '–' };
-const TOOL_LBL = { F: 'Früh', S: 'Spät', X: 'Schichtunabhängig', aU: 'Urlaub', aK: 'Krank', aS: 'Schulung', aF: 'Frei', reset: 'Standard' };
+const ABS_SHORT = { U: 'U', K: 'K', S: 'Sch', F: 'Fr' }, SH_SHORT = { F: 'F', S: 'S', X: '–', N: '·' };
+const TOOL_LBL = { F: 'Früh', S: 'Spät', X: 'Schichtunabhängig', N: 'Nicht eingeplant', aU: 'Urlaub', aK: 'Krank', aS: 'Schulung', aF: 'Frei', reset: 'Standard' };
 const calWeekList = () => Array.from({ length: +$('#calWeeks').value || 8 }, (_, i) => addDays(viewMonday, 7 * i));
 function calCell(e, m){
   const sh = effShift(e, m), ab = absOf(e.id, m), sw = swapOf(e.id, m);
@@ -2738,7 +2879,7 @@ function calCell(e, m){
 }
 function renderCal(){
   const weeks = calWeekList(), g = $('#calGroup').value, q = $('#calQ').value.trim().toLowerCase(), today = isoDate(mondayOf(new Date()));
-  const zOrd = ['A', 'B', 'FF', 'FS', 'X'], ord = g === 'z' ? zOrd : g === 'area' ? areaOrder() : ARTEN;
+  const zOrd = ['A', 'B', 'FF', 'FS', 'X', 'N'], ord = g === 'z' ? zOrd : g === 'area' ? areaOrder() : ARTEN;
   const gk = e => g === 'z' ? e.z : g === 'area' ? (e.area || '') : g === 'art' ? e.art : '';
   const gl = k => g === 'z' ? Z_LONG[k] : (k || 'Ohne Bereich');
   const pos = k => k === '' ? 1e9 : ord.indexOf(k);
@@ -2757,7 +2898,7 @@ function renderCal(){
 function calApply(id, m, tool){
   const e = byId(id); if (!e) return false;
   const before = swapOf(id, m) + '|' + absOf(id, m);
-  if (tool === 'F' || tool === 'S' || tool === 'X') setWeekVal(S.swaps, id, tool === shiftOf(e, m) ? '' : tool, m);
+  if (tool === 'F' || tool === 'S' || tool === 'X' || tool === 'N') setWeekVal(S.swaps, id, tool === shiftOf(e, m) ? '' : tool, m);
   else if (tool[0] === 'a') setWeekVal(S.absences, id, tool.slice(1), m);
   else if (tool === 'reset') { setWeekVal(S.swaps, id, '', m); setWeekVal(S.absences, id, '', m); }
   return before !== swapOf(id, m) + '|' + absOf(id, m);
@@ -2804,7 +2945,7 @@ function openCalMenu(id, m, el){
   closeMenu(); menuId = id; menuAt = performance.now(); calMenuM = m;
   const base = shiftOf(e, m), cur = effShift(e, m), ab = absOf(id, m);
   menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw(m)} · regulär ${COL_NAME[base]}</small></div>
-    <div class="ml">Schicht – nur KW ${kw(m)}</div><div class="mrow">${['F', 'S', 'X'].map(c => `<button class="opt${cur === c ? ' on' : ''}" data-cs="${c}">${c === 'X' ? 'Unabhängig' : COL_NAME[c]}</button>`).join('')}</div>
+    <div class="ml">Schicht – nur KW ${kw(m)}</div><div class="mrow">${['F', 'S', 'X', 'N'].map(c => `<button class="opt${cur === c ? ' on' : ''}" data-cs="${c}">${c === 'X' ? 'Unabhängig' : c === 'N' ? 'Nicht eingepl.' : COL_NAME[c]}</button>`).join('')}</div>
     <div class="ml">Abwesenheit – nur KW ${kw(m)}</div><div class="mrow"><button class="opt${!ab ? ' on' : ''}" data-ca="">Anwesend</button>${Object.entries(ABS).map(([k, v]) => `<button class="opt${ab === k ? ' on' : ''}" data-ca="${k}">${v}</button>`).join('')}</div>
     <div class="ml">Dauerhafte Zuordnung</div><div class="mrow">${Object.keys(Z_SHORT).map(z => `<button class="opt${e.z === z ? ' on' : ''}" data-cz="${z}">${Z_SHORT[z]}</button>`).join('')}</div>
     <hr><button class="mi" data-cedit="1">Mitarbeiter bearbeiten …</button>`;
@@ -2913,7 +3054,7 @@ function rotNote(){
 }
 function openSet(){
   const st = S.settings;
-  $('#sCompany').value = st.company; $('#sSite').value = st.site;
+  $('#sCompany').value = st.company; $('#sSite').value = st.site; $('#sAuthor').value = st.author || '';
   $('#sSollF').value = st.sollF; $('#sSollS').value = st.sollS;
   $('#sSollF').disabled = $('#sSollS').disabled = !!st.cap.on;
   $('#sSollF').title = $('#sSollS').title = st.cap.on ? 'Wird unter „Forecast & Bedarf“ aus dem Forecast berechnet' : '';
@@ -2927,7 +3068,7 @@ dlgSet.addEventListener('close', () => {
   if (dlgSet.returnValue !== 'ok') return;
   snap();
   const st = S.settings;
-  st.company = $('#sCompany').value.trim(); st.site = $('#sSite').value.trim();
+  st.company = $('#sCompany').value.trim(); st.site = $('#sSite').value.trim(); st.author = $('#sAuthor').value.trim();
   st.sollF = Math.max(0, parseInt($('#sSollF').value, 10) || 0);
   st.sollS = Math.max(0, parseInt($('#sSollS').value, 10) || 0);
   st.timesF = $('#sTimeF').value.trim(); st.timesS = $('#sTimeS').value.trim();
