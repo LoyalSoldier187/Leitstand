@@ -291,7 +291,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tm input[type=checkbox]{width:16px;height:16px;accent-color:#22d3ee;cursor:pointer}
 .shtag{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
 .shtag.F{color:var(--f);background:var(--f-bg)}.shtag.S{color:var(--s);background:var(--s-bg)}.shtag.X{color:var(--x);background:var(--x-bg)}
-.qn{font-size:12px;color:var(--muted);white-space:nowrap}
+.qn{font-size:11.5px;color:var(--muted);white-space:normal;line-height:1.3;min-width:120px}
 .bulkbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--f-line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .bulkbar .inp{width:auto;padding:6px 30px 6px 10px}
 .bulkbar .tinp{text-align:left}
@@ -373,6 +373,16 @@ details.md[open] summary{margin-bottom:14px}
 .vt td,.vt th{padding:7px 7px;font-size:12.5px}
 .vt th{white-space:normal;vertical-align:bottom;line-height:1.25}
 @media (max-width:980px){.ft{table-layout:auto}}
+
+/* KPI */
+.kt{width:100%;table-layout:fixed}
+.kt td{padding:6px 10px;vertical-align:middle}
+.kt .tinp{max-width:110px;text-align:right}
+.kt tr.miss td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.trend{font-size:12px;font-weight:600;white-space:nowrap}
+.trend.up{color:var(--ok)}.trend.down{color:var(--bad)}
+.est{font-size:10.5px;font-weight:600;color:var(--warn);background:rgba(251,191,36,.1);padding:1px 7px;border-radius:999px}
+@media (max-width:980px){.kt{table-layout:auto}}
 
 /* ---------- Druck ---------- */
 #printArea{display:none}
@@ -472,6 +482,7 @@ details.md[open] summary{margin-bottom:14px}
     <button class="tab on" data-view="Board" role="tab">Schicht-Board</button>
     <button class="tab" data-view="Cal" role="tab">Kalender</button>
     <button class="tab" data-view="Team" role="tab">Mitarbeiter <span class="n" id="teamN" style="background:rgba(255,255,255,.07);color:var(--muted)"></span></button>
+    <button class="tab" data-view="Kpi" role="tab">KPI <span class="n hide" id="kpiBadge" style="background:rgba(251,191,36,.12);color:var(--warn)"></span></button>
     <button class="tab" data-view="Stats" role="tab">Kennzahlen</button>
     <button class="tab" data-view="Vol" role="tab">Volumen</button>
     <button class="tab" data-view="Cap" role="tab">Forecast &amp; Bedarf</button>
@@ -481,8 +492,8 @@ details.md[open] summary{margin-bottom:14px}
   <div id="viewBoard" class="view">
   <div class="toolbar">
     <input class="inp search" id="q" type="search" placeholder="Mitarbeiter suchen …  ( / )">
-    <select class="inp" id="roleFilter" aria-label="Nach Rolle filtern"></select>
-    <select class="inp" id="groupBy" aria-label="Gruppierung"><option value="role">Gruppiert nach Rolle</option><option value="area">Gruppiert nach Bereich</option></select>
+    <select class="inp" id="roleFilter" aria-label="Nach Beschäftigung filtern"></select>
+    <select class="inp" id="groupBy" aria-label="Gruppierung"><option value="art">Gruppiert nach Beschäftigung</option><option value="area">Gruppiert nach Bereich</option></select>
     <button class="btn primary" id="btnAdd">+ Mitarbeiter</button>
     <button class="btn" id="btnBulk">Liste einfügen</button>
     <button class="btn" id="btnPrint">🖨 Aushang drucken</button>
@@ -497,7 +508,7 @@ details.md[open] summary{margin-bottom:14px}
 
   <div class="twocol">
     <section class="panel">
-      <div class="phead"><h2>Rollen-Check &amp; Mindestbesetzung</h2><span>Anwesende je Schicht · Min. gilt pro Schicht</span></div>
+      <div class="phead"><h2>Besetzung nach Beschäftigung</h2><span>Anwesende je Schicht in der angezeigten Woche</span></div>
       <div style="overflow-x:auto"><table id="roleTable"></table></div>
     </section>
     <section class="panel">
@@ -513,7 +524,7 @@ details.md[open] summary{margin-bottom:14px}
       <div><h2>Schichtkalender</h2><div class="note">Pinsel wählen und mit gedrückter Maus über die Felder ziehen – gilt nur für die jeweilige Woche. Mit „Info“ ein Feld anklicken für alle Optionen. Strg+Z macht rückgängig.</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <select class="inp" id="calWeeks" style="width:auto" aria-label="Zeitraum"><option value="6">6 Wochen</option><option value="8" selected>8 Wochen</option><option value="12">12 Wochen</option><option value="16">16 Wochen</option></select>
-        <select class="inp" id="calGroup" style="width:auto" aria-label="Gruppierung"><option value="z">nach Gruppe</option><option value="area">nach Bereich</option><option value="role">nach Rolle</option><option value="name">alphabetisch</option></select>
+        <select class="inp" id="calGroup" style="width:auto" aria-label="Gruppierung"><option value="z">nach Gruppe</option><option value="area">nach Bereich</option><option value="art">nach Beschäftigung</option><option value="name">alphabetisch</option></select>
         <input class="inp" id="calQ" type="search" placeholder="Suchen …" style="width:180px">
       </div>
     </div>
@@ -539,16 +550,15 @@ details.md[open] summary{margin-bottom:14px}
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="tmAdd">+ Mitarbeiter</button><button class="btn" id="tmBulkAdd">Liste einfügen</button><button class="btn" id="tmCsv">Liste exportieren (Excel)</button></div>
     </div>
     <details class="panel md" id="mdBox" style="margin-top:0;margin-bottom:14px">
-      <summary><b>Bereiche &amp; Rollen verwalten</b><span class="note" id="mdSum"></span></summary>
-      <div class="md2">
+      <summary><b>Bereiche verwalten</b><span class="note" id="mdSum"></span></summary>
+      <div class="md2" style="grid-template-columns:minmax(0,640px)">
         <div><div class="phead"><h2>Bereiche</h2><span>umbenennen · sortieren · löschen</span></div><div class="mdl" id="mdAreas"></div>
           <div class="mdadd"><input class="tinp" id="mdAreaNew" placeholder="Neuer Bereich …"><button class="btn sm" id="mdAreaAdd">+ Hinzufügen</button></div></div>
-        <div><div class="phead"><h2>Rollen / Funktionen</h2><span>umbenennen · sortieren · löschen</span></div><div class="mdl" id="mdRoles"></div>
-          <div class="mdadd"><input class="tinp" id="mdRoleNew" placeholder="Neue Rolle …"><button class="btn sm" id="mdRoleAdd">+ Hinzufügen</button></div></div>
+
       </div>
     </details>
     <div class="toolbar" style="margin-top:0">
-      <input class="inp search" id="tmQ" type="search" placeholder="Name, Bereich, Rolle, Notiz …">
+      <input class="inp search" id="tmQ" type="search" placeholder="Name, Bereich, Beschäftigung, Notiz …">
       <select class="inp" id="tmFArea" aria-label="Bereich filtern"></select>
       <select class="inp" id="tmFArt" aria-label="Beschäftigung filtern"></select>
       <select class="inp" id="tmFZ" aria-label="Zuordnung filtern"></select>
@@ -557,7 +567,6 @@ details.md[open] summary{margin-bottom:14px}
     <div class="bulkbar hide" id="tmBulk">
       <b id="tmSelN"></b>
       <input class="tinp" id="tmBArea" list="areaList" placeholder="Bereich setzen …" style="max-width:190px">
-      <input class="tinp" id="tmBRole" list="roleList" placeholder="Rolle setzen …" style="max-width:190px">
       <select class="inp" id="tmBArt" aria-label="Beschäftigung setzen"></select>
       <select class="inp" id="tmBZ" aria-label="Zuordnung setzen"></select>
       <button class="btn sm primary" id="tmBApply">Für Auswahl übernehmen</button>
@@ -565,6 +574,33 @@ details.md[open] summary{margin-bottom:14px}
       <button class="btn sm ghost" id="tmBClear">Auswahl aufheben</button>
     </div>
     <section class="panel" style="margin-top:0;padding:0;overflow:hidden"><div class="qwrap" style="border:0;border-radius:0;max-height:70vh"><table class="tm" id="tmTable"></table></div></section>
+  </div>
+
+  <!-- KPI -->
+  <div id="viewKpi" class="view hide">
+    <div class="vhead">
+      <div><h2>KPI &amp; Kapazität</h2><div class="note">Ø KPI = Bestellungen pro Tag je Mitarbeiter · Kapazität = Summe der anwesenden Mitarbeiter je Schicht × Einsatzfaktor der Beschäftigungsart · Vergleich mit dem Forecast</div></div>
+      <label class="toggle" title="Mitarbeiter ohne KPI-Wert mit dem Durchschnitt ihrer Beschäftigungsart einrechnen"><input type="checkbox" id="kpiEst"> Fehlende KPI schätzen (Ø der Beschäftigungsart)</label>
+    </div>
+    <div class="tiles" id="kpiTiles"></div>
+    <section class="panel">
+      <div class="phead"><h2>Kapazität vs. Forecast</h2>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>Bestellungen pro Tag</span><select class="inp" id="kpiWeeks" style="width:auto;padding:6px 30px 6px 10px" aria-label="Zeitraum"><option value="8">8 Wochen</option><option value="12" selected>12 Wochen</option><option value="16">16 Wochen</option></select></div></div>
+      <div class="legend" id="kpiLegend"></div>
+      <div class="chart" id="kpiChart"></div>
+      <div style="overflow-x:auto;margin-top:14px"><table class="ft" id="kpiCap"></table></div>
+    </section>
+    <section class="panel">
+      <div class="phead"><h2>KPI je Mitarbeiter</h2><span id="kpiListNote"></span></div>
+      <div class="toolbar" style="margin:4px 0 12px">
+        <input class="inp search" id="kpiQ" type="search" placeholder="Name suchen …">
+        <select class="inp" id="kpiFArt" aria-label="Beschäftigung"></select>
+        <select class="inp" id="kpiFSh" aria-label="Schicht"><option value="">Alle Schichten</option><option value="F">Frühschicht</option><option value="S">Spätschicht</option><option value="X">Schichtunabhängig</option></select>
+        <select class="inp" id="kpiSort" aria-label="Sortierung"><option value="miss">Fehlende zuerst</option><option value="name">Name A–Z</option><option value="hi">KPI absteigend</option><option value="lo">KPI aufsteigend</option><option value="chg">Zuletzt geändert</option></select>
+        <label class="toggle" style="font-size:13px"><input type="checkbox" id="kpiOnlyMiss"> nur ohne KPI</label>
+      </div>
+      <div class="qwrap" style="max-height:640px"><table class="kt" id="kpiTable"></table></div>
+    </section>
   </div>
 
   <!-- Kennzahlen -->
@@ -652,7 +688,7 @@ details.md[open] summary{margin-bottom:14px}
     </div>
     <section class="panel">
       <div class="phead"><h2>Qualifikationsmatrix</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="qSearch" type="search" placeholder="Name oder Rolle …" style="width:220px;padding:6px 10px"><button class="btn sm primary" id="qImport">Quali-Matrix importieren</button></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inp" id="qSearch" type="search" placeholder="Name oder Beschäftigung …" style="width:220px;padding:6px 10px"><button class="btn sm primary" id="qImport">Quali-Matrix importieren</button></div></div>
       <div class="note" style="margin-bottom:10px">Klick auf ein Feld schaltet zwischen <b>Ja</b> und <b>Nein</b> um.</div>
       <div class="qwrap"><table class="qm" id="qMatrix"></table></div>
     </section>
@@ -670,12 +706,13 @@ details.md[open] summary{margin-bottom:14px}
     <div class="dbody">
       <div class="field"><label for="fName">Name</label><input class="inp" id="fName" required autocomplete="off"></div>
       <div class="grid2">
-        <div class="field"><label for="fRole">Rolle / Funktion</label><input class="inp" id="fRole" list="roleList" autocomplete="off"></div>
+        <div class="field hide"><label for="fRole">Rolle / Funktion</label><input class="inp" id="fRole" list="roleList" autocomplete="off"></div>
         <div class="field"><label for="fArt">Beschäftigung</label><select class="inp" id="fArt"></select></div>
       </div>
       <div class="field"><label for="fArea">Bereich</label><input class="inp" id="fArea" list="areaList" autocomplete="off" placeholder="z. B. Rollei, Wareneingang …"></div>
       <div class="field"><label for="fZ">Schicht-Zuordnung</label><select class="inp" id="fZ"></select></div>
       <div class="note" id="fZHint"></div>
+      <div class="field"><label for="fKpi">Ø KPI</label><input class="inp" id="fKpi" type="number" min="0" step="any" placeholder="leer = kein Wert"></div>
       <div class="field"><label for="fNote">Notiz</label><input class="inp" id="fNote" autocomplete="off" placeholder="z. B. Staplerschein bis 03/2027"></div>
     </div>
     <div class="dfoot">
@@ -720,6 +757,7 @@ details.md[open] summary{margin-bottom:14px}
     <div class="dbody">
       <div class="note">Bericht im A4-Querformat ab der angezeigten <b id="bossKw"></b>. Wähle die Teile aus:</div>
       <label class="check"><input type="checkbox" id="bxFc" checked> Forecast &amp; Personalbedarf (mit Empfehlungen)</label>
+      <label class="check"><input type="checkbox" id="bxKpi" checked> Kapazität laut KPI vs. Forecast</label>
       <label class="check"><input type="checkbox" id="bxVol" checked> Volumen je Kunde (Monatsübersicht, Forecast vs. Ist)</label>
       <label class="check"><input type="checkbox" id="bxSt" checked> Personal-Kennzahlen</label>
       <label class="check"><input type="checkbox" id="bxRot"> Rotationsvorschau (mit Namen)</label>
@@ -768,8 +806,8 @@ details.md[open] summary{margin-bottom:14px}
   <form method="dialog">
     <div class="dhead"><h3>Mehrere Mitarbeiter einfügen</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
     <div class="dbody">
-      <div class="note">Eine Person pro Zeile. Optional mit Semikolon oder Tab getrennt: <b>Name; Rolle; Beschäftigung</b>. Du kannst direkt aus Excel kopieren.</div>
-      <textarea class="inp" id="bulkText" placeholder="Max Mustermann; Staplerfahrer&#10;Erika Muster; Kommissionierung; Leiharbeit&#10;Ali Yilmaz"></textarea>
+      <div class="note">Eine Person pro Zeile. Optional mit Semikolon oder Tab getrennt: <b>Name; Beschäftigung; Bereich</b>. Du kannst direkt aus Excel kopieren.</div>
+      <textarea class="inp" id="bulkText" placeholder="Mustermann, Max; Festangestellt; Rollei&#10;Muster, Erika; Minijob&#10;Yilmaz, Ali"></textarea>
       <div class="field"><label for="bulkZ">Zuordnung für alle</label><select class="inp" id="bulkZ"></select></div>
     </div>
     <div class="dfoot">
@@ -784,7 +822,7 @@ details.md[open] summary{margin-bottom:14px}
   <form method="dialog">
     <div class="dhead"><h3>Aushang drucken</h3><button class="btn icon ghost" value="cancel" aria-label="Schließen">×</button></div>
     <div class="dbody">
-      <label class="choice"><input type="radio" name="ptype" value="week" checked><div><b>Wochenplan</b><span id="pWeekTxt">Alle Mitarbeiter der angezeigten Woche nach Schicht und Rolle, mit Abwesenheiten.</span></div></label>
+      <label class="choice"><input type="radio" name="ptype" value="week" checked><div><b>Wochenplan</b><span id="pWeekTxt">Alle Mitarbeiter der angezeigten Woche nach Schicht und Beschäftigung, mit Abwesenheiten.</span></div></label>
       <label class="choice"><input type="radio" name="ptype" value="rot"><div><b>Rotationsvorschau</b><span>Welche Gruppe wann Früh/Spät hat, Besetzung je Woche und alle Gruppenmitglieder.</span></div></label>
       <label class="choice"><input type="radio" name="ptype" value="both"><div><b>Beides</b><span>Wochenplan und Rotationsvorschau als zwei Seiten.</span></div></label>
       <label class="choice"><input type="radio" name="ptype" value="stats"><div><b>Management-Bericht</b><span>Kennzahlen, Abwesenheitstrend, Beschäftigungsarten und Fristen auf einer Seite.</span></div></label>
@@ -820,8 +858,8 @@ details.md[open] summary{margin-bottom:14px}
         <button class="btn sm" type="button" id="btnAnchorSwap">Rotation umdrehen</button>
       </div>
 
-      <div class="sect">Bereiche &amp; Rollen</div>
-      <div class="note">Verwaltest du im Reiter „Mitarbeiter“ unter „Bereiche &amp; Rollen verwalten“. Die Mindestbesetzung je Rolle stellst du im Rollen-Check ein.</div>
+      <div class="sect">Bereiche</div>
+      <div class="note">Verwaltest du im Reiter „Mitarbeiter“ unter „Bereiche verwalten“. Mindestbesetzungen stellst du im Reiter „Qualifikationen“ ein.</div>
 
       <div class="sect">Cloud-Sync (jsonbin.io, optional)</div>
       <div class="note">Am besten eine <b>neue, eigene Bin</b> anlegen, damit die alte App nicht überschrieben wird. Der Key bleibt nur auf diesem Gerät.</div>
@@ -900,7 +938,7 @@ function defaults(){
   return { v:2, employees:[], absences:{}, swaps:{}, volumes:{}, fcDaily:{}, log:[], updated:0,
     settings:{ sollF:45, sollS:35, anchor:isoDate(mondayOf(new Date())), roles:DEFAULT_ROLES.slice(), areas:['Rollei','GotBag','Alaiko','Deutsche Börse AG','Wareneingang','Versand','Retouren','Lager allgemein'], minRoles:{}, timesF:'06:00 – 14:30', timesS:'14:00 – 22:30', company:'atrikom fulfillment', site:'Bischofsheim',
       quals:[{name:'Staplerschein', minF:2, minS:2}, {name:'Ersthelfer', minF:1, minS:1}, {name:'Brandschutzhelfer', minF:1, minS:1}],
-      cap:{ on:false, unit:'Aufträge', hours:7, days:5, sunToMon:true, baseF:6, baseS:4, factors:Object.fromEntries(ARTEN.map(a => [a, 1])), clients:['Rollei','GotBag','Alaiko','Deutsche Börse AG'].map((n, i) => ({ id:'c' + (i + 1), name:n, vol:0, rate:25, shareF:60 })) } } };
+      cap:{ on:false, unit:'Aufträge', hours:7, days:5, sunToMon:true, kpiEst:false, baseF:6, baseS:4, factors:Object.fromEntries(ARTEN.map(a => [a, 1])), clients:['Rollei','GotBag','Alaiko','Deutsche Börse AG'].map((n, i) => ({ id:'c' + (i + 1), name:n, vol:0, rate:25, shareF:60 })) } } };
 }
 function cleanEmp(e){
   if (!e) return null;
@@ -908,7 +946,7 @@ function cleanEmp(e){
   if (!name) return null;
   const quals = {};
   Object.entries(obj(e.quals)).forEach(([k, v]) => { if (k) quals[k] = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; });
-  return { id: e.id || uid(), name, area: String(e.area || e.bereich || '').trim(), role: String(e.role || '').trim(), art: ARTEN.includes(e.art) ? e.art : /^auszubild/i.test(String(e.art || '')) ? 'Azubi' : 'Festangestellt', z: Z_LONG[e.z] ? e.z : 'A', note: String(e.note || ''), quals };
+  return { id: e.id || uid(), name, area: String(e.area || e.bereich || '').trim(), role: String(e.role || '').trim(), art: ARTEN.includes(e.art) ? e.art : /^auszubild/i.test(String(e.art || '')) ? 'Azubi' : 'Festangestellt', z: Z_LONG[e.z] ? e.z : 'A', note: String(e.note || ''), kpi: (e.kpi === '' || e.kpi == null || !isFinite(+e.kpi)) ? null : +e.kpi, kpiHist: Array.isArray(e.kpiHist) ? e.kpiHist.filter(h => h && isFinite(+h.v)).slice(-20) : [], quals };
 }
 function normalize(p){
   const d = defaults();
@@ -920,7 +958,7 @@ function normalize(p){
   s.cap = Object.assign(defaults().settings.cap, obj(s.cap));
   s.cap.factors = Object.assign(Object.fromEntries(ARTEN.map(a => [a, 1])), obj(s.cap.factors));
   s.cap.clients = (Array.isArray(s.cap.clients) ? s.cap.clients : []).filter(Boolean).map(c => ({ id: c.id || uid(), name: String(c.name || 'Kunde'), vol: +c.vol || 0, rate: +c.rate || 0, shareF: c.shareF == null ? 60 : +c.shareF }));
-  return { v:2, seed: (p && p.seed) || '', employees: ((p && p.employees) || []).map(cleanEmp).filter(Boolean), settings: s, volumes: obj(p && p.volumes), fcDaily: obj(p && p.fcDaily),
+  return { v:2, seed: (p && p.seed) || '', patches: Array.isArray(p && p.patches) ? p.patches : [], employees: ((p && p.employees) || []).map(cleanEmp).filter(Boolean), settings: s, volumes: obj(p && p.volumes), fcDaily: obj(p && p.fcDaily),
     absences: obj(p && p.absences), swaps: obj(p && p.swaps), log: Array.isArray(p && p.log) ? p.log.slice(-300) : [], updated: (p && p.updated) || 0 };
 }
 function load(){ try { const r = localStorage.getItem(LS_KEY); if (r) return normalize(JSON.parse(r)); } catch (e) {} return defaults(); }
@@ -929,7 +967,7 @@ let viewMonday = mondayOf(new Date());
 
 /* ---------- Mitarbeiterliste Bischofsheim komplett (einmalig einpflegen) ---------- */
 const SEED_ID = 'bischofsheim-komplett-2026-10-12';
-const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasios", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb002", "name": "Evangelinos, Triantafyllos", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb003", "name": "Liers, Jason", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb004", "name": "Yahia, Oualid", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb005", "name": "Bouyoumad, Younes", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb006", "name": "Schuff, Patrick", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb007", "name": "Gacioppo, Dario", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb008", "name": "Twumasi, Julia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb009", "name": "Munteanu, Daniela", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb010", "name": "Osumani, Huduq", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb011", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb012", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "FF", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb013", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb014", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb015", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb016", "name": "Shefer, Viktor", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb017", "name": "Tschilingarjan, Galina", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb018", "name": "Schuller, Milica", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb019", "name": "Walter, Julia", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb020", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb021", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb022", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb023", "name": "Philippi, Rene", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb024", "name": "Pham, Ngoc Thanh Tuyen", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb025", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb026", "name": "Khan, Emal", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb027", "name": "Franjo, Denis", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb028", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb029", "name": "Messerschmidt, Vasyl", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb030", "name": "Vidziunaite, Edita", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb031", "name": "Benjrid, Hicham", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb032", "name": "Assakali, Nassim", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb033", "name": "Ulrich, Noyan", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb034", "name": "Rullik, Simon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb035", "name": "Weilbächer, Jon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb036", "name": "Hebling, Jennifer", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb037", "name": "Hünniger, Christoph", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb038", "name": "Bajko, Alpar", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb039", "name": "Dortmann, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb040", "name": "Florea, Eugenia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb041", "name": "Khan, Fatima", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb042", "name": "Wegner, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb043", "name": "Walter, Eduard", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb044", "name": "Rout, Aleksej", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb045", "name": "Khan, Zarmina", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb046", "name": "Rahimi, Emran", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb047", "name": "Maregrande, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb048", "name": "Döner, Ali Berkay", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb049", "name": "Tenenbaum, Arthur", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb050", "name": "Maregrande, Desiree", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb051", "name": "Gundlach, Sophie", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb052", "name": "Diring, Milen", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb053", "name": "Hummel, Petra", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb054", "name": "Zouhair, Jamal Eddin", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb055", "name": "Munschauer, Mandy", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb056", "name": "Jung, Jacqueline", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb057", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb058", "name": "Lendle, Susanne", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb059", "name": "Farfar, Nadia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb060", "name": "Fronia, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb061", "name": "Schuster, Iris", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb062", "name": "Diring, Jelena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb063", "name": "Schäfer, Elena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb064", "name": "Brooks, Brigitte", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb065", "name": "Ponomareva, Alena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb066", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb067", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb068", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb069", "name": "Müller, Heike", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb070", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb071", "name": "Malah, Khalid", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb072", "name": "Harff, Rita", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb073", "name": "Geißler, Martina", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb074", "name": "Walter, Oleg", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb075", "name": "Shefer, Valeria", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb076", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb077", "name": "Schäfer, Denis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb078", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb079", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb080", "name": "Dortmann, Marcel", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb081", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb082", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb083", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb084", "name": "Medlin, Birgit", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb085", "name": "Heck, Inka", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb086", "name": "Grizfeld, Natalia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb087", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": "", "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Sicherheitsbeauftragter": "", "Staplerschein": ""}}, {"id": "mb088", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb089", "name": "Antulis, Edgaras", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb090", "name": "Bagdziwnaite, Jurgita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb091", "name": "Baltusyte, Renata", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb092", "name": "Bubeniene, Laim", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb093", "name": "Dabravolskiene, Birute", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb094", "name": "Tverijonas, Domantas", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb095", "name": "Karlikauskas, Andrius", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb096", "name": "Rimkus, Karolis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb097", "name": "Katkevičienė, Renata", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb098", "name": "Kirdeikyte, Era", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb099", "name": "Liaukowiene, Ale", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb100", "name": "Miller, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb101", "name": "Petkeviciute, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb102", "name": "Platanoviciene, Brigita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb103", "name": "Pleska, Gytis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}, {"id": "mb104", "name": "Smilgiene, Lina", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb105", "name": "Stankeviciene, Jolanta", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "quals": {}}, {"id": "mb106", "name": "Vilkoncius, Ignas", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "quals": {"Staplerschein": ""}}], "settings": {"sollF": 63, "sollS": 42, "quals": [{"name": "Ersthelfer", "minF": 0, "minS": 0}, {"name": "Brandschutzhelfer", "minF": 0, "minS": 0}, {"name": "Sicherheitsbeauftragter", "minF": 0, "minS": 0}, {"name": "Staplerschein", "minF": 0, "minS": 0}]}};
+const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasios", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb002", "name": "Evangelinos, Triantafyllos", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb003", "name": "Liers, Jason", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb004", "name": "Yahia, Oualid", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb005", "name": "Bouyoumad, Younes", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb006", "name": "Schuff, Patrick", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb007", "name": "Gacioppo, Dario", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb008", "name": "Twumasi, Julia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb009", "name": "Munteanu, Daniela", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb010", "name": "Osumani, Huduq", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb011", "name": "Gacioppo, Fabio", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb012", "name": "Kuhlemann, Brian", "art": "Azubi", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb013", "name": "Barschtipan, Dustin", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb014", "name": "Kunicke, Asta", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb015", "name": "Scholz-Zhang, Zhenfang", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb016", "name": "Shefer, Viktor", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb017", "name": "Tschilingarjan, Galina", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb018", "name": "Schuller, Milica", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb019", "name": "Walter, Julia", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb020", "name": "Dortmann, Irina", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb021", "name": "Zerrou, Ayoub", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb022", "name": "Ponamarev, Alexander", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb023", "name": "Philippi, Rene", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 200, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb024", "name": "Pham, Ngoc Thanh Tuyen", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb025", "name": "Munteanu, Tatiana", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb026", "name": "Khan, Emal", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb027", "name": "Franjo, Denis", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Staplerschein": ""}}, {"id": "mb028", "name": "Degirmenci, Abdullah", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb029", "name": "Messerschmidt, Vasyl", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb030", "name": "Vidziunaite, Edita", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb031", "name": "Benjrid, Hicham", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb032", "name": "Assakali, Nassim", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb033", "name": "Ulrich, Noyan", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb034", "name": "Rullik, Simon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb035", "name": "Weilbächer, Jon", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb036", "name": "Hebling, Jennifer", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb037", "name": "Hünniger, Christoph", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb038", "name": "Bajko, Alpar", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb039", "name": "Dortmann, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb040", "name": "Florea, Eugenia", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb041", "name": "Khan, Fatima", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb042", "name": "Wegner, Alexander", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb043", "name": "Walter, Eduard", "art": "Minijob", "z": "FF", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb044", "name": "Rout, Aleksej", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb045", "name": "Khan, Zarmina", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb046", "name": "Rahimi, Emran", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb047", "name": "Maregrande, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb048", "name": "Döner, Ali Berkay", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb049", "name": "Tenenbaum, Arthur", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb050", "name": "Maregrande, Desiree", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb051", "name": "Gundlach, Sophie", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb052", "name": "Diring, Milen", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb053", "name": "Hummel, Petra", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb054", "name": "Zouhair, Jamal Eddin", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb055", "name": "Munschauer, Mandy", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb056", "name": "Jung, Jacqueline", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb057", "name": "Gaudin-Hix, Patricia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb058", "name": "Lendle, Susanne", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb059", "name": "Farfar, Nadia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 100, "quals": {}}, {"id": "mb060", "name": "Fronia, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb061", "name": "Schuster, Iris", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb062", "name": "Diring, Jelena", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb063", "name": "Schäfer, Elena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb064", "name": "Brooks, Brigitte", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb065", "name": "Ponomareva, Alena", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb066", "name": "Spegt-Sieben, Christine", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb067", "name": "Haselsteiner, Gabriele", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb068", "name": "Tewelde, Amanuel", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": 0, "quals": {"Staplerschein": ""}}, {"id": "mb069", "name": "Müller, Heike", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb070", "name": "Mangiapane, Francesco", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb071", "name": "Malah, Khalid", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Brandschutzhelfer": "", "Staplerschein": ""}}, {"id": "mb072", "name": "Harff, Rita", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {"Staplerschein": ""}}, {"id": "mb073", "name": "Geißler, Martina", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 125, "quals": {}}, {"id": "mb074", "name": "Walter, Oleg", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb075", "name": "Shefer, Valeria", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 70, "quals": {"Staplerschein": ""}}, {"id": "mb076", "name": "Schneidmüller, Svetlana", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb077", "name": "Schäfer, Denis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 100, "quals": {"Staplerschein": ""}}, {"id": "mb078", "name": "Roßtäuscher, Dennis", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb079", "name": "Pirschle, Benjamin", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb080", "name": "Dortmann, Marcel", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb081", "name": "Di Vincenzo, Quirino", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": 50, "quals": {"Staplerschein": ""}}, {"id": "mb082", "name": "Da Silva Antonio, Jose", "art": "Festangestellt", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb083", "name": "Semm, Yvonne", "art": "Teilzeit", "z": "FF", "role": "", "area": "", "note": "", "kpi": 75, "quals": {}}, {"id": "mb084", "name": "Medlin, Birgit", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb085", "name": "Heck, Inka", "art": "Minijob", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb086", "name": "Grizfeld, Natalia", "art": "Minijob", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb087", "name": "Bahn, Marc", "art": "Festangestellt", "z": "X", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Ersthelfer": "", "Brandschutzhelfer": "", "Sicherheitsbeauftragter": "", "Staplerschein": ""}}, {"id": "mb088", "name": "Rout, Evgeniya", "art": "Festangestellt", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb089", "name": "Antulis, Edgaras", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {"Staplerschein": ""}}, {"id": "mb090", "name": "Bagdziwnaite, Jurgita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb091", "name": "Baltusyte, Renata", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb092", "name": "Bubeniene, Laim", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": 150, "quals": {}}, {"id": "mb093", "name": "Dabravolskiene, Birute", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb094", "name": "Tverijonas, Domantas", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb095", "name": "Karlikauskas, Andrius", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb096", "name": "Rimkus, Karolis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb097", "name": "Katkevičienė, Renata", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": 350, "quals": {}}, {"id": "mb098", "name": "Kirdeikyte, Era", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb099", "name": "Liaukowiene, Ale", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb100", "name": "Miller, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {"Staplerschein": ""}}, {"id": "mb101", "name": "Petkeviciute, Daiva", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 250, "quals": {}}, {"id": "mb102", "name": "Platanoviciene, Brigita", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb103", "name": "Pleska, Gytis", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}, {"id": "mb104", "name": "Smilgiene, Lina", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": 300, "quals": {}}, {"id": "mb105", "name": "Stankeviciene, Jolanta", "art": "Litauer", "z": "A", "role": "", "area": "", "note": "", "kpi": null, "quals": {}}, {"id": "mb106", "name": "Vilkoncius, Ignas", "art": "Litauer", "z": "B", "role": "", "area": "", "note": "", "kpi": null, "quals": {"Staplerschein": ""}}], "settings": {"sollF": 63, "sollS": 42, "quals": [{"name": "Ersthelfer", "minF": 0, "minS": 0}, {"name": "Brandschutzhelfer", "minF": 0, "minS": 0}, {"name": "Sicherheitsbeauftragter", "minF": 0, "minS": 0}, {"name": "Staplerschein", "minF": 0, "minS": 0}]}};
 (function applySeed(){
   if (S.seed === SEED_ID) return;
   const n = SEED.employees.length, had = S.employees.length;
@@ -952,6 +990,18 @@ const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasio
   if (!had) S.log = [];
   S.log.push({ t: Date.now(), m: `Mitarbeiterliste Bischofsheim komplett eingepflegt: ${n} Mitarbeiter (63 Früh / 42 Spät)${kept ? `, ${kept} bestehende übernommen` : ''}` });
   S.seed = SEED_ID;
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+})();
+
+/* ---------- Ø KPI je Mitarbeiter (einmalig übernehmen) ---------- */
+(function applyKpi(){
+  const ID = 'kpi-2026-10-13', K = {"Dortmann, Alexander": 100, "Tewelde, Amanuel": 0, "Kunicke, Asta": 300, "Pirschle, Benjamin": 250, "Dabravolskiene, Birute": 300, "Kuhlemann, Brian": 100, "Miller, Daiva": 250, "Petkeviciute, Daiva": 250, "Schäfer, Denis": 100, "Antulis, Edgaras": 300, "Mangiapane, Francesco": 150, "Jung, Jacqueline": 300, "Bubeniene, Laim": 150, "Smilgiene, Lina": 300, "Geißler, Martina": 125, "Diring, Milen": 75, "Farfar, Nadia": 100, "Pham, Ngoc Thanh Tuyen": 75, "Hummel, Petra": 75, "Di Vincenzo, Quirino": 50, "Baltusyte, Renata": 250, "Katkevičienė, Renata": 350, "Philippi, Rene": 200, "Harff, Rita": 150, "Schneidmüller, Svetlana": 150, "Munteanu, Tatiana": 300, "Shefer, Valeria": 70, "Shefer, Viktor": 100, "Semm, Yvonne": 75, "Scholz-Zhang, Zhenfang": 100};
+  S.patches = Array.isArray(S.patches) ? S.patches : [];
+  if (S.patches.includes(ID)) return;
+  let n = 0;
+  S.employees.forEach(e => { if (K[e.name] != null) { e.kpi = K[e.name]; n++; } });
+  S.patches.push(ID);
+  if (n) S.log.push({ t: Date.now(), m: `Ø KPI für ${n} Mitarbeiter übernommen` });
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
 })();
 
@@ -1103,6 +1153,28 @@ function areaOrder(){
   S.employees.forEach(e => { if (e.area && !order.includes(e.area)) order.push(e.area); });
   return order;
 }
+function kpiAvgs(){
+  const by = {}, all = S.employees.filter(e => e.kpi > 0);
+  ARTEN.forEach(a => { const l = all.filter(e => e.art === a); by[a] = l.length ? l.reduce((x, e) => x + e.kpi, 0) / l.length : null; });
+  return { by, all: all.length ? all.reduce((x, e) => x + e.kpi, 0) / all.length : null };
+}
+const kpiOf = (e, av) => e.kpi != null ? { v: e.kpi, est: false } : (S.settings.cap.kpiEst === true && av) ? { v: av.by[e.art] ?? av.all ?? 0, est: true } : { v: 0, est: false, none: true };
+function kpiCap(col, m = viewMonday, av = kpiAvgs()){
+  let v = 0, est = 0, n = 0, none = 0;
+  S.employees.forEach(e => { if (effShift(e, m) !== col || absOf(e.id, m)) return; const k = kpiOf(e, av), f = facOf(e.art); v += k.v * f; n++; if (k.est) est += k.v * f; if (k.none) none++; });
+  return { v: Math.round(v), est: Math.round(est), n, none };
+}
+const kpiSum = (col, m = viewMonday) => kpiCap(col, m).v;
+const kpiN = (col, m = viewMonday) => kpiCap(col, m).n;
+function setKpi(id, v){
+  const e = byId(id); if (!e || e.kpi === v) return;
+  snap();
+  e.kpiHist = e.kpiHist || [];
+  if (!e.kpiHist.length && e.kpi != null) e.kpiHist.push({ d: '', v: e.kpi });
+  if (v != null) e.kpiHist.push({ d: isoDate(new Date()), v });
+  const old = e.kpi; e.kpi = v;
+  commit(`${e.name}: Ø KPI ${old == null ? '–' : fmtN(old)} → ${v == null ? '–' : fmtN(v)}`);
+}
 function counts(m = viewMonday){
   const c = {F:0, S:0, X:0, aF:0, aS:0, aX:0};
   S.employees.forEach(e => { const sh = effShift(e, m); if (absOf(e.id, m)) c['a' + sh]++; else c[sh]++; });
@@ -1119,10 +1191,6 @@ function warnings(m = viewMonday){
   [['F', sollFor('F', m)], ['S', sollFor('S', m)]].forEach(([col, soll]) => {
     if (soll && c[col] < soll) w.push(`${COL_NAME[col]}: ${soll - c[col]} unter Soll (${c[col]}/${soll})`);
   });
-  roleOrder().forEach(r => {
-    const min = minOf(r); if (!min) return;
-    ['F','S'].forEach(col => { const n = presentByRole(r, col, m); if (n < min) w.push(`${COL_NAME[col]}: ${r} ${n}/${min}`); });
-  });
   st.quals.forEach(q => [['F', q.minF], ['S', q.minS]].forEach(([col, min]) => {
     min = +min || 0; if (!min) return;
     const n = presentQual(q.name, col, m); if (n < min) w.push(`${COL_NAME[col]}: ${q.name} ${n}/${min}`);
@@ -1132,8 +1200,8 @@ function warnings(m = viewMonday){
 
 /* ---------- Render ---------- */
 let view = (() => { try { return localStorage.getItem('leitstand-view') || 'Board'; } catch (e) { return 'Board'; } })();
-const VIEWS = ['Board','Cal','Team','Stats','Vol','Cap','Qual'];
-let groupBy = (() => { try { return localStorage.getItem('leitstand-group') || 'role'; } catch (e) { return 'role'; } })();
+const VIEWS = ['Board','Cal','Team','Kpi','Stats','Vol','Cap','Qual'];
+let groupBy = (() => { try { const g = localStorage.getItem('leitstand-group'); return g === 'area' ? 'area' : 'art'; } catch (e) { return 'art'; } })();
 if (!VIEWS.includes(view)) view = 'Board';
 function setView(v){
   view = v; try { localStorage.setItem('leitstand-view', v); } catch (e) {}
@@ -1145,10 +1213,12 @@ function render(){
   renderWeek(); renderKpis(); renderAlerts(); renderFilters();
   const ex = expiries(), nb = ex.expired + ex.soon;
   $('#qBadge').textContent = nb; $('#qBadge').classList.toggle('hide', !nb);
+  const km = S.employees.filter(e => e.kpi == null).length; $('#kpiBadge').textContent = km; $('#kpiBadge').classList.toggle('hide', !km || !S.employees.some(e => e.kpi != null));
   if (view === 'Board') { renderBoard(); renderRoles(); renderLog(); }
   else if (view === 'Team') renderTeam();
   else if (view === 'Cal') renderCal();
   else if (view === 'Vol') renderVol();
+  else if (view === 'Kpi') renderKpi();
   else if (view === 'Stats') renderStats();
   else if (view === 'Cap') renderCap();
   else if (view === 'Qual') renderQual();
@@ -1204,7 +1274,7 @@ function renderAlerts(){
   const max = 6;
   $('#alerts').innerHTML = exH + `<span class="alert head">⚠ ${w.length} ${w.length === 1 ? 'Hinweis' : 'Hinweise'} für KW ${kw()}</span>` +
     w.slice(0, max).map(t => `<span class="alert bad">${esc(t)}</span>`).join('') +
-    (w.length > max ? `<button class="alert more" data-goto="Board">+${w.length - max} weitere im Rollen-Check / bei den Qualifikationen</button>` : '');
+    (w.length > max ? `<button class="alert more" data-goto="Qual">+${w.length - max} weitere bei den Qualifikationen</button>` : '');
 }
 
 function cardHtml(e){
@@ -1213,7 +1283,7 @@ function cardHtml(e){
   const art = ART_SHORT[e.art] ? `<span class="art" title="${esc(e.art)}">${ART_SHORT[e.art]}</span>` : '';
   const absB = ab ? `<span class="badge abs${ab}">${ABS[ab]}</span>` : '';
   const swB = sw ? `<span class="badge swap" title="Nur KW ${kw()} – regulär ${COL_NAME[shiftOf(e, viewMonday)]}">Tausch</span>` : '';
-  const tt = [e.area && 'Bereich: ' + e.area, e.role && 'Rolle: ' + e.role, e.note, Object.keys(e.quals || {}).join(', ')].filter(Boolean).join(' · ');
+  const tt = [e.area && 'Bereich: ' + e.area, e.art, e.kpi != null && 'Ø KPI ' + fmtN(e.kpi), e.note, Object.keys(e.quals || {}).join(', ')].filter(Boolean).join(' · ');
   return `<div class="card${ab ? ' absent' : ''}${sw ? ' swapped' : ''}" data-id="${e.id}"${tt ? ` title="${esc(tt)}"` : ''}>
     <span class="handle" aria-hidden="true">⋮⋮</span>
     <span class="cname" data-edit="${e.id}"><span class="nm">${esc(e.name)}</span>${art}${absB}${swB}</span>
@@ -1223,59 +1293,49 @@ function cardHtml(e){
 
 function renderBoard(){
   const q = $('#q').value.trim().toLowerCase(), rf = $('#roleFilter').value;
-  const grp = groupBy, order = grp === 'area' ? areaOrder() : roleOrder(), st = S.settings, a = aIsFrueh(viewMonday);
+  const grp = groupBy, order = grp === 'area' ? areaOrder() : ARTEN, st = S.settings, a = aIsFrueh(viewMonday);
   const sub = { F: `${esc(st.timesF)} · Gruppe ${a ? 'A' : 'B'} + Fest Früh`, S: `${esc(st.timesS)} · Gruppe ${a ? 'B' : 'A'} + Fest Spät`, X: 'Tagdienst / nicht in der Rotation' };
   const soll = { F: sollFor('F'), S: sollFor('S') };
   ['F','S','X'].forEach(col => {
     const el = document.querySelector(`.col[data-col="${col}"]`);
     let list = S.employees.filter(e => effShift(e) === col);
     const present = list.filter(e => !absOf(e.id)).length, absent = list.length - present;
-    if (q) list = list.filter(e => (e.name + ' ' + e.role + ' ' + e.area + ' ' + e.note).toLowerCase().includes(q));
-    if (rf) list = list.filter(e => (e.role || '') === (rf === '__none' ? '' : rf));
+    if (q) list = list.filter(e => (e.name + ' ' + e.art + ' ' + e.area + ' ' + e.note).toLowerCase().includes(q));
+    if (rf) list = list.filter(e => e.art === rf);
     const groups = new Map();
     list.sort((x, y) => (absOf(x.id) ? 1 : 0) - (absOf(y.id) ? 1 : 0) || x.name.localeCompare(y.name, 'de')).forEach(e => {
-      const k = (grp === 'area' ? e.area : e.role) || '';
+      const k = (grp === 'area' ? e.area : e.art) || '';
       if (!groups.has(k)) groups.set(k, []);
       groups.get(k).push(e);
     });
     const keys = [...groups.keys()].sort((x, y) => (x === '' ? 1e9 : order.indexOf(x)) - (y === '' ? 1e9 : order.indexOf(y)));
     let body = keys.map(k => {
-      const g = groups.get(k), n = g.filter(e => !absOf(e.id)).length, min = (grp === 'role' && col !== 'X' && k) ? minOf(k) : 0;
+      const g = groups.get(k), n = g.filter(e => !absOf(e.id)).length, min = 0;
       const cnt = min ? `<span class="${n < min ? 'under' : 'met'}">${n}/${min}</span>` : `<span>${n}${n !== g.length ? ' / ' + g.length : ''}</span>`;
-      return `<div class="rhead"><span>${esc(k || (grp === 'area' ? 'Ohne Bereich' : 'Ohne Rolle'))}</span>${cnt}</div>` + g.map(cardHtml).join('');
+      return `<div class="rhead"><span>${esc(k || (grp === 'area' ? 'Ohne Bereich' : '–'))}</span>${cnt}</div>` + g.map(cardHtml).join('');
     }).join('');
     if (!body) body = `<div class="empty">${(q || rf) && present + absent ? 'Keine Treffer' : S.employees.length ? 'Hierher ziehen' : 'Noch keine Mitarbeiter angelegt.<br><br><button class="btn sm" data-act="add">+ Mitarbeiter</button> <button class="btn sm" data-act="bulk">Liste einfügen</button>'}</div>`;
     const sc = col === 'X' ? '' : `/ ${soll[col]}`;
     const p = col === 'X' ? 0 : (soll[col] ? present / soll[col] : 0);
     el.innerHTML = `<div class="chead"><div class="ctitle"><h3><i></i>${COL_NAME[col]}</h3><span class="count">${present} <span style="color:var(--muted);font-weight:500">${sc}</span></span></div>
-      <div class="csub">${sub[col]}${absent ? ` · ${absent} abwesend` : ''}</div>${col === 'X' ? '' : `<div class="bar"><span style="width:${Math.min(100, p * 100)}%;background:${covColor(p)}"></span></div>`}</div>
+      <div class="csub">${sub[col]}${absent ? ` · ${absent} abwesend` : ''}${S.employees.some(e => e.kpi != null) ? (() => { const k = kpiCap(col); return ` · <span title="Kapazität: Summe Ø KPI der Anwesenden${k.est ? `, davon ${fmtN(k.est)} geschätzt` : ''}">Kapazität ${fmtN(k.v)}/Tag</span>`; })() : ''}</div>${col === 'X' ? '' : `<div class="bar"><span style="width:${Math.min(100, p * 100)}%;background:${covColor(p)}"></span></div>`}</div>
       <div class="cbody">${body}</div>`;
   });
 }
 
 function renderRoles(){
-  const order = roleOrder();
-  const chip = (n, min) => {
-    const cls = min ? (n >= min ? 'ok' : 'no') : (n ? 'ok' : 'na');
-    return `<td class="c"><span class="chip ${cls}"${min && n < min ? ` title="${min - n} fehlen"` : ''}>${n ? n + '×' : '–'}</span></td>`;
-  };
-  const rows = order.map(r => {
-    const min = minOf(r);
-    return `<tr><td>${esc(r)}</td><td class="c"><input class="mininp" type="number" min="0" max="99" value="${min}" data-min="${esc(r)}" data-k="min:${esc(r)}" aria-label="Mindestbesetzung ${esc(r)}"></td>` +
-      chip(presentByRole(r, 'F'), min) + chip(presentByRole(r, 'S'), min) + chip(presentByRole(r, 'X'), 0) + '</tr>';
-  }).join('');
-  $('#roleTable').innerHTML = `<thead><tr><th>Rolle</th><th class="c">Min.</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Unabh.</th></tr></thead><tbody>${rows || '<tr><td colspan="5" style="color:var(--dim)">Keine Rollen definiert</td></tr>'}</tbody>`;
+  const n = (a, col) => S.employees.filter(e => e.art === a && effShift(e) === col && !absOf(e.id)).length;
+  const ab = a => S.employees.filter(e => e.art === a && absOf(e.id)).length;
+  const used = ARTEN.filter(a => S.employees.some(e => e.art === a));
+  const cell = v => `<td class="c"><span class="chip ${v ? 'ok' : 'na'}">${v || '–'}</span></td>`;
+  const rows = used.map(a => `<tr><td>${esc(a)}</td>${cell(n(a, 'F'))}${cell(n(a, 'S'))}${cell(n(a, 'X'))}<td class="c" style="color:var(--muted)">${ab(a) || '–'}</td><td class="c"><b>${S.employees.filter(e => e.art === a).length}</b></td></tr>`).join('');
+  const tot = col => S.employees.filter(e => effShift(e) === col && !absOf(e.id)).length;
+  $('#roleTable').innerHTML = `<thead><tr><th>Beschäftigung</th><th class="c">Früh</th><th class="c">Spät</th><th class="c">Unabh.</th><th class="c">Abwesend</th><th class="c">Gesamt</th></tr></thead><tbody>${rows}<tr><td><b>Gesamt</b></td><td class="c"><b>${tot('F')}</b></td><td class="c"><b>${tot('S')}</b></td><td class="c"><b>${tot('X')}</b></td><td class="c" style="color:var(--muted)">${S.employees.filter(e => absOf(e.id)).length || '–'}</td><td class="c"><b>${S.employees.length}</b></td></tr>${S.employees.some(e => e.kpi != null) ? `<tr><td style="color:var(--muted)">Kapazität / Tag (Σ Ø KPI)</td><td class="c">${fmtN(kpiSum('F'))}</td><td class="c">${fmtN(kpiSum('S'))}</td><td class="c">${fmtN(kpiSum('X'))}</td><td></td><td></td></tr>` : ''}</tbody>`;
 }
-$('#roleTable').addEventListener('change', ev => {
-  const i = ev.target.closest('[data-min]'); if (!i) return;
-  const r = i.dataset.min, v = Math.max(0, Math.min(99, parseInt(i.value, 10) || 0));
-  if (v === minOf(r)) { i.value = v; return; }
-  snap(); S.settings.minRoles[r] = v; commit(`Mindestbesetzung ${r}: ${v} pro Schicht`);
-});
 
 function renderFilters(){
   const sel = $('#roleFilter'), cur = sel.value, order = roleOrder();
-  sel.innerHTML = `<option value="">Alle Rollen</option>` + order.map(r => `<option${r === cur ? ' selected' : ''}>${esc(r)}</option>`).join('') + `<option value="__none"${cur === '__none' ? ' selected' : ''}>Ohne Rolle</option>`;
+  sel.innerHTML = `<option value="">Alle Beschäftigungsarten</option>` + ARTEN.filter(a => S.employees.some(e => e.art === a)).map(a => `<option${a === cur ? ' selected' : ''}>${a}</option>`).join('');
   $('#roleList').innerHTML = order.map(r => `<option value="${esc(r)}">`).join('');
   $('#areaList').innerHTML = areaOrder().map(r => `<option value="${esc(r)}">`).join('');
   $('#teamN').textContent = S.employees.length;
@@ -1298,7 +1358,7 @@ function openMenu(id, btn){
   closeMenu(); menuId = id; menuAt = performance.now(); btn.classList.add('on');
   const ab = absOf(id), sw = swapOf(id), base = shiftOf(e, viewMonday), cur = effShift(e);
   const targets = ['F','S','X'].filter(c => c !== cur && !(sw && c === base));
-  menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw()} · regulär ${COL_NAME[base]}${e.role ? ' · ' + esc(e.role) : ''}</small></div>
+  menu.innerHTML = `<div class="mh">${esc(e.name)}<small>KW ${kw()} · regulär ${COL_NAME[base]} · ${esc(e.art)}</small></div>
     <div class="ml">Abwesenheit – nur KW ${kw()}</div>
     <div class="mrow"><button class="opt${!ab ? ' on' : ''}" data-abs="">Anwesend</button>${Object.entries(ABS).map(([k, v]) => `<button class="opt${ab === k ? ' on' : ''}" data-abs="${k}">${v}</button>`).join('')}</div>
     <div class="ml">Einmal-Tausch – nur KW ${kw()}</div>
@@ -1414,6 +1474,7 @@ function openEmp(id){
   $('#fName').value = e ? e.name : '';
   $('#fRole').value = e ? e.role : '';
   $('#fArea').value = e ? e.area : '';
+  $('#fKpi').value = e && e.kpi != null ? e.kpi : '';
   $('#fArt').value = e ? e.art : 'Festangestellt';
   $('#fNote').value = e ? e.note : '';
   if (e) $('#fZ').value = e.z;
@@ -1425,10 +1486,10 @@ function openEmp(id){
 }
 dlgEmp.addEventListener('close', () => {
   if (dlgEmp.returnValue !== 'ok') return;
-  const data = { name: $('#fName').value.trim(), area: $('#fArea').value.trim(), role: $('#fRole').value.trim(), art: $('#fArt').value, z: $('#fZ').value, note: $('#fNote').value.trim() };
+  const data = { name: $('#fName').value.trim(), area: $('#fArea').value.trim(), role: $('#fRole').value.trim(), art: $('#fArt').value, z: $('#fZ').value, note: $('#fNote').value.trim(), kpi: $('#fKpi').value === '' ? null : Math.max(0, +$('#fKpi').value || 0) };
   if (!data.name) return;
   snap();
-  if (editId) { Object.assign(byId(editId), data); commit(`${data.name} bearbeitet`); }
+  if (editId) { const e = byId(editId); if (e.kpi !== data.kpi) { e.kpiHist = e.kpiHist || []; if (!e.kpiHist.length && e.kpi != null) e.kpiHist.push({ d: '', v: e.kpi }); if (data.kpi != null) e.kpiHist.push({ d: isoDate(new Date()), v: data.kpi }); } Object.assign(e, data); commit(`${data.name} bearbeitet`); }
   else { S.employees.push(cleanEmp(data)); commit(`${data.name} hinzugefügt → ${Z_LONG[data.z]}`); }
 });
 $('#btnEmpDel').onclick = () => { const id = editId; dlgEmp.close('cancel'); removeEmp(id); };
@@ -1446,11 +1507,11 @@ dlgBulk.addEventListener('close', () => {
   let added = 0, skipped = 0;
   snap();
   rows.forEach(l => {
-    const [name, role, art] = l.split(/\t|;/).map(s => (s || '').trim());
+    const [name, art, area] = l.split(/\t|;/).map(s => (s || '').trim());
     if (!name) return;
     if (existing.has(name.toLowerCase())) { skipped++; return; }
     const artMatch = ARTEN.find(a => art && a.toLowerCase().startsWith(art.toLowerCase()));
-    S.employees.push(cleanEmp({ name, role: role || '', art: artMatch || 'Festangestellt', z }));
+    S.employees.push(cleanEmp({ name, area: area || '', art: artMatch || (/^auszubild/i.test(art || '') ? 'Azubi' : 'Festangestellt'), z }));
     existing.add(name.toLowerCase()); added++;
   });
   if (!added) { hist.pop(); toast(skipped ? `${skipped} bereits vorhanden – nichts hinzugefügt` : 'Keine Namen erkannt', false); return; }
@@ -1459,7 +1520,7 @@ dlgBulk.addEventListener('close', () => {
 
 /* ---------- Druck / Aushang ---------- */
 const dlgPrint = $('#dlgPrint');
-$('#btnPrint').onclick = () => { $('#pWeekTxt').textContent = `KW ${kw()} (${fmtY(viewMonday)} – ${fmtY(addDays(viewMonday, 6))}): alle Mitarbeiter nach Schicht und Rolle, mit Abwesenheiten.`; dlgPrint.showModal(); };
+$('#btnPrint').onclick = () => { $('#pWeekTxt').textContent = `KW ${kw()} (${fmtY(viewMonday)} – ${fmtY(addDays(viewMonday, 6))}): alle Mitarbeiter nach Schicht und Beschäftigung, mit Abwesenheiten.`; dlgPrint.showModal(); };
 dlgPrint.addEventListener('close', () => {
   if (dlgPrint.returnValue !== 'ok') return;
   const type = dlgPrint.querySelector('input[name=ptype]:checked').value, n = +$('#pWeeks').value || 4;
@@ -1476,8 +1537,7 @@ function printFooter(){
   return `<footer class="pf"><span>Stand: ${now.toLocaleString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})} · Leitstand Schichtplanung</span><span>Freigabe Lagerleitung: ____________________________</span></footer>`;
 }
 function sortForList(list, m){
-  const order = roleOrder();
-  return list.slice().sort((x, y) => ((x.role ? order.indexOf(x.role) : 1e9) - (y.role ? order.indexOf(y.role) : 1e9)) || x.name.localeCompare(y.name, 'de'));
+  return list.slice().sort((x, y) => (ARTEN.indexOf(x.art) - ARTEN.indexOf(y.art)) || x.name.localeCompare(y.name, 'de'));
 }
 function printWeek(){
   const m = viewMonday, st = S.settings, c = counts(m), a = aIsFrueh(m), soll = { F: sollFor('F', m), S: sollFor('S', m) };
@@ -1485,15 +1545,15 @@ function printWeek(){
     const list = sortForList(S.employees.filter(e => effShift(e, m) === k), m);
     let html = '', lastRole = null;
     list.forEach(e => {
-      const r = e.role || 'Ohne Rolle';
+      const r = e.art;
       if (r !== lastRole) {
         if (lastRole !== null) html += '</ul>';
-        const n = e.role ? presentByRole(e.role, k, m) : 0, min = (k !== 'X' && e.role) ? minOf(e.role) : 0;
-        html += `<div class="prole"><span>${esc(r)}</span>${min ? `<span class="${n < min ? 'u' : ''}">${n}/${min}</span>` : ''}</div><ul>`;
+        const n = list.filter(x => x.art === r && !absOf(x.id, m)).length;
+        html += `<div class="prole"><span>${esc(r)}</span><span>${n}</span></div><ul>`;
         lastRole = r;
       }
       const ab = absOf(e.id, m), sw = swapOf(e.id, m);
-      html += `<li class="${ab ? 'pabs' : ''}"><span>${esc(e.name)}${sw ? ' *' : ''}</span><em>${ab ? ABS[ab] : (ART_SHORT[e.art] || '')}</em></li>`;
+      html += `<li class="${ab ? 'pabs' : ''}"><span>${esc(e.name)}${sw ? ' *' : ''}</span><em>${ab ? ABS[ab] : esc(e.area || '')}</em></li>`;
     });
     if (lastRole !== null) html += '</ul>';
     const head = k === 'X' ? `${c.X} anwesend${c.aX ? ` · ${c.aX} abwesend` : ''}` : `${c[k]} / ${soll[k]} anwesend${c['a' + k] ? ` · ${c['a' + k]} abwesend` : ''}`;
@@ -1509,7 +1569,7 @@ function printWeek(){
     </div>
     <div class="pgrid">${col('F')}${col('S')}${col('X')}</div>
     ${w.length ? `<div class="pwarn"><b>Offene Punkte (${w.length}):</b> ${w.slice(0, 8).map(esc).join(' · ')}${w.length > 8 ? ` · … ${w.length - 8} weitere` : ''}</div>` : ''}
-    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · x/y = anwesend / Mindestbesetzung · LA = Leiharbeit, TZ = Teilzeit, MJ = Minijob, LT = Litauer, AH = Aushilfe, AZ = Azubi</div>
+    <div class="plegend">* = Schichttausch nur in dieser Woche · durchgestrichen = abwesend · Zahl = anwesend je Beschäftigungsart · LA = Leiharbeit, TZ = Teilzeit, MJ = Minijob, LT = Litauer, AH = Aushilfe, AZ = Azubi</div>
     ${printFooter()}</section>`;
 }
 function printRotation(n){
@@ -1521,7 +1581,7 @@ function printRotation(n){
   }).join('');
   const grp = (title, z, k) => {
     const list = sortForList(S.employees.filter(e => e.z === z));
-    return `<div class="pcol"><h2 class="p${k}">${title}<span>${list.length}</span></h2><ul>${list.map(e => `<li><span>${esc(e.name)}</span><em>${esc(e.role)}</em></li>`).join('') || '<li><span>—</span></li>'}</ul></div>`;
+    return `<div class="pcol"><h2 class="p${k}">${title}<span>${list.length}</span></h2><ul>${list.map(e => `<li><span>${esc(e.name)}</span><em>${ART_SHORT[e.art] || ''}</em></li>`).join('') || '<li><span>—</span></li>'}</ul></div>`;
   };
   const last = addDays(viewMonday, 7 * (n - 1));
   return `<section class="ppage">${printHeader(`Rotationsplan KW ${kw()} – KW ${kw(last)}`, `${fmtY(viewMonday)} – ${fmtY(addDays(last, 6))} · Wechsel jeweils montags · Früh ${esc(st.timesF)} · Spät ${esc(st.timesS)}`)}
@@ -1702,6 +1762,7 @@ function renderCap(){
     t(`Verfügbar${fl} KW ${kw()}`, `${dec(cur.aF)} / ${dec(cur.aS)}`, `<span style="color:${ri.ok ? 'var(--ok)' : ri.move ? 'var(--warn)' : 'var(--bad)'}">${esc(ri.t)}</span>`) +
     t('Wochen unterdeckt', `${under.length} von ${n}`, under.length ? 'KW ' + under.slice(0, 5).map(r => kw(r.m)).join(', ') + (under.length > 5 ? ' …' : '') : 'alle Wochen gedeckt') +
     t('Größte Lücke', gap < 0 ? dec(gap) + ' MA' : '–', gap < 0 ? `KW ${kw(worst.m)} · ${esc(recInfo(worst).t)}` : 'keine Unterdeckung') +
+    (S.employees.some(e => e.kpi != null) ? (() => { const k = kpiRow(cur.m); return t(`Kapazität laut KPI · KW ${kw()}`, `${fmtN(k.capF + k.capS)}`, `<span style="color:${k.capF + k.capS >= k.vol ? 'var(--ok)' : 'var(--bad)'}">${k.vol ? pct((k.capF + k.capS) / k.vol, 0) : '–'} vom Forecast (${fmtN(k.vol)}/Tag)</span>`); })() : '') +
     t('Forecast hinterlegt', `${rows.filter(r => r.has).length} / ${n}`, 'Wochen · sonst Standardvolumen bzw. manuelles Soll') +
     t('Soll-Quelle', c.on ? 'Forecast' : 'Manuell', c.on ? 'Board, Hinweise &amp; Aushang rechnen damit' : `aktuell ${S.settings.sollF} / ${S.settings.sollS} · hier nur Vorschau`);
   $('#fcLegend').innerHTML = fcLegend('dark');
@@ -1927,7 +1988,7 @@ dlgBoss.addEventListener('close', () => {
   const n = +$('#bxWeeks').value || 12, st = S.settings, last = addDays(viewMonday, 7 * (n - 1));
   const base = `Personalplanung_${String(st.site || 'Standort').replace(/[^\wäöüÄÖÜß-]+/g, '_')}_KW${kw()}-KW${kw(last)}`;
   if (v === 'csv') { download(base + '.csv', fcCsv(n), 'text/csv'); return toast('Excel-Datei (CSV) heruntergeladen', false); }
-  const pages = ($('#bxFc').checked ? printForecast(n) : '') + ($('#bxVol').checked ? printVolume() : '') + ($('#bxSt').checked ? printStats() : '') + ($('#bxRot').checked ? printRotation(Math.min(n, 8)) : '') + ($('#bxWk').checked ? printWeek() : '');
+  const pages = ($('#bxFc').checked ? printForecast(n) : '') + ($('#bxKpi').checked ? printKpi(n) : '') + ($('#bxVol').checked ? printVolume() : '') + ($('#bxSt').checked ? printStats() : '') + ($('#bxRot').checked ? printRotation(Math.min(n, 8)) : '') + ($('#bxWk').checked ? printWeek() : '');
   if (!pages) return toast('Bitte mindestens einen Teil auswählen', false);
   if (v === 'pdf') { $('#printArea').innerHTML = pages; setTimeout(() => window.print(), 60); return; }
   download(base + '.html', reportHtml(pages, `Personalplanung ${st.company} · ${st.site} · KW ${kw()} – KW ${kw(last)}`), 'text/html');
@@ -1976,9 +2037,9 @@ function renderQual(){
       <td class="c">${chip(presentQual(q.name, 'F'), q.minF)}</td><td class="c">${chip(presentQual(q.name, 'S'), q.minS)}</td><td class="c">${S.employees.filter(e => qualValid(e, q.name)).length}</td>
       <td><button class="x-del" data-qdel="${i}" aria-label="${esc(q.name)} entfernen">×</button></td></tr>`).join('') || '<tr><td colspan="7" style="color:var(--dim)">Noch keine Qualifikationen angelegt.</td></tr>') + '</tbody>';
   renderWho();
-  const qs = $('#qSearch').value.trim().toLowerCase(), order = roleOrder(), today = isoDate(new Date()), lim = isoDate(addDays(new Date(), 60));
-  const list = S.employees.filter(e => !qs || (e.name + ' ' + e.role).toLowerCase().includes(qs))
-    .sort((x, y) => ((x.role ? order.indexOf(x.role) : 1e9) - (y.role ? order.indexOf(y.role) : 1e9)) || x.name.localeCompare(y.name, 'de'));
+  const qs = $('#qSearch').value.trim().toLowerCase(), today = isoDate(new Date()), lim = isoDate(addDays(new Date(), 60));
+  const list = S.employees.filter(e => !qs || (e.name + ' ' + e.art + ' ' + e.area).toLowerCase().includes(qs))
+    .sort((x, y) => x.name.localeCompare(y.name, 'de'));
   const cell = (e, q, i) => {
     const has = hasQ(e, q.name), u = has ? e.quals[q.name] : '';
     const cls = has ? 'has' : '';
@@ -1986,7 +2047,7 @@ function renderQual(){
     return `<td><button type="button" class="qc ${cls}" data-qc="${e.id}|${i}" aria-label="${esc(q.name)} für ${esc(e.name)}">${txt}</button></td>`;
   };
   $('#qMatrix').innerHTML = `<thead><tr><th>Mitarbeiter</th>${Q.map(q => `<th class="c">${esc(q.name)}</th>`).join('')}</tr></thead><tbody>` +
-    (list.map(e => `<tr><td><div>${esc(e.name)}</div><div class="qsub">${esc(e.role || 'Ohne Rolle')} · KW ${kw()}: ${COL_NAME[effShift(e)]}</div></td>${Q.map((q, i) => cell(e, q, i)).join('')}</tr>`).join('') ||
+    (list.map(e => `<tr><td><div>${esc(e.name)}</div><div class="qsub">${esc(e.art)}${e.area ? ' · ' + esc(e.area) : ''} · KW ${kw()}: ${COL_NAME[effShift(e)]}</div></td>${Q.map((q, i) => cell(e, q, i)).join('')}</tr>`).join('') ||
     `<tr><td colspan="${Q.length + 1}" style="color:var(--dim)">Keine Mitarbeiter gefunden.</td></tr>`) + '</tbody>';
 }
 $('#qSearch').addEventListener('input', renderQual);
@@ -2039,9 +2100,9 @@ function fillSel(sel, pairs){
 }
 function tmList(){
   const q = $('#tmQ').value.trim().toLowerCase(), fa = $('#tmFArea').value, fr = $('#tmFArt').value, fz = $('#tmFZ').value;
-  const l = S.employees.filter(e => (!q || [e.name, e.area, e.role, e.note, e.art].join(' ').toLowerCase().includes(q)) &&
+  const l = S.employees.filter(e => (!q || [e.name, e.area, e.note, e.art].join(' ').toLowerCase().includes(q)) &&
     (!fa || (fa === '__none' ? !e.area : e.area === fa)) && (!fr || e.art === fr) && (!fz || e.z === fz));
-  const key = { name: e => e.name, area: e => e.area || '￿', role: e => e.role || '￿', art: e => ARTEN.indexOf(e.art), z: e => Object.keys(Z_LONG).indexOf(e.z), sh: e => 'FSX'.indexOf(effShift(e)) }[tmSort.k];
+  const key = { name: e => e.name, area: e => e.area || '￿', role: e => e.role || '￿', art: e => ARTEN.indexOf(e.art), z: e => Object.keys(Z_LONG).indexOf(e.z), kpi: e => e.kpi == null ? -1 : e.kpi, sh: e => 'FSX'.indexOf(effShift(e)) }[tmSort.k];
   return l.sort((a, b) => { const x = key(a), y = key(b); return ((typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'de')) * tmSort.dir) || a.name.localeCompare(b.name, 'de'); });
 }
 function tmBulkBar(){ const n = tmSel.size; $('#tmBulk').classList.toggle('hide', !n); $('#tmSelN').textContent = `${n} ausgewählt`; }
@@ -2058,22 +2119,23 @@ function renderTeam(){
   const zo = cur => Object.entries(Z_LONG).map(([v, t]) => `<option value="${v}"${v === cur ? ' selected' : ''}>${t}</option>`).join('');
   const ao = cur => ARTEN.map(a => `<option${a === cur ? ' selected' : ''}>${a}</option>`).join('');
   const bo = cur => `<option value="">–</option>` + Object.entries(ABS).map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${v}</option>`).join('');
-  $('#tmTable').innerHTML = `<thead><tr><th class="ns"><input type="checkbox" id="tmAll"${allSel ? ' checked' : ''} aria-label="Alle auswählen"></th>${th('name', 'Name')}${th('area', 'Bereich')}${th('role', 'Rolle / Funktion')}${th('art', 'Beschäftigung')}${th('z', 'Schicht-Zuordnung')}${th('sh', 'KW ' + kw())}<th class="ns">Abwesend KW ${kw()}</th><th class="ns">Notiz</th><th class="ns">Quali.</th><th class="ns"></th></tr></thead><tbody>` +
+  $('#tmTable').innerHTML = `<thead><tr><th class="ns"><input type="checkbox" id="tmAll"${allSel ? ' checked' : ''} aria-label="Alle auswählen"></th>${th('name', 'Name')}${th('area', 'Bereich')}${th('art', 'Beschäftigung')}${th('z', 'Schicht-Zuordnung')}${th('kpi', 'Ø KPI')}${th('sh', 'KW ' + kw())}<th class="ns">Abwesend KW ${kw()}</th><th class="ns">Notiz</th><th class="ns">Quali.</th><th class="ns"></th></tr></thead><tbody>` +
     l.map(e => {
       const sh = effShift(e), ab = absOf(e.id), nq = Object.keys(e.quals || {}).length, sel = tmSel.has(e.id);
       return `<tr class="${sel ? 'sel' : ''}"><td><input type="checkbox" data-tsel="${e.id}"${sel ? ' checked' : ''} aria-label="${esc(e.name)} auswählen"></td>
         <td><input class="tinp nm" data-te="${e.id}:name" data-k="te:${e.id}:name" value="${esc(e.name)}" aria-label="Name"></td>
         <td><input class="tinp" list="areaList" data-te="${e.id}:area" data-k="te:${e.id}:area" value="${esc(e.area)}" placeholder="– wählen –" aria-label="Bereich ${esc(e.name)}"></td>
-        <td><input class="tinp" list="roleList" data-te="${e.id}:role" data-k="te:${e.id}:role" value="${esc(e.role)}" placeholder="– wählen –" aria-label="Rolle ${esc(e.name)}"></td>
         <td><select class="tsel" data-te="${e.id}:art" data-k="te:${e.id}:art" aria-label="Beschäftigung ${esc(e.name)}">${ao(e.art)}</select></td>
         <td><select class="tsel" data-te="${e.id}:z" data-k="te:${e.id}:z" aria-label="Zuordnung ${esc(e.name)}">${zo(e.z)}</select></td>
+        <td><input class="tinp" style="min-width:70px;max-width:90px;text-align:right" type="number" min="0" step="any" data-te="${e.id}:kpi" data-k="te:${e.id}:kpi" value="${e.kpi != null ? e.kpi : ''}" placeholder="–" aria-label="Ø KPI ${esc(e.name)}"></td>
         <td><span class="shtag ${sh}">${COL_NAME[sh]}${swapOf(e.id) ? ' *' : ''}</span></td>
         <td><select class="tsel" data-te="${e.id}:abs" data-k="te:${e.id}:abs" aria-label="Abwesenheit ${esc(e.name)}">${bo(ab)}</select></td>
         <td><input class="tinp" data-te="${e.id}:note" data-k="te:${e.id}:note" value="${esc(e.note)}" placeholder="–" aria-label="Notiz ${esc(e.name)}"></td>
-        <td class="qn">${nq ? nq + ' Nachweis' + (nq > 1 ? 'e' : '') : '–'}</td>
+        <td class="qn" title="${esc(Object.keys(e.quals || {}).join(', '))}">${nq ? Object.keys(e.quals).map(q => esc(q.length > 9 ? q.slice(0, 7) + '.' : q)).join(', ') : '–'}</td>
         <td><button class="x-del" data-tdel="${e.id}" aria-label="${esc(e.name)} löschen">×</button></td></tr>`;
     }).join('') + (l.length ? '' : `<tr><td colspan="11" style="color:var(--dim);padding:18px">Keine Mitarbeiter gefunden.</td></tr>`) + '</tbody>';
-  $('#tmCount').textContent = `${l.length} von ${S.employees.length} Mitarbeitern`;
+  const kl = l.filter(e => e.kpi != null);
+  $('#tmCount').textContent = `${l.length} von ${S.employees.length} Mitarbeitern${kl.length ? ` · Ø KPI ${fmtN(kl.reduce((a, e) => a + e.kpi, 0) / kl.length)} (${kl.length} mit Wert)` : ''}`;
   tmBulkBar();
 }
 $('#tmQ').addEventListener('input', renderTeam);
@@ -2085,17 +2147,18 @@ $('#viewTeam').addEventListener('change', ev => {
   if (!t.dataset.te) return;
   const [id, f] = t.dataset.te.split(':'), e = byId(id); if (!e) return;
   if (f === 'abs') return setAbs(id, t.value);
+  if (f === 'kpi') return setKpi(id, t.value.trim() === '' ? null : Math.max(0, parseFloat(t.value) || 0));
   const v = t.value.trim();
   if (f === 'name' && !v) { t.value = e.name; return; }
   if ((e[f] || '') === v) return;
   if (f === 'z') return setZ(id, v);
   snap(); const old = e[f]; e[f] = v;
-  commit(f === 'name' ? `${old} umbenannt in ${v}` : `${e.name}: ${{ area: 'Bereich', role: 'Rolle', art: 'Beschäftigung', note: 'Notiz' }[f]} = ${v || '–'}`);
+  commit(f === 'name' ? `${old} umbenannt in ${v}` : `${e.name}: ${{ area: 'Bereich', art: 'Beschäftigung', note: 'Notiz' }[f]} = ${v || '–'}`);
 });
 function teamCsv(){
   const q = x => `"${String(x == null ? '' : x).replace(/"/g, '""')}"`;
-  const L = [['Name', 'Bereich', 'Rolle / Funktion', 'Beschäftigung', 'Schicht-Zuordnung', `Schicht KW ${kw()}`, `Abwesend KW ${kw()}`, 'Notiz', 'Qualifikationen'].map(q).join(';')];
-  tmList().forEach(e => L.push([e.name, e.area, e.role, e.art, Z_LONG[e.z], COL_NAME[effShift(e)], ABS[absOf(e.id)] || '', e.note,
+  const L = [['Name', 'Bereich', 'Beschäftigung', 'Schicht-Zuordnung', 'Ø KPI', `Schicht KW ${kw()}`, `Abwesend KW ${kw()}`, 'Notiz', 'Qualifikationen'].map(q).join(';')];
+  tmList().forEach(e => L.push([e.name, e.area, e.art, Z_LONG[e.z], e.kpi == null ? '' : e.kpi, COL_NAME[effShift(e)], ABS[absOf(e.id)] || '', e.note,
     Object.entries(e.quals || {}).map(([k, u]) => k + (u ? ' bis ' + fmtY(parseIso(u)) : '')).join(', ')].map(q).join(';')));
   return '﻿' + L.join('\r\n');
 }
@@ -2115,11 +2178,11 @@ $('#viewTeam').addEventListener('click', ev => {
     return commit(`${ids.length} Mitarbeiter gelöscht`);
   }
   if (id === 'tmBApply') {
-    const area = $('#tmBArea').value.trim(), role = $('#tmBRole').value.trim(), art = $('#tmBArt').value, z = $('#tmBZ').value;
+    const area = $('#tmBArea').value.trim(), role = '', art = $('#tmBArt').value, z = $('#tmBZ').value;
     if (!area && !role && !art && !z) return toast('Bitte mindestens ein Feld zum Setzen ausfüllen', false);
     const ids = [...tmSel]; snap();
     ids.forEach(x => { const e = byId(x); if (!e) return; if (area) e.area = area; if (role) e.role = role; if (art) e.art = art; if (z) e.z = z; });
-    $('#tmBArea').value = ''; $('#tmBRole').value = ''; $('#tmBArt').value = ''; $('#tmBZ').value = '';
+    $('#tmBArea').value = ''; $('#tmBArt').value = ''; $('#tmBZ').value = '';
     return commit(`${ids.length} Mitarbeiter geändert: ${[area && 'Bereich ' + area, role && 'Rolle ' + role, art, z && Z_LONG[z]].filter(Boolean).join(', ')}`);
   }
 });
@@ -2136,7 +2199,7 @@ function renderWho(){
   l.forEach(e => by[effShift(e)].push(e));
   $('#qWhoList').innerHTML = `<div class="none" style="color:var(--muted)">${l.length} von ${S.employees.length} Mitarbeitern · Schichten in KW ${kw()}</div>` +
     ['F', 'S', 'X'].map(c => by[c].length ? `<div style="border:0;padding:10px 2px 3px"><span class="shtag ${c}">${COL_NAME[c]} · ${by[c].filter(e => !absOf(e.id)).length} anwesend</span></div>` +
-      by[c].sort((a, b) => a.name.localeCompare(b.name, 'de')).map(e => `<div><span>${esc(e.name)}</span><span class="qsub">${absOf(e.id) ? '⚠ ' + ABS[absOf(e.id)] : esc(e.area || e.role || '')}</span></div>`).join('') : '').join('') +
+      by[c].sort((a, b) => a.name.localeCompare(b.name, 'de')).map(e => `<div><span>${esc(e.name)}</span><span class="qsub">${absOf(e.id) ? '⚠ ' + ABS[absOf(e.id)] : esc(e.area || e.art || '')}</span></div>`).join('') : '').join('') +
     (l.length ? '' : '<div class="none">Niemand – in der Matrix auf „—“ klicken, um es zu setzen.</div>');
 }
 
@@ -2625,11 +2688,11 @@ function renderMd(){
   const row = (kind, name, i, n, last) => `<div class="mdr"><input class="tinp" value="${esc(name)}" data-md="${kind}:${i}" data-k="md:${kind}:${i}" aria-label="${MD[kind].lbl} ${esc(name)}"><span class="cnt">${n} MA</span>` +
     `<button class="mv" data-mdmv="${kind}:${i}:-1" ${i ? '' : 'disabled'} title="nach oben" aria-label="nach oben">▲</button><button class="mv" data-mdmv="${kind}:${i}:1" ${last ? 'disabled' : ''} title="nach unten" aria-label="nach unten">▼</button>` +
     `<button class="x-del" data-mddel="${kind}:${i}" title="löschen" aria-label="${esc(name)} löschen">×</button></div>`;
-  ['area', 'role'].forEach(kind => {
+  ['area'].forEach(kind => {
     const L = MD[kind].list(), f = MD[kind].field;
     $(kind === 'area' ? '#mdAreas' : '#mdRoles').innerHTML = L.map((x, i) => row(kind, x, i, S.employees.filter(e => e[f] === x).length, i === L.length - 1)).join('') || '<div class="note">Noch keine Einträge.</div>';
   });
-  $('#mdSum').textContent = `${areaOrder().length} Bereiche · ${roleOrder().length} Rollen`;
+  $('#mdSum').textContent = `${areaOrder().length} Bereiche`;
 }
 function mdRename(kind, i, val){
   const m = MD[kind], L = m.list(), old = L[i], nv = val.trim();
@@ -2653,7 +2716,7 @@ $('#mdBox').addEventListener('click', ev => {
     if (kind === 'role') delete S.settings.minRoles[name];
     return commit(`${m.lbl} „${name}“ gelöscht`);
   }
-  const add = ev.target.closest('#mdAreaAdd,#mdRoleAdd');
+  const add = ev.target.closest('#mdAreaAdd');
   if (add) {
     const kind = add.id === 'mdAreaAdd' ? 'area' : 'role', inp = $(kind === 'area' ? '#mdAreaNew' : '#mdRoleNew'), v = inp.value.trim(), m = MD[kind], L = m.list();
     if (!v) return inp.focus();
@@ -2661,7 +2724,7 @@ $('#mdBox').addEventListener('click', ev => {
     snap(); m.set([...L, v]); inp.value = ''; commit(`${m.lbl} „${v}“ angelegt`); inp.focus();
   }
 });
-['#mdAreaNew', '#mdRoleNew'].forEach(sel => $(sel).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $(sel === '#mdAreaNew' ? '#mdAreaAdd' : '#mdRoleAdd').click(); } }));
+['#mdAreaNew'].forEach(sel => $(sel).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $(sel === '#mdAreaNew' ? '#mdAreaAdd' : '#mdRoleAdd').click(); } }));
 
 /* ---------- Schichtkalender ---------- */
 let calTool = 'info', calPaint = null, calMenuM = null;
@@ -2675,18 +2738,18 @@ function calCell(e, m){
 }
 function renderCal(){
   const weeks = calWeekList(), g = $('#calGroup').value, q = $('#calQ').value.trim().toLowerCase(), today = isoDate(mondayOf(new Date()));
-  const zOrd = ['A', 'B', 'FF', 'FS', 'X'], ord = g === 'z' ? zOrd : g === 'area' ? areaOrder() : roleOrder();
-  const gk = e => g === 'z' ? e.z : g === 'area' ? (e.area || '') : g === 'role' ? (e.role || '') : '';
-  const gl = k => g === 'z' ? Z_LONG[k] : (k || (g === 'area' ? 'Ohne Bereich' : 'Ohne Rolle'));
+  const zOrd = ['A', 'B', 'FF', 'FS', 'X'], ord = g === 'z' ? zOrd : g === 'area' ? areaOrder() : ARTEN;
+  const gk = e => g === 'z' ? e.z : g === 'area' ? (e.area || '') : g === 'art' ? e.art : '';
+  const gl = k => g === 'z' ? Z_LONG[k] : (k || 'Ohne Bereich');
   const pos = k => k === '' ? 1e9 : ord.indexOf(k);
-  const list = S.employees.filter(e => !q || [e.name, e.area, e.role].join(' ').toLowerCase().includes(q))
+  const list = S.employees.filter(e => !q || [e.name, e.area, e.art].join(' ').toLowerCase().includes(q))
     .sort((a, b) => (g === 'name' ? 0 : pos(gk(a)) - pos(gk(b))) || a.name.localeCompare(b.name, 'de'));
   const head = `<thead><tr><th>Mitarbeiter (${list.length})</th>${weeks.map(m => { const c = counts(m), sF = sollFor('F', m), sS = sollFor('S', m);
     return `<th class="${isoDate(m) === today ? 'cur' : ''}"><span class="wk">KW ${kw(m)}</span><span class="wc" style="color:var(--muted)">${fmt(m)}</span><span class="wc" style="color:${c.F >= sF ? 'var(--ok)' : 'var(--bad)'}">F ${c.F}/${sF}</span><span class="wc" style="color:${c.S >= sS ? 'var(--ok)' : 'var(--bad)'}">S ${c.S}/${sS}</span></th>`; }).join('')}</tr></thead>`;
   let body = '', last = null;
   list.forEach(e => {
     if (g !== 'name') { const k = gk(e); if (k !== last) { body += `<tr class="grp"><td colspan="${weeks.length + 1}">${esc(gl(k))}</td></tr>`; last = k; } }
-    body += `<tr><td><div class="cnm">${esc(e.name)}<small>${esc([e.area, e.role].filter(Boolean).join(' · ') || Z_LONG[e.z])}</small></div></td>${weeks.map(m => `<td>${calCell(e, m)}</td>`).join('')}</tr>`;
+    body += `<tr><td><div class="cnm">${esc(e.name)}<small>${esc([e.art, e.area].filter(Boolean).join(' · '))}</small></div></td>${weeks.map(m => `<td>${calCell(e, m)}</td>`).join('')}</tr>`;
   });
   $('#calTable').innerHTML = head + `<tbody>${body || `<tr><td colspan="${weeks.length + 1}" style="color:var(--dim);padding:16px">Keine Mitarbeiter gefunden.</td></tr>`}</tbody>`;
   $('#calTable').classList.toggle('paint', calTool !== 'info');
@@ -2746,6 +2809,101 @@ function openCalMenu(id, m, el){
     <div class="ml">Dauerhafte Zuordnung</div><div class="mrow">${Object.keys(Z_SHORT).map(z => `<button class="opt${e.z === z ? ' on' : ''}" data-cz="${z}">${Z_SHORT[z]}</button>`).join('')}</div>
     <hr><button class="mi" data-cedit="1">Mitarbeiter bearbeiten …</button>`;
   placeMenu(el);
+}
+
+/* ---------- KPI-Ansicht ---------- */
+function kpiRow(m, av = kpiAvgs()){
+  const x = capCalc(m), manual = !hasFcData(m);
+  let volF = 0, volS = 0;
+  x.rows.forEach(r => { const sh = Math.min(100, Math.max(0, +r.cl.shareF || 0)) / 100; volF += r.v * sh; volS += r.v * (1 - sh); });
+  const F = kpiCap('F', m, av), Sp = kpiCap('S', m, av);
+  return { m, vol: manual ? 0 : Math.round(x.vol), volF: manual ? 0 : Math.round(volF), volS: manual ? 0 : Math.round(volS), capF: F.v, capS: Sp.v, estF: F.est, estS: Sp.est, manual };
+}
+function kpiChart(rows, theme, W = 1100, H = 260){
+  const C = FC_COL[theme], ink = theme === 'dark' ? { grid: '#222e4c', txt: '#8a96b4' } : { grid: '#d4d4d4', txt: '#555' };
+  const pl = 52, pr = 10, pt = 16, pb = 26, iw = W - pl - pr, ih = H - pt - pb, n = Math.max(1, rows.length);
+  const max = Math.max(1, ...rows.map(r => Math.max(r.vol, r.capF + r.capS)));
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max * 1.1 / step) * step;
+  const y = v => pt + ih - v / top * ih, slot = iw / n, bw = Math.min(W > 900 ? 44 : 26, slot * 0.55);
+  let out = '', dots = '', hits = '', pts = [];
+  [0, top / 2, top].forEach(v => { out += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="${ink.grid}"/><text x="${pl - 7}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="${ink.txt}">${fmtN(v)}</text>`; });
+  rows.forEach((r, i) => {
+    const cx = pl + slot * i + slot / 2, cap = r.capF + r.capS;
+    if (r.vol) out += `<path d="${topRound(cx - bw / 2, y(r.vol), bw, r.vol / top * ih, 4)}" fill="${C.b}"/>`;
+    pts.push(`${cx},${y(cap)}`); dots += `<circle cx="${cx}" cy="${y(cap)}" r="4" fill="${C.a}" stroke="${C.surf}" stroke-width="2"/>`;
+    out += `<text x="${cx}" y="${H - 8}" text-anchor="middle" font-size="10" fill="${ink.txt}">KW ${kw(r.m)}</text>`;
+    const tip = `<b>KW ${kw(r.m)}</b><br><i style="background:${C.b}"></i>Forecast: ${r.manual ? 'kein Forecast' : fmtN(r.vol) + '/Tag'}<br><i style="background:${C.a}"></i>Kapazität: ${fmtN(cap)}/Tag${r.estF + r.estS ? ` (davon ${fmtN(r.estF + r.estS)} geschätzt)` : ''}${r.vol ? `<br>Deckung: ${pct(cap / r.vol, 0)}` : ''}`;
+    hits += `<rect x="${pl + slot * i}" y="${pt}" width="${slot}" height="${ih}" fill="transparent" data-tip="${esc(tip)}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Forecast und Kapazität laut KPI je Woche">${out}<polyline points="${pts.join(' ')}" fill="none" stroke="${C.a}" stroke-width="2"/>${dots}${hits}</svg>`;
+}
+const kpiLegend = theme => `<span><i style="background:${FC_COL[theme].b}"></i>Forecast (Bestellungen/Tag)</span><span><i style="background:${FC_COL[theme].a};border-radius:50%"></i>Kapazität laut KPI (anwesende Mitarbeiter)</span>`;
+bindTip($('#kpiChart'));
+const covTd = (cap, vol) => { if (!vol) return '<td class="num" style="color:var(--dim)">–</td>'; const p = cap / vol; return `<td class="num" style="color:${p >= 1 ? 'var(--ok)' : p >= .9 ? 'var(--warn)' : 'var(--bad)'};font-weight:700">${pct(p, 0)}</td>`; };
+function renderKpi(){
+  const av = kpiAvgs(), with_ = S.employees.filter(e => e.kpi != null), miss = S.employees.length - with_.length, n = +$('#kpiWeeks').value || 12;
+  $('#kpiEst').checked = S.settings.cap.kpiEst === true;
+  const rows = Array.from({ length: n }, (_, i) => kpiRow(addDays(viewMonday, 7 * i), av)), cur = rows[0];
+  const t = (l, v, sub) => `<div class="tile"><span>${l}</span><b>${v}</b><small>${sub}</small></div>`;
+  const capT = cur.capF + cur.capS, under = rows.filter(r => r.vol && r.capF + r.capS < r.vol);
+  $('#kpiTiles').innerHTML =
+    t('Ø KPI pro Tag', av.all != null ? fmtN(av.all) : '–', `${with_.length} Mitarbeiter mit Wert`) +
+    t('Ohne KPI-Wert', miss, miss ? (S.settings.cap.kpiEst === true ? 'werden mit Ø ihrer Beschäftigungsart geschätzt' : 'zählen mit 0 – Schätzung ist aus') : 'alle gepflegt') +
+    t(`Kapazität Früh · KW ${kw()}`, fmtN(cur.capF), cur.volF ? `Forecast ${fmtN(cur.volF)} · ${pct(cur.capF / cur.volF, 0)}` : 'kein Forecast') +
+    t(`Kapazität Spät · KW ${kw()}`, fmtN(cur.capS), cur.volS ? `Forecast ${fmtN(cur.volS)} · ${pct(cur.capS / cur.volS, 0)}` : 'kein Forecast') +
+    t('Gesamt / Tag', fmtN(capT), cur.vol ? `<span style="color:${capT >= cur.vol ? 'var(--ok)' : 'var(--bad)'}">${capT >= cur.vol ? '+' : ''}${fmtN(capT - cur.vol)} zum Forecast (${fmtN(cur.vol)})</span>` : 'kein Forecast') +
+    t('Wochen unter Forecast', `${under.length} / ${rows.filter(r => r.vol).length}`, under.length ? 'KW ' + under.slice(0, 5).map(r => kw(r.m)).join(', ') : 'Kapazität reicht in allen Wochen');
+  $('#kpiLegend').innerHTML = kpiLegend('dark');
+  $('#kpiChart').innerHTML = kpiChart(rows, 'dark');
+  $('#kpiCap').innerHTML = `<colgroup><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:10%"><col style="width:14%"><col style="width:10%"><col style="width:24%"></colgroup>
+    <thead><tr><th>Woche</th><th class="num">Forecast / Tag</th><th class="num">Kapazität Früh</th><th class="num">Deckung Früh</th><th class="num">Kapazität Spät</th><th class="num">Deckung Spät</th><th>Bewertung</th></tr></thead><tbody>` +
+    rows.map(r => {
+      const cap = r.capF + r.capS, gap = cap - r.vol, avgK = av.all || 150;
+      const txt = !r.vol ? '<span style="color:var(--dim)">kein Forecast</span>' : gap >= 0 ? `<span style="color:var(--ok)">✓ Puffer ${fmtN(gap)}/Tag</span>` : `<span style="color:var(--bad)">${fmtN(-gap)}/Tag fehlen · ≈ ${Math.ceil(-gap / avgK)} MA (Ø ${fmtN(avgK)})</span>`;
+      return `<tr><td class="wk"><b>KW ${kw(r.m)}</b><div class="qsub">${fmt(r.m)} – ${fmt(addDays(r.m, 6))}</div></td><td class="num"><b>${r.vol ? fmtN(r.vol) : '–'}</b>${r.vol ? `<div class="qsub">F ${fmtN(r.volF)} · S ${fmtN(r.volS)}</div>` : ''}</td>
+        <td class="num">${fmtN(r.capF)}${r.estF ? `<div class="qsub">davon ${fmtN(r.estF)} geschätzt</div>` : ''}</td>${covTd(r.capF, r.volF)}
+        <td class="num">${fmtN(r.capS)}${r.estS ? `<div class="qsub">davon ${fmtN(r.estS)} geschätzt</div>` : ''}</td>${covTd(r.capS, r.volS)}<td class="rec">${txt}</td></tr>`;
+    }).join('') + '</tbody>';
+  // Liste
+  const fa = $('#kpiFArt'), cfa = fa.value; fa.innerHTML = `<option value="">Alle Beschäftigungsarten</option>` + ARTEN.filter(a => S.employees.some(e => e.art === a)).map(a => `<option${a === cfa ? ' selected' : ''}>${a}</option>`).join('');
+  const q = $('#kpiQ').value.trim().toLowerCase(), fsh = $('#kpiFSh').value, only = $('#kpiOnlyMiss').checked, so = $('#kpiSort').value;
+  const lastD = e => (e.kpiHist || []).filter(h => h.d).map(h => h.d).pop() || '';
+  let l = S.employees.filter(e => (!q || (e.name + ' ' + e.area).toLowerCase().includes(q)) && (!fa.value || e.art === fa.value) && (!fsh || effShift(e) === fsh) && (!only || e.kpi == null));
+  const cmp = { miss: (a, b) => ((a.kpi == null ? 0 : 1) - (b.kpi == null ? 0 : 1)) || a.name.localeCompare(b.name, 'de'), name: (a, b) => a.name.localeCompare(b.name, 'de'),
+    hi: (a, b) => (b.kpi ?? -1) - (a.kpi ?? -1), lo: (a, b) => (a.kpi ?? 1e9) - (b.kpi ?? 1e9), chg: (a, b) => lastD(b).localeCompare(lastD(a)) || a.name.localeCompare(b.name, 'de') }[so];
+  l.sort(cmp);
+  const trend = e => {
+    const h = (e.kpiHist || []); if (h.length < 2 || e.kpi == null) return '<span class="qsub">–</span>';
+    const prev = h[h.length - 2].v, d = e.kpi - prev; if (!d) return `<span class="qsub">unverändert</span>`;
+    return `<span class="trend ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲ +' : '▼ '}${fmtN(d)}</span> <span class="qsub">vorher ${fmtN(prev)}</span>`;
+  };
+  $('#kpiTable').innerHTML = `<colgroup><col style="width:24%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:20%"><col style="width:16%"></colgroup>
+    <thead><tr><th>Mitarbeiter</th><th>Beschäftigung</th><th>KW ${kw()}</th><th class="num">Ø KPI / Tag</th><th>Entwicklung</th><th>Geändert</th></tr></thead><tbody>` +
+    (l.map(e => { const k = kpiOf(e, av), sh = effShift(e), d = lastD(e);
+      return `<tr class="${e.kpi == null ? 'miss' : ''}"><td><b style="font-weight:500">${esc(e.name)}</b>${e.area ? `<div class="qsub">${esc(e.area)}</div>` : ''}</td><td>${esc(e.art)}</td><td><span class="shtag ${sh}">${COL_NAME[sh]}</span>${absOf(e.id) ? ` <span class="qsub">${ABS[absOf(e.id)]}</span>` : ''}</td>
+        <td class="num"><input class="tinp" type="number" min="0" step="any" data-kpi="${e.id}" data-k="kpi:${e.id}" value="${e.kpi != null ? e.kpi : ''}" placeholder="${k.est ? '≈ ' + fmtN(k.v) : '–'}" aria-label="Ø KPI ${esc(e.name)}">${e.kpi == null && k.est ? '<div><span class="est">geschätzt</span></div>' : ''}</td>
+        <td>${trend(e)}</td><td class="qsub">${d ? fmtY(parseIso(d)) : (e.kpi != null ? 'aus Liste' : '–')}</td></tr>`; }).join('') ||
+    '<tr><td colspan="6" style="color:var(--dim);padding:16px">Keine Mitarbeiter gefunden.</td></tr>') + '</tbody>';
+  $('#kpiListNote').textContent = `${l.length} angezeigt · ${miss} ohne Wert · leeres Feld = kein Wert`;
+}
+['#kpiWeeks', '#kpiFArt', '#kpiFSh', '#kpiSort', '#kpiOnlyMiss'].forEach(sel => $(sel).addEventListener('change', renderKpi));
+$('#kpiQ').addEventListener('input', renderKpi);
+$('#kpiEst').addEventListener('change', ev => { snap(); S.settings.cap.kpiEst = ev.target.checked; commit(ev.target.checked ? 'Fehlende KPI werden geschätzt' : 'Fehlende KPI zählen mit 0'); });
+$('#kpiTable').addEventListener('change', ev => { const t = ev.target.closest('[data-kpi]'); if (t) setKpi(t.dataset.kpi, t.value.trim() === '' ? null : Math.max(0, parseFloat(t.value) || 0)); });
+function printKpi(n){
+  if (!S.employees.some(e => e.kpi != null)) return '';
+  const av = kpiAvgs(), rows = Array.from({ length: Math.min(n, 12) }, (_, i) => kpiRow(addDays(viewMonday, 7 * i), av)), last = rows[rows.length - 1].m;
+  const withV = S.employees.filter(e => e.kpi != null).length, under = rows.filter(r => r.vol && r.capF + r.capS < r.vol);
+  const tiles = [[av.all != null ? fmtN(av.all) : '–', 'Ø KPI / Tag je MA'], [`${withV} / ${S.employees.length}`, 'MA mit KPI-Wert'], [fmtN(rows[0].capF), `Kapazität Früh KW ${kw()}`], [fmtN(rows[0].capS), `Kapazität Spät KW ${kw()}`], [rows[0].vol ? fmtN(rows[0].vol) : '–', `Forecast/Tag KW ${kw()}`], [`${under.length} / ${rows.filter(r => r.vol).length}`, 'Wochen unter Forecast']]
+    .map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const tr = rows.map(r => { const cap = r.capF + r.capS, g = cap - r.vol; const cv = (c, v) => v ? `<td class="r ${c >= v ? 'ok' : 'bad'}">${pct(c / v, 0)}</td>` : '<td class="r">–</td>';
+    return `<tr><td><b>KW ${kw(r.m)}</b></td><td>${fmt(r.m)} – ${fmt(addDays(r.m, 6))}</td><td class="r">${r.vol ? fmtN(r.vol) : '–'}</td><td class="r">${fmtN(r.capF)}</td>${cv(r.capF, r.volF)}<td class="r">${fmtN(r.capS)}</td>${cv(r.capS, r.volS)}<td class="${!r.vol ? '' : g >= 0 ? 'ok' : 'bad'}">${!r.vol ? 'kein Forecast' : g >= 0 ? 'Puffer ' + fmtN(g) : fmtN(-g) + ' fehlen'}</td></tr>`; }).join('');
+  return `<section class="ppage">${printHeader(`Kapazität laut KPI KW ${kw()} – KW ${kw(last)}`, `Kapazität = Summe Ø KPI (Bestellungen/Tag) der eingeplanten, anwesenden Mitarbeiter · Forecast nach Schichtanteil der Kunden aufgeteilt`)}
+    <div class="pkpis pk6">${tiles}</div>
+    <div class="pbox pfc"><h3>Forecast vs. Kapazität (Bestellungen pro Tag)</h3><div class="plg">${kpiLegend('light')}</div>${kpiChart(rows, 'light', 1200, 125)}</div>
+    <table class="ptable sm xs"><thead><tr><th>Woche</th><th>Zeitraum</th><th class="r">Forecast/Tag</th><th class="r">Kap. Früh</th><th class="r">Deckung F</th><th class="r">Kap. Spät</th><th class="r">Deckung S</th><th>Bewertung</th></tr></thead><tbody>${tr}</tbody></table>
+    <div class="plegend">${S.employees.length - withV} Mitarbeiter ohne KPI-Wert${S.settings.cap.kpiEst === true ? ' sind mit dem Ø ihrer Beschäftigungsart geschätzt' : ' zählen mit 0'}.</div>
+    ${printFooter()}</section>`;
 }
 
 /* ---------- Einstellungen ---------- */
