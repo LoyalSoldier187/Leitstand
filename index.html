@@ -390,6 +390,28 @@ details.md[open] summary{margin-bottom:14px}
 .est{font-size:10.5px;font-weight:600;color:var(--warn);background:rgba(251,191,36,.1);padding:1px 7px;border-radius:999px}
 @media (max-width:980px){.kt{table-layout:auto}}
 
+/* Aushang-Ansicht */
+.axwrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.axstage{background:#cfd6dc;border-radius:14px;padding:18px;overflow:hidden}
+.axscale{transform-origin:0 0}
+#axSheet{width:297mm;height:210mm;background:#fff;padding:10mm 11mm;box-sizing:border-box;box-shadow:0 10px 40px -10px rgba(0,0,0,.45);color:#1D2329}
+#axSheet .ax-n{cursor:grab;border-radius:1mm;transition:background .12s}
+#axSheet .ax-n:hover{background:#EEF3F5}
+#axSheet .ax-n.dragging{opacity:.3}
+#axSheet .ax-sh.over{outline:1.2mm solid #00819B;outline-offset:-.6mm}
+#axSheet .ax-sh.S.over{outline-color:#C2621F}
+.axpool{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:76px;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.axpool h3{margin:0 0 2px;font-size:15px}
+.axpool .note{margin-bottom:8px}
+.axpool.over{border-color:var(--muted);box-shadow:inset 0 0 0 1px var(--muted)}
+.axplist{overflow:auto;display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.axp{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;cursor:grab;user-select:none;-webkit-user-select:none;font-size:13px}
+.axp:hover{border-color:var(--line2)}
+.axp small{color:var(--dim);font-size:11px;white-space:nowrap}
+.axp.dragging{opacity:.3}
+.axghost{position:fixed;left:0;top:0;z-index:100;pointer-events:none;background:#fff;color:#1D2329;border:2px solid #00819B;border-radius:8px;padding:6px 12px;font:600 14px Barlow,Inter,sans-serif;box-shadow:0 14px 34px -8px rgba(0,0,0,.6);white-space:nowrap}
+@media (max-width:1100px){.axwrap{grid-template-columns:1fr}.axpool{position:static;max-height:420px}}
+
 /* ---------- Druck ---------- */
 #printArea{display:none}
 @media print{
@@ -571,6 +593,7 @@ details.md[open] summary{margin-bottom:14px}
 
   <nav class="tabs" id="tabs" role="tablist">
     <button class="tab on" data-view="Board" role="tab">Schicht-Board</button>
+    <button class="tab" data-view="Ax" role="tab">Aushang</button>
     <button class="tab" data-view="Cal" role="tab">Kalender</button>
     <button class="tab" data-view="Team" role="tab">Mitarbeiter <span class="n" id="teamN" style="background:rgba(255,255,255,.07);color:var(--muted)"></span></button>
     <button class="tab" data-view="Kpi" role="tab">KPI <span class="n hide" id="kpiBadge" style="background:rgba(251,191,36,.12);color:var(--warn)"></span></button>
@@ -608,6 +631,26 @@ details.md[open] summary{margin-bottom:14px}
       <div class="log" id="logList"></div>
     </section>
   </div>
+  </div>
+
+  <!-- Aushang -->
+  <div id="viewAx" class="view hide">
+    <div class="vhead">
+      <div><h2>Aushang KW <span id="axKw"></span></h2><div class="note">Namen per Drag &amp; Drop zwischen Früh, Spät und Pool verschieben · Klick auf einen Namen für Abwesenheit, Tausch und Bearbeiten · Woche oben mit ‹ › wechseln</div></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="note" style="margin:0">Verschieben gilt</span>
+        <div class="seg" id="axMode"><button data-m="once" class="on">nur diese Woche</button><button data-m="perm">dauerhaft</button></div>
+        <button class="btn primary" id="axPrint">🖨 Drucken</button>
+      </div>
+    </div>
+    <div class="axwrap">
+      <div class="axstage" id="axStage"><div class="axscale" id="axScale"><div id="axSheet"></div></div></div>
+      <aside class="axpool" id="axPool" data-axcol="N">
+        <h3>Nicht eingeplant</h3><div class="note" id="axPoolNote"></div>
+        <input class="inp" id="axQ" type="search" placeholder="Suchen …" style="padding:7px 10px">
+        <div class="axplist" id="axPList"></div>
+      </aside>
+    </div>
   </div>
 
   <!-- Kalender -->
@@ -1339,7 +1382,7 @@ function warnings(m = viewMonday){
 
 /* ---------- Render ---------- */
 let view = (() => { try { return localStorage.getItem('leitstand-view') || 'Board'; } catch (e) { return 'Board'; } })();
-const VIEWS = ['Board','Cal','Team','Kpi','Stats','Vol','Cap','Qual'];
+const VIEWS = ['Board','Ax','Cal','Team','Kpi','Stats','Vol','Cap','Qual'];
 let groupBy = (() => { try { const g = localStorage.getItem('leitstand-group'); return g === 'area' ? 'area' : 'art'; } catch (e) { return 'art'; } })();
 if (!VIEWS.includes(view)) view = 'Board';
 function setView(v){
@@ -1359,6 +1402,7 @@ function render(){
   if (view === 'Board') { safe(renderBoard, 'Board'); safe(renderRoles, 'Besetzung'); safe(renderLog, 'Protokoll'); }
   else if (view === 'Team') safe(renderTeam, 'Mitarbeiter');
   else if (view === 'Cal') safe(renderCal, 'Kalender');
+  else if (view === 'Ax') safe(renderAx, 'Aushang');
   else if (view === 'Vol') safe(renderVol, 'Volumen');
   else if (view === 'Kpi') safe(renderKpi, 'KPI');
   else if (view === 'Stats') safe(renderStats, 'Kennzahlen');
@@ -1698,21 +1742,21 @@ function sortForList(list, m){
 }
 const QABBR = { ersthelfer: ['EH', 'eh'], brandschutzhelfer: ['BS', 'bs'], staplerschein: ['ST', ''], sicherheitsbeauftragter: ['SB', ''] };
 const qAbbr = q => QABBR[q.toLowerCase()] || [q.replace(/[^A-Za-zÄÖÜäöü]/g, '').slice(0, 2).toUpperCase(), ''];
-function printWeek(){
+function printWeek(interactive = false){
   const m = viewMonday, st = S.settings, c = counts(m), a = aIsFrueh(m), end = addDays(m, 6);
   const hasArea = S.employees.some(e => e.area);
   const list = k => S.employees.filter(e => effShift(e, m) === k).sort((x, y) => (hasArea ? ((x.area ? areaOrder().indexOf(x.area) : 1e9) - (y.area ? areaOrder().indexOf(y.area) : 1e9)) : 0) || x.name.localeCompare(y.name, 'de'));
   const LF = list('F'), LS = list('S'), LX = list('X');
   const tot = LF.length + LS.length || 1;
-  let shF = Math.min(.72, Math.max(.32, LF.length / tot)); if (!LS.length) shF = 1; if (!LF.length) shF = 0;
+  let shF = Math.min(.72, Math.max(.32, LF.length / tot)); if (!interactive) { if (!LS.length) shF = 1; if (!LF.length) shF = 0; }
   const usable = 275 - 4, wmm = { F: usable * shF, S: usable * (1 - shF) };
   const nameRow = e => {
     const ab = absOf(e.id, m), sw = swapOf(e.id, m);
     const qs = Object.keys(e.quals || {}).map(q => { const [t, cls] = qAbbr(q); return `<i class="${cls}">${esc(t)}</i>`; }).join('');
-    return `<div class="ax-n${ab ? ' abs' : ''}"><span class="n">${esc(e.name)}${sw ? ' <span class="ax-sw">*</span>' : ''}</span>${ab ? `<span class="why">${ABS[ab]}</span>` : qs ? `<span class="ax-q">${qs}</span>` : ''}</div>`;
+    return `<div class="ax-n${ab ? ' abs' : ''}" data-eid="${e.id}" title="${esc(e.name)}${ab ? ' · ' + ABS[ab] : ''}${sw ? ' · nur diese Woche getauscht' : ''}"><span class="n">${esc(e.name)}${sw ? ' <span class="ax-sw">*</span>' : ''}</span>${ab ? `<span class="why">${ABS[ab]}</span>` : qs ? `<span class="ax-q">${qs}</span>` : ''}</div>`;
   };
   const block = k => {
-    const L = k === 'F' ? LF : LS; if (!L.length && k === 'S' && !LF.length) return '';
+    const L = k === 'F' ? LF : LS; if (!interactive && !L.length && k === 'S' && !LF.length) return '';
     if ((k === 'F' ? shF : 1 - shF) <= 0) return '';
     const cols = Math.max(1, Math.min(5, Math.floor(wmm[k] / 52) || 1));
     let html = '', lastG = null, groups = 0;
@@ -1722,8 +1766,8 @@ function printWeek(){
     const present = L.filter(e => !absOf(e.id, m)).length, absN = L.length - present;
     const grp = (k === 'F') === a ? 'A' : 'B';
     const qs = qualList().filter(q => !/sicherheit/i.test(q)).map(q => `${qAbbr(q)[0]} ${presentQual(q, k, m)}`).join(' · ');
-    return `<section class="ax-sh ${k}" style="flex:${(k === 'F' ? shF : 1 - shF).toFixed(3)} 1 0"><header><h2>${COL_NAME[k]}</h2><span>${esc(k === 'F' ? st.timesF : st.timesS)}<small>Gruppe ${grp}${absN ? ` · ${absN} abwesend` : ''}</small></span>${qs ? `<span class="ax-qs" style="flex-basis:100%">${qs}</span>` : ''}</header><div class="ax-band"></div>
-      <div class="ax-list" style="column-count:${cols};--fs:${fs.toFixed(1)}pt;--pd:${pad.toFixed(2)}mm">${html || '<div class="ax-empty">Niemand eingeteilt</div>'}</div></section>`;
+    return `<section class="ax-sh ${k}" data-axcol="${k}" style="flex:${(k === 'F' ? shF : 1 - shF).toFixed(3)} 1 0"><header><h2>${COL_NAME[k]}</h2><span>${esc(k === 'F' ? st.timesF : st.timesS)}<small>Gruppe ${grp}${absN ? ` · ${absN} abwesend` : ''}</small></span>${qs ? `<span class="ax-qs" style="flex-basis:100%">${qs}</span>` : ''}</header><div class="ax-band"></div>
+      <div class="ax-list" style="column-count:${cols};--fs:${fs.toFixed(1)}pt;--pd:${pad.toFixed(2)}mm">${html || `<div class="ax-empty">${interactive ? 'Namen hierher ziehen' : 'Niemand eingeteilt'}</div>`}</div></section>`;
   };
   const qUsed = [...new Set(S.employees.flatMap(e => Object.keys(e.quals || {})))].map(q => `${qAbbr(q)[0]} ${esc(q)}`);
   return `<section class="ppage ax">
@@ -2950,6 +2994,74 @@ $('#mdBox').addEventListener('click', ev => {
   }
 });
 ['#mdAreaNew'].forEach(sel => $(sel).addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); $(sel === '#mdAreaNew' ? '#mdAreaAdd' : '#mdRoleAdd').click(); } }));
+
+/* ---------- Aushang-Ansicht (bearbeitbar) ---------- */
+let axMode = 'once', axCssDone = false;
+function axCss(){
+  if (axCssDone) return; axCssDone = true;
+  let css = '';
+  for (const sh of document.styleSheets) {
+    let rules; try { rules = sh.cssRules; } catch (e) { continue; }
+    for (const r of rules) {
+      if (!r.media || ![...r.media].includes('print')) continue;
+      for (const ir of r.cssRules) {
+        if (ir.type !== 1) continue; const sel = ir.selectorText;
+        if (/^(html|body)\b/.test(sel) || sel.includes('#printArea')) continue;
+        css += sel.split(',').map(x => '#axSheet ' + x.trim()).join(',') + '{' + ir.style.cssText + '}\n';
+      }
+    }
+  }
+  const el = document.createElement('style'); el.textContent = css; document.head.appendChild(el);
+}
+function axFit(){
+  const st = $('#axStage'), sc = $('#axScale'), sh = $('#axSheet'); if (!st || !sh.offsetWidth) return;
+  const w = st.clientWidth - 36, f = Math.min(1.25, w / sh.offsetWidth);
+  sc.style.transform = `scale(${f})`; sc.style.width = sh.offsetWidth + 'px'; sc.style.height = (sh.offsetHeight * f) + 'px';
+}
+function renderAx(){
+  axCss();
+  $('#axKw').textContent = kw();
+  document.querySelectorAll('#axMode button').forEach(b => b.classList.toggle('on', b.dataset.m === axMode));
+  $('#axSheet').innerHTML = printWeek(true).replace(/^<section class="ppage ax">/, '<div class="ppage ax" style="page-break-after:auto">').replace(/<\/section>\s*$/, '</div>');
+  const q = $('#axQ').value.trim().toLowerCase();
+  const pool = S.employees.filter(e => effShift(e) === 'N');
+  const l = pool.filter(e => !q || (e.name + ' ' + e.art).toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  $('#axPoolNote').textContent = `${pool.length} Personen · in Früh oder Spät ziehen`;
+  $('#axPList').innerHTML = l.map(e => `<div class="axp" data-eid="${e.id}"><span>${esc(e.name)}</span><small>${esc(e.art)}${e.kpi != null ? ' · ' + fmtN(e.kpi) : ''}</small></div>`).join('') || '<div class="note">Niemand im Pool.</div>';
+  requestAnimationFrame(axFit);
+}
+window.addEventListener('resize', () => { if (view === 'Ax') axFit(); });
+$('#axMode').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { axMode = b.dataset.m; renderAx(); } });
+$('#axQ').addEventListener('input', renderAx);
+$('#axPrint').onclick = () => doPrint(printWeek());
+let axDrag = null;
+['#axSheet', '#axPList'].forEach(sel => $(sel).addEventListener('pointerdown', ev => {
+  const it = ev.target.closest('[data-eid]'); if (!it || ev.button > 0) return;
+  ev.preventDefault();
+  axDrag = { id: it.dataset.eid, el: it, sx: ev.clientX, sy: ev.clientY, started: false, over: null, ghost: null };
+}));
+window.addEventListener('pointermove', ev => {
+  if (!axDrag) return;
+  if (!axDrag.started) {
+    if (Math.hypot(ev.clientX - axDrag.sx, ev.clientY - axDrag.sy) < 6) return;
+    axDrag.started = true; closeMenu();
+    const g = document.createElement('div'); g.className = 'axghost'; g.textContent = byId(axDrag.id)?.name || '';
+    document.body.appendChild(g); axDrag.ghost = g; axDrag.el.classList.add('dragging'); document.body.classList.add('dragmode');
+  }
+  axDrag.ghost.style.transform = `translate(${ev.clientX + 12}px,${ev.clientY + 8}px)`;
+  axDrag.y = ev.clientY; if (!axDrag.raf) { const tick = () => { if (!axDrag || !axDrag.started) return; const y = axDrag.y, m = 70; if (y < m + 62) window.scrollBy(0, -Math.ceil((m + 62 - y) / 5)); else if (y > innerHeight - m) window.scrollBy(0, Math.ceil((y - innerHeight + m) / 5)); axDrag.raf = requestAnimationFrame(tick); }; axDrag.raf = requestAnimationFrame(tick); }
+  const t = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-axcol]');
+  if (t !== axDrag.over) { axDrag.over?.classList.remove('over'); t?.classList.add('over'); axDrag.over = t; }
+});
+window.addEventListener('pointerup', ev => {
+  if (!axDrag) return;
+  const d = axDrag; axDrag = null; if (d.raf) cancelAnimationFrame(d.raf);
+  if (!d.started) { if (d.el.closest('#axSheet')) openMenu(d.id, d.el); return; }
+  d.ghost.remove(); d.el.classList.remove('dragging'); document.body.classList.remove('dragmode'); d.over?.classList.remove('over');
+  if (!d.over) return;
+  const col = d.over.dataset.axcol, e = byId(d.id); if (!e || effShift(e) === col) return;
+  moveTo(d.id, col, axMode === 'once');
+});
 
 /* ---------- Schichtkalender ---------- */
 let calTool = 'info', calPaint = null, calMenuM = null;
