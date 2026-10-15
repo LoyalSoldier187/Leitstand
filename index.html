@@ -640,6 +640,7 @@ details.md[open] summary{margin-bottom:14px}
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <span class="note" style="margin:0">Verschieben gilt</span>
         <div class="seg" id="axMode"><button data-m="once" class="on">nur diese Woche</button><button data-m="perm">dauerhaft</button></div>
+        <button class="btn danger" id="axClear">Plan leeren</button>
         <button class="btn primary" id="axPrint">🖨 Drucken</button>
       </div>
     </div>
@@ -1177,6 +1178,15 @@ const SEED = {"v": 2, "employees": [{"id": "mb001", "name": "Christou, Athanasio
   S.settings.sollF = 36; S.settings.sollS = 9;
   S.patches.push(ID);
   S.log.push({ t: Date.now(), m: 'Neuplanung 80/20: 36 Früh / 9 Spät (Festangestellte, Litauer, Teilzeit) · Minijobber und Azubi nicht eingeplant · Einmal-Tausche zurückgesetzt' });
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+})();
+
+/* ---------- Plan leeren (einmalig) ---------- */
+(function applyClear(){
+  const ID = 'clear-2026-10-15'; S.patches = Array.isArray(S.patches) ? S.patches : [];
+  if (S.patches.includes(ID)) return;
+  let n = 0; S.employees.forEach(e => { if (e.z !== 'X' && e.z !== 'N') { e.z = 'N'; n++; } }); S.swaps = {};
+  S.patches.push(ID); S.log.push({ t: Date.now(), m: `Plan geleert: ${n} Mitarbeiter in den Pool verschoben` });
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
 })();
 
@@ -1748,7 +1758,7 @@ function printWeek(interactive = false){
   const list = k => S.employees.filter(e => effShift(e, m) === k).sort((x, y) => (hasArea ? ((x.area ? areaOrder().indexOf(x.area) : 1e9) - (y.area ? areaOrder().indexOf(y.area) : 1e9)) : 0) || x.name.localeCompare(y.name, 'de'));
   const LF = list('F'), LS = list('S'), LX = list('X');
   const tot = LF.length + LS.length || 1;
-  let shF = Math.min(.72, Math.max(.32, LF.length / tot)); if (!interactive) { if (!LS.length) shF = 1; if (!LF.length) shF = 0; }
+  let shF = (LF.length + LS.length) ? Math.min(.72, Math.max(.32, LF.length / tot)) : .55; if (!interactive) { if (!LS.length) shF = 1; if (!LF.length) shF = 0; }
   const usable = 275 - 4, wmm = { F: usable * shF, S: usable * (1 - shF) };
   const nameRow = e => {
     const ab = absOf(e.id, m), sw = swapOf(e.id, m);
@@ -3034,6 +3044,14 @@ window.addEventListener('resize', () => { if (view === 'Ax') axFit(); });
 $('#axMode').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { axMode = b.dataset.m; renderAx(); } });
 $('#axQ').addEventListener('input', renderAx);
 $('#axPrint').onclick = () => doPrint(printWeek());
+$('#axClear').onclick = () => {
+  const n = S.employees.filter(e => e.z !== 'N' && e.z !== 'X').length;
+  if (!n && !Object.keys(S.swaps).length) return toast('Der Plan ist bereits leer', false);
+  if (!confirm(`Alle ${n} eingeplanten Mitarbeiter in den Pool „Nicht eingeplant“ verschieben und alle Einmal-Tausche löschen?\n\nTagdienst bleibt. Abwesenheiten bleiben erhalten. Rückgängig mit Strg+Z.`)) return;
+  const sw = Object.values(S.swaps).reduce((x, w) => x + Object.keys(w).length, 0);
+  snap(); S.employees.forEach(e => { if (e.z !== 'X') e.z = 'N'; }); S.swaps = {};
+  commit(`Plan geleert: ${n} Mitarbeiter in den Pool${sw ? `, ${sw} Einmal-Tausch${sw > 1 ? 'e' : ''} gelöscht` : ''}`);
+};
 let axDrag = null;
 ['#axSheet', '#axPList'].forEach(sel => $(sel).addEventListener('pointerdown', ev => {
   const it = ev.target.closest('[data-eid]'); if (!it || ev.button > 0) return;
